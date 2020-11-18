@@ -1,0 +1,39 @@
+{
+  "name": "evercity-dapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production",
+    "test": "jest",
+    "lint": "eslint --cache --format codeframe --ext mjs,jsx,js src test"
+  },
+  "dependencies": {
+    "@polkadot/api": "^2.3.1",
+    "@polkadot/extension-dapp": "^0.34.1",
+    "antd": "^4.6.3",
+    "classnames": "^2.2.6",
+    "js-cookie": "^2.2.1",
+    "neutrino-middleware-less-loader": "^6.0.3",
+    "prop-types": "^15",
+    "react": "^16",
+    "react-dom": "^16",
+    "react-hot-loader": "^4",
+    "react-i18next": "^11.7.2",
+    "unchanged": "^2.2.1",
+    "wouter": "^2.5.1"
+  },
+  "devDependencies": {
+    "@neutrinojs/airbnb": "^9.4.0",
+    "@neutrinojs/font-loader": "^9.4.0",
+    "@neutrinojs/jest": "^9.4.0",
+    "@neutrinojs/react": "^9.4.0",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "eslint": "^7",
+    "jest": "^26",
+    "neutrino": "^9.4.0",
+    "webpack": "^4",
+    "webpack-cli": "^3",
+    "webpack-dev-server": "^3"
+  }
+}

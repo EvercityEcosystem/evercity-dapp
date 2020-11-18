@@ -1,0 +1,52 @@
+@import '../theme.less';
+
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.trigger:hover {
+  color: #1890ff;
+}
+
+.content {
+  background: #fff;
+  margin: 16px 8px;
+  padding: 36px;
+  min-height: 82vh;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.headerContent {
+  display: flex;
+}
+
+.logo {
+  cursor: pointer;
+  width: 200px;
+}
+
+.logoWrapper {
+  flex: 1;
+  padding-left: 50px;
+  background-color: @dark-theme-logo;
+}
+
+.navWrapper {
+  flex: 1;
+  justify-content: flex-end;
+  display: flex;
+  padding-right: 50px;
+  background-color: @menu-dark-bg;
+}
+
+.header {
+  padding: 0;
+}

@@ -1,0 +1,40 @@
+@import '~antd/lib/style/themes/default.less';
+@import '~antd/dist/antd.less'; // Import Ant Design styles by less entry
+@import 'theme.less'; // variables to override above
+
+.ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background-color: #1f10b3;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap');
+
+html {
+  width:100vw;
+  overflow-x:hidden;
+}
+
+#root {
+  height: 100%;
+  background-color: #eff2f5;
+  font-family: Montserrat;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f0f3f5;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: @primary-color;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

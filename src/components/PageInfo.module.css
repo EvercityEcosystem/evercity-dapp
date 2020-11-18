@@ -1,0 +1,17 @@
+.root {
+  background: #fff;
+  padding: 0;
+  padding-bottom: 40px;
+}
+
+.img {
+  border: 1px solid #1F10B3;
+}
+
+.img img {
+  padding: 10px;
+}
+
+.root :global(.ant-page-header) {
+  padding: 0 !important;
+}
