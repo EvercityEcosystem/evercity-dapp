@@ -80,11 +80,13 @@ const CustodianTokens = ({ params }) => {
         .tx
         .evercity[action](...args)
         .signAndSend(currentUserAddress, { signer: injector.signer }, ({ status, events }) => {
-          setTransactionSending(false);
+          if (status.isInBlock) {
+            message.success('Transaction in block');
+          }
 
           if (status.isFinalized) {
-            message.success('Block was finalized successfully');
-            // setTransactionSending(false);
+            message.success('Block finalized');
+            setTransactionSending(false);
           }
         });
     } catch (error) {
