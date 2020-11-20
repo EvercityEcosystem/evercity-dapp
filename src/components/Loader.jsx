@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 import { Spin } from 'antd';
 
-const Loader = ({ spinning, tip, children, style }) => (
+const Loader = ({
+  spinning, tip, children, style,
+}) => (
   <Spin
     spinning={spinning}
     tip={tip}
@@ -22,13 +24,13 @@ Loader.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.arrayOf(PropTypes.element),
   ]).isRequired,
-  style: PropTypes.object
+  style: PropTypes.shape(),
 };
 
 Loader.defaultProps = {
   spinning: false,
   tip: undefined,
-  style: {}
+  style: {},
 };
 
 export default Loader;

@@ -1,11 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect } from 'react';
+import useLocation from 'wouter/use-location';
 
 import { forgetCurrentUser } from '../utils/cookies';
 
 const Logout = () => {
+  const [, setLocation] = useLocation();
+
   useEffect(() => {
-    forgetCurrentUser()
-  }, [forgetCurrentUser]);
+    forgetCurrentUser();
+    setLocation('/login');
+  }, [setLocation]);
 
   return null;
 };

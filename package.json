@@ -24,6 +24,7 @@
     "wouter": "^2.5.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.12.1",
     "@neutrinojs/airbnb": "^9.4.0",
     "@neutrinojs/font-loader": "^9.4.0",
     "@neutrinojs/jest": "^9.4.0",

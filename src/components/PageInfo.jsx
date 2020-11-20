@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Row, Col, PageHeader, Avatar } from 'antd';
+import {
+  Row, Col, PageHeader, Avatar,
+} from 'antd';
 
 import s from './PageInfo.module.css';
 
-const PageInfo = ({ imgSrc, imgStyle, title, description, justify }) => (
+const PageInfo = ({
+  imgSrc, imgStyle, title, description, justify,
+}) => (
   <Row className={s.root} type="flex" justify={justify} align="middle">
     {imgSrc && (
       <Col>
@@ -23,7 +27,7 @@ const PageInfo = ({ imgSrc, imgStyle, title, description, justify }) => (
 PageInfo.propTypes = {
   title: PropTypes.string.isRequired,
   imgSrc: PropTypes.string,
-  imgStyle: PropTypes.object,
+  imgStyle: PropTypes.shape(),
   description: PropTypes.element,
   justify: PropTypes.string,
 };

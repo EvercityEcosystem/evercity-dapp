@@ -14,7 +14,7 @@ const useDebounce = (callback, delay) => {
 
   useEffect(
     () => () => { isComponentUnmounted.current = true; },
-    []
+    [],
   );
 
   const debouncedCallback = useCallback(
@@ -29,10 +29,10 @@ const useDebounce = (callback, delay) => {
         }
       }, delay);
     },
-    [delay, cancelDebouncedCallback]
+    [delay, cancelDebouncedCallback],
   );
 
   return [debouncedCallback, cancelDebouncedCallback];
-}
+};
 
 export default useDebounce;

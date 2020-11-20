@@ -4,7 +4,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 
 import {
-  Router, Route, Switch, Redirect
+  Router, Route, Switch, Redirect,
 } from 'wouter';
 
 import './App.less';
@@ -15,15 +15,18 @@ import ErrorFound from './components/ErrorFound';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Roles from './pages/Roles';
-import Tasks from './pages/Tasks';
-import IssuerBonds from './pages/IssuerBonds';
-import ImpactManagement from './pages/ImpactManagement';
-import InvestorBonds from './pages/InvestorBonds';
-import InvestorOrders from './pages/InvestorOrders';
-import InvestorReport from './pages/InvestorReport';
-import TokenManagement from './pages/TokenManagement';
+import Tokens from './pages/Tokens';
+// import Tasks from './pages/Tasks';
+// import IssuerBonds from './pages/IssuerBonds';
+// import ImpactManagement from './pages/ImpactManagement';
+// import InvestorBonds from './pages/InvestorBonds';
+// import InvestorOrders from './pages/InvestorOrders';
+// import InvestorReport from './pages/InvestorReport';
+import CustodianRequests from './pages/CustodianRequests';
+import CustodianTokens from './pages/CustodianTokens';
+import Profile from './pages/Profile';
 
-import { useCheckAuth, useCheckRole } from './utils/checks';
+import { checkAuth, checkRole } from './utils/checks';
 
 const App = () => (
   <Router>
@@ -32,39 +35,39 @@ const App = () => (
         <Route path="/login" component={Login} />
 
         <Route path="/dapp/:rest*">
-          <Router hook={useCheckAuth}>
+          <Router hook={checkAuth}>
             <Switch>
               <Route path="/dapp/profile" component={Profile} />
+              <Route path="/dapp/logout" component={Logout} />
 
               <Route path="/dapp/master/:rest*">
-                <Router hook={() => useCheckRole('master')}>
+                <Router hook={() => checkRole('master')}>
                   <Route path="/dapp/master/roles" component={Roles} />
-                  <Route path="/dapp/master/tasks" component={Tasks} />
+                  {/* <Route path="/dapp/master/tasks" component={Tasks} /> */}
                 </Router>
               </Route>
 
               <Route path="/dapp/issuer/:rest*">
-                <Router hook={() => useCheckRole('issuer')}>
-                  <Route path="/dapp/issuer/bonds" component={IssuerBonds} />
-                  <Route path="/dapp/issuer/impact" component={ImpactManagement} />
+                <Router hook={() => checkRole('issuer')}>
+                  <Route path="/dapp/issuer/tokens/:actionType?" component={Tokens} />
+                  {/* <Route path="/dapp/issuer/impact" component={ImpactManagement} /> */}
                 </Router>
               </Route>
 
               <Route path="/dapp/investor/:rest*">
-                <Router hook={() => useCheckRole('investor')}>
-                  <Route path="/dapp/investor/bonds" component={InvestorBonds} />
-                  <Route path="/dapp/investor/orders" component={InvestorOrders} />
-                  <Route path="/dapp/investor/report" component={InvestorReport} />
+                <Router hook={() => checkRole('investor')}>
+                  <Route path="/dapp/investor/tokens/:actionType?" component={Tokens} />
+                  {/* <Route path="/dapp/investor/orders" component={InvestorOrders} />
+                  <Route path="/dapp/investor/report" component={InvestorReport} /> */}
                 </Router>
               </Route>
 
               <Route path="/dapp/custodian/:rest*">
-                <Router hook={() => useCheckRole('custodian')}>
-                  <Route path="/dapp/custodian" component={TokenManagement} />
+                <Router hook={() => checkRole('custodian')}>
+                  <Route path="/dapp/custodian/requests" component={CustodianRequests} />
+                  <Route path="/dapp/custodian/tokens/:actionType?" component={CustodianTokens} />
                 </Router>
               </Route>
-
-              <Route path="/d/logout" component={Logout} />
             </Switch>
           </Router>
         </Route>
@@ -74,7 +77,7 @@ const App = () => (
       </Switch>
     </Layout>
   </Router>
-  );
+);
 
 App.propTypes = {};
 

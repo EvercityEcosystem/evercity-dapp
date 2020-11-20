@@ -1,21 +1,26 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable no-console */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Divider, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
-import { SUBSTRATE_ROLES } from '../utils/env';
+import Loader from '../components/Loader';
+
+import { SUBSTRATE_ROLES } from '../utils/roles';
+import { getCurrentUser } from '../utils/cookies';
 import { api, injector } from '../utils/polkadot';
 
 import styles from './Roles.module.less';
-import Loader from '../components/Loader';
 
 const Roles = () => {
   const { t } = useTranslation();
+  const [transactionSending, setTransactionSending] = useState(false);
 
   const formConfig = {
-    'action': {
-      label: t('Role'),
+    action: {
+      label: t('Action'),
       required: true,
       display: 'select',
       span: 24,
@@ -24,53 +29,47 @@ const Roles = () => {
       values: [
         { 'Add new account': 'accountAddWithRoleAndData' },
         { 'Change role for existing account': 'accountSetWithRoleAndData' }
-      ]
+      ],
     },
-    'role': {
+    address: {
+      label: t('Address'),
+      required: true,
+      type: 'string',
+      span: 24,
+    },
+    role: {
       label: t('Role'),
       required: true,
       display: 'select',
       span: 24,
       allowClear: false,
       showSearch: true,
-      values: [
-        { 'Master': 'master' },
-        { 'Auditor': 'auditor' },
-        { 'Custodian': 'custodian' },
-        { 'Issuer': 'issuer' },
-        { 'Investor': 'investor' },
-        { 'Manager': 'manager' }
-      ]
-    },
-    'address': {
-      label: t('Email'),
-      disabled: true,
-      type: 'string',
-      span: 24,
+      values: Object.entries(SUBSTRATE_ROLES).map(([key, value]) => ({ [value]: key })),
     },
   };
 
-  const handleSubmit = async values => {
+  const handleSubmit = async (values) => {
+    const { address: currentUserAddress } = getCurrentUser();
     const { action, role, address } = values;
-
-    if (!address) {
-      message.error('Can\'t assign a role without connected Polkadot account');
-      return;
-    }
-
-    const substrateRole = SUBSTRATE_ROLES.find(item => item.name === role);
     const identity = Math.floor(Math.random() * 50);
 
     try {
+      setTransactionSending(true);
       await api
         .tx
-        .evercity
-        [action](address, substrateRole.mask, identity)
-        .signAndSend(adminUserBlockchainId, { signer: injector.signer });
+        .evercity[action](address, role, identity)
+        .signAndSend(currentUserAddress, { signer: injector.signer }, ({ status, events }) => {
+          setTransactionSending(false);
+
+          if (status.isFinalized) {
+            message.success('Block was finalized successfully');
+            // setTransactionSending(false);
+          }
+        });
     } catch (error) {
+      setTransactionSending(false);
       console.error(error);
       message.error('Signing and sending transaction process failed');
-      return false;
     }
   };
 
@@ -80,19 +79,19 @@ const Roles = () => {
   };
 
   return (
-    <Loader spinning={currentData.fetching}>
-      <div className={styles.formContainer}>
-        <Divider>Accounts</Divider>
+    <div className={styles.formContainer}>
+      <Divider>Accounts</Divider>
+      <Loader spinning={transactionSending}>
         <SimpleForm
           config={formConfig}
           style={{ width: '100%' }}
           onSubmit={handleSubmit}
+          submitText={t('Submit')}
           labelAlign="left"
           {...layout}
-        >
-        </SimpleForm>
-      </div>
-    </Loader>
+        />
+      </Loader>
+    </div>
   );
 };
 

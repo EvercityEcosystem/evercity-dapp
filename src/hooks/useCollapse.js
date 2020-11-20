@@ -8,38 +8,44 @@ export default (activePanelKey = []) => {
     activePanelKey,
   });
 
-  useEffect(() => {
-    if (activePanelKey.length) {
-      updateState({ activePanelKey });
-    }
-  },
-  [activePanelKey, updateState]
+  useEffect(
+    () => {
+      if (activePanelKey.length) {
+        updateState({ activePanelKey });
+      }
+    },
+    [activePanelKey, updateState],
   );
 
-  const getSectionIndex = useCallback(key => state.activePanelKey.indexOf(key), [state.activePanelKey]);
-
-  const setActiveKeys = useCallback(keys => {
-    const uniqKeys = [...new Set(keys)];
-    updateState({ activePanelKey: uniqKeys });
-  },
-  [updateState]
+  const getSectionIndex = useCallback(
+    (key) => state.activePanelKey.indexOf(key),
+    [state.activePanelKey],
   );
 
-  const onToggleSection = useCallback(key => {
-    let keys = [];
+  const setActiveKeys = useCallback(
+    (keys) => {
+      const uniqKeys = [...new Set(keys)];
+      updateState({ activePanelKey: uniqKeys });
+    },
+    [updateState],
+  );
 
-    const strKey = key.toString();
-    const pos = getSectionIndex(strKey);
+  const onToggleSection = useCallback(
+    (key) => {
+      let keys = [];
 
-    if (pos === -1) {
-      keys = add(null, strKey, state.activePanelKey);
-    } else {
-      keys = remove(pos, state.activePanelKey);
-    }
+      const strKey = key.toString();
+      const pos = getSectionIndex(strKey);
 
-    setActiveKeys(keys);
-  },
-  [getSectionIndex, setActiveKeys, state.activePanelKey]
+      if (pos === -1) {
+        keys = add(null, strKey, state.activePanelKey);
+      } else {
+        keys = remove(pos, state.activePanelKey);
+      }
+
+      setActiveKeys(keys);
+    },
+    [getSectionIndex, setActiveKeys, state.activePanelKey],
   );
 
   return {

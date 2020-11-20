@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -38,21 +39,18 @@ const MenuView = (props) => {
 
     return (
       <Menu.Item key={node.key || node.title} icon={node.icon}>
-        {node.badgeCount ?
-          (
+        {node.badgeCount
+          ? (
             <Badge count={node.badgeCount} offset={[8, 0]} size="small">
               {getLink(node)}
             </Badge>
           )
-        :
-          getLink(node)
-        }
-        
+          : getLink(node)}
       </Menu.Item>
     );
   };
 
-  const activeNodes = nodes.filter(n => n.active === true).map(n => n.key || n.title);
+  const activeNodes = nodes.filter((n) => n.active === true).map((n) => n.key || n.title);
 
   return (
     <Menu
@@ -61,15 +59,15 @@ const MenuView = (props) => {
     >
       {nodes.map(renderNode)}
     </Menu>
-  )
+  );
 };
 
 MenuView.propTypes = {
-  nodes: PropTypes.array.isRequired,
+  nodes: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   className: PropTypes.string,
-  style: PropTypes.object,
+  style: PropTypes.shape(),
   mode: PropTypes.string,
-}
+};
 
 MenuView.defaultProps = {
   className: null,

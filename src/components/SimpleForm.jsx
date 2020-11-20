@@ -1,8 +1,12 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { get, getOr } from 'unchanged';
 
-import { Button, Row, Form, Tabs, Collapse } from 'antd';
+import {
+  Button, Row, Form, Tabs, Collapse, message,
+} from 'antd';
 
 import {
   CaretRightOutlined,
@@ -45,12 +49,24 @@ const SimpleForm = (props) => {
   } = props;
 
   const cls = cx({
-    [s.formItem] : true,
+    [s.formItem]: true,
     ...itemClassName,
   });
 
   const { state: collapseState, onToggleSection } = useCollapse(collapseActiveKeys);
-  const [formItems, { sectionsIndex, getFormItem }] = useFormItems({ form, initialValues, config, size, itemClassName: cls });
+  const [
+    formItems,
+    {
+      sectionsIndex,
+      getFormItem,
+    },
+  ] = useFormItems({
+    form,
+    initialValues,
+    config,
+    size,
+    itemClassName: cls,
+  });
 
   const formContent = useMemo(() => {
     let items = formItems;
@@ -106,7 +122,7 @@ const SimpleForm = (props) => {
 
             return (
               <TabPane
-                tab={tab} 
+                tab={tab}
                 key={key}
               >
                 {res}
@@ -119,34 +135,36 @@ const SimpleForm = (props) => {
 
     return items;
   },
-  [collapseState.activePanelKey, formItems, getFormItem, onToggleSection, sectionsIndex, tabsConfig]
-  );
+  [collapseState, formItems, getFormItem, onToggleSection, sectionsIndex, tabsConfig]);
 
   useEffect(() => {
     form.setFieldsValue(initialValues);
-  }, [initialValues]);
+  }, [form, initialValues]);
 
   const onFormSubmit = async (e) => {
+    e.preventDefault();
+
     try {
       const values = await form.validateFields();
       return onSubmit(values);
     } catch (err) {
-      console.error('Error: ', err);
-      return;
+      message.error('Fields validation error: ', err);
+      return null;
     }
-
-    e.preventDefault();
   };
 
   return (
     <Row gutter={24}>
-      <Form 
+      <Form
         form={form}
         {...restProps}
       >
         {formContent}
         {submitText && (
-          <div style={{ display: 'flex', width: '100%', paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5 }}>
+          <div style={{
+            display: 'flex', width: '100%', paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5,
+          }}
+          >
             <Button loading={loading} onClick={onFormSubmit} disabled={disabled} type="primary" ghost={ghost} style={{ width: '100%' }} htmlType="submit" block>
               {submitIcon}
               {submitText}
@@ -162,17 +180,17 @@ const SimpleForm = (props) => {
 SimpleForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   loading: PropTypes.bool,
-  initialValues: PropTypes.object,
-  config: PropTypes.object,
-  style: PropTypes.object,
+  initialValues: PropTypes.shape(),
+  config: PropTypes.shape(),
+  style: PropTypes.shape(),
   size: PropTypes.string,
   submitIcon: PropTypes.element,
   submitText: PropTypes.string,
   disabled: PropTypes.bool,
   children: PropTypes.func,
-  itemClassName: PropTypes.object,
-  collapseActiveKeys: PropTypes.array,
-  tabsConfig: PropTypes.object,
+  itemClassName: PropTypes.shape(),
+  collapseActiveKeys: PropTypes.arrayOf(PropTypes.string),
+  tabsConfig: PropTypes.shape(),
   ghost: PropTypes.bool,
 };
 

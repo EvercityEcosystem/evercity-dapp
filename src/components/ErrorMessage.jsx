@@ -15,7 +15,7 @@ const ErrorMessage = ({ style, type, text }) => {
   }
 
   return (
-    <Alert 
+    <Alert
       style={{ marginBottom: 20, whiteSpace: 'pre-wrap', ...style }}
       message={message}
       type={type}
@@ -24,9 +24,9 @@ const ErrorMessage = ({ style, type, text }) => {
 };
 
 ErrorMessage.propTypes = {
-  style: PropTypes.object,
+  style: PropTypes.shape(),
   type: PropTypes.string,
-  text: PropTypes.any,
+  text: PropTypes.oneOf([PropTypes.string, PropTypes.shape()]),
 };
 
 ErrorMessage.defaultProps = {

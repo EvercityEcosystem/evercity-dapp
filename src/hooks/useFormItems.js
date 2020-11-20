@@ -1,7 +1,12 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable import/no-extraneous-dependencies */
 import React, { useCallback, useMemo } from 'react';
 import { set, get } from 'unchanged';
 
-import { Col, Form, Input, Checkbox, Upload, message, Select, Button, Divider, Tooltip } from 'antd';
+import {
+  Col, Form, Input, Checkbox, Upload, message, Select, Button, Divider, Tooltip,
+} from 'antd';
 
 import {
   InfoCircleOutlined,
@@ -18,9 +23,11 @@ const noop = () => { };
 const DEFAULT_INPUT_SIZE = 'default';
 const DEFAULT_MODE = 'create';
 
-export const getOptionValue = obj => Object.values(obj).join('_');
+export const getOptionValue = (obj) => Object.values(obj).join('_');
 
-export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemClassName, mode = DEFAULT_MODE }) => {
+export default ({
+  form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemClassName, mode = DEFAULT_MODE,
+}) => {
   const [state, updateState] = useXState({});
 
   const sectionsIndex = useMemo(
@@ -35,7 +42,7 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
 
       return sections;
     },
-    [config]
+    [config],
   );
 
   const parseFile = useCallback((file, callback) => {
@@ -58,7 +65,7 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
 
   const getInput = useCallback((value, key) => {
     let { disabled } = value;
-    
+
     if (mode === 'update' && value.updateable === false) {
       disabled = true;
     }
@@ -121,14 +128,29 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
               const optionValue = get('0', Object.keys(obj));
               const optionTitle = get('0', Object.values(obj));
 
-              return <Option key={optionValue} value={optionValue} label={optionValue} title={optionTitle}>{optionTitle}</Option>;
+              return (
+                <Option
+                  key={optionValue}
+                  value={optionValue}
+                  label={optionValue}
+                  title={optionTitle}
+                >
+                  {optionTitle}
+                </Option>
+              );
             }
 
             const optionValue = (getOptionValue(obj) || '').toString();
             const optionTitle = Object.keys(obj).join('_');
 
             return (
-              <Option key={optionValue} value={optionValue} title={optionTitle}>{optionTitle}</Option>
+              <Option
+                key={optionValue}
+                value={optionValue}
+                title={optionTitle}
+              >
+                {optionTitle}
+              </Option>
             );
           })}
         </Select>
@@ -196,8 +218,8 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
     );
   }, [parseFile, size, mode]);
 
-  const getButton = useCallback((value, key) => {
-    return (
+  const getButton = useCallback(
+    (value, key) => (
       <Col key={key} span={value.span || 12}>
         <Button
           size={value.size || size}
@@ -207,13 +229,14 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
           shape={value.shape}
         />
       </Col>
-    );
-  }, [size]);
+    ),
+    [size],
+  );
 
   const getFormItem = useCallback((key, value) => {
     let initialValue = get(key, initialValues);
 
-    if (typeof(initialValue) === 'undefined') {
+    if (typeof (initialValue) === 'undefined') {
       initialValue = value.default;
     }
 
@@ -250,7 +273,7 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
           required={value.required || false}
           hasFeedback={state[`hasFeedback.${key}`] || false}
           initialValue={initialValue}
-          valuePropName={value.display === 'checkbox' && 'checked' || 'value'}
+          valuePropName={(value.display === 'checkbox' && 'checked') || 'value'}
           rules={rules}
           shouldUpdate
         >
@@ -258,12 +281,20 @@ export default ({ form, initialValues, config, size = DEFAULT_INPUT_SIZE, itemCl
         </Form.Item>
       </Col>
     );
-  }, [initialValues, itemClassName, state, form, getInput, getButton]);
+  }, [initialValues, itemClassName, state, getInput, getButton]);
 
   const formItems = useMemo(
-    () => Object.entries(config || {}).filter(([_, value]) => value).map(([key, value]) => getFormItem(key, value)),
-    [config, getFormItem]
+    () => Object
+      .entries(config || {})
+      .filter(([, value]) => value)
+      .map(([key, value]) => getFormItem(key, value)),
+    [config, getFormItem],
   );
 
-  return [formItems, { sectionsIndex, parseFile, getInput, getFormItem }];
+  return [
+    formItems,
+    {
+      sectionsIndex, parseFile, getInput, getFormItem,
+    },
+  ];
 };

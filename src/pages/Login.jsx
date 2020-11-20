@@ -1,29 +1,32 @@
 import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useLocation from 'wouter/use-location';
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import { web3Accounts } from '@polkadot/extension-dapp';
 
 import SimpleForm from '../components/SimpleForm';
+import Loader from '../components/Loader';
 
 import useXState from '../hooks/useXState';
 
 import { saveCurrentUser } from '../utils/cookies';
-import { EXTENSION_URL, EXTENSION_NAME } from '../utils/env';
+import { EXTENSION_URL } from '../utils/env';
+import { accountRegistry, injector } from '../utils/polkadot';
 
 import styles from './Login.module.less';
 
-const ExtensionProvider = props => {
+const Login = () => {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const [state, updateState] = useXState({
-    extension: null,
-    accounts: null
+    accounts: [],
+    roles: [],
+    address: null
   });
 
-  const formConfig = {
-    'address': {
+  const accountsFormConfig = {
+    address: {
       label: t('Choose polkadot account'),
       required: true,
       display: 'select',
@@ -36,26 +39,47 @@ const ExtensionProvider = props => {
     },
   };
 
-  const checkExtension = useCallback(async () => {
-    const allInjected = await web3Enable('Evercity Platform');
-    if (allInjected.length) {
-      const polkadotExtension = allInjected.find(ext => ext.name === EXTENSION_NAME);
-      updateState({ extension: polkadotExtension });
-    }
+  const rolesFormConfig = {
+    role: {
+      label: t('Choose role'),
+      required: true,
+      display: 'select',
+      span: 24,
+      allowClear: false,
+      showSearch: true,
+      values: state?.roles?.map(role => ({
+        [role]: role
+      }))
+    },
+  };
 
+  const checkExtension = useCallback(async () => {
     const allAccounts = await web3Accounts();
     if (allAccounts.length) {
       updateState({ accounts: allAccounts });
     }
   }, [updateState]);
 
-  const handleSubmit = values => {
+  const handleAccountSubmit = async (values) => {
     const { address } = values;
+    const { roles } = await accountRegistry(address);
 
-    // TODO get account registry here
+    if (roles.length === 1) {
+      saveCurrentUser(address, roles[0]);
+      setLocation('/dapp/profile');
+      return null;
+    }
 
-    saveCurrentUser(address);
-  }
+    updateState({ roles, address });
+  };
+
+  const handleRoleSubmit = async (values) => {
+    const { role } = values;
+    const { address } = state;
+
+    saveCurrentUser(address, role);
+    setLocation('/dapp/profile');
+  };
 
   useEffect(() => {
     checkExtension();
@@ -74,15 +98,21 @@ const ExtensionProvider = props => {
     </div>
   );
 
-  if (state?.extension) {
+  if (injector) {
     let submitText = t('Refresh Accounts');
     let submitFunc = checkExtension;
     let config = {};
 
     if (state?.accounts?.length) {
-      config = formConfig;
-      submitFunc = handleSubmit;
-      submitText = t('Next');
+      config = accountsFormConfig;
+      submitFunc = handleAccountSubmit;
+      submitText = t('Login');
+    }
+
+    if (state?.roles?.length) {
+      config = rolesFormConfig;
+      submitFunc = handleRoleSubmit;
+      submitText = t('Select Role');
     }
 
     block = (
@@ -96,21 +126,24 @@ const ExtensionProvider = props => {
     );
   }
 
+  const injectorDetection = typeof (injector) === 'undefined';
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        {block}
+        <Loader spinning={injectorDetection}>
+          {block}
+        </Loader>
       </div>
     </div>
   );
 };
 
-ExtensionProvider.propTypes = {
-  params: PropTypes.shape({ action: PropTypes.string })
+Login.propTypes = {
+
 };
 
-ExtensionProvider.defaultProps = {
-  params: {}
+Login.defaultProps = {
+
 };
 
-export default ExtensionProvider;
+export default Login;

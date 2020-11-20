@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React from 'react';
 import PropTypes from 'prop-types';
 import useLocation from 'wouter/use-location';
 
-import { 
+import {
   Breadcrumb,
 } from 'antd';
 
 const Breadcrumbs = ({ data, style }) => {
-  const [_, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
 
   return (
     <Breadcrumb separator=">" style={style}>
-      {data.map(bc => (
+      {data.map((bc) => (
         <Breadcrumb.Item key={bc.path}>
           <a style={{ cursor: 'pointer' }} onClick={() => setLocation(bc.path)}>
             {bc.title}
@@ -23,8 +26,11 @@ const Breadcrumbs = ({ data, style }) => {
 };
 
 Breadcrumbs.propTypes = {
-  data: PropTypes.array.isRequired,
-  style: PropTypes.object,
+  data: PropTypes.arrayOf(PropTypes.shape({
+    path: PropTypes.string,
+    title: PropTypes.string,
+  })).isRequired,
+  style: PropTypes.shape(),
 };
 
 Breadcrumbs.defaultProps = {

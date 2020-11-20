@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'wouter';
 import useLocation from 'wouter/use-location';
 import { useTranslation } from 'react-i18next';
 
@@ -8,64 +7,68 @@ import { Layout, Col } from 'antd';
 
 import MenuView from './MenuView';
 
-import { getAuthHeaders } from '../utils/cookies';
+import { getCurrentUser } from '../utils/cookies';
 
 import s from './Layout.module.less';
 import logoUrl from '../assets/logos/logo-header.svg';
 
 const { Header, Content, Footer } = Layout;
 
-const getLoggedRoutes = t => [
+const getLoggedRoutes = (t) => [
   {
-    path: `/dapp/profile`,
+    path: '/dapp/profile',
     title: t('Profile'),
   },
-]
+];
 
-const getRoutesByRole = (role, { t, badgeCount }) => {
+const getRoutesByRole = (role, { t }) => {
   switch (role) {
     case 'master':
       return [
         {
-          path: `/dapp/master/roles`,
+          path: '/dapp/master/roles',
           title: t('Roles'),
         },
-        {
-          path: `/dapp/master/tasks`,
-          title: t('Tasks'),
-        },
+        // {
+        //   path: '/dapp/master/tasks',
+        //   title: t('Tasks'),
+        // },
       ];
     case 'issuer':
       return [
         {
-          path: `/dapp/issuer/bonds`,
-          title: t('Bonds')
+          path: '/dapp/issuer/tokens/',
+          title: t('Tokens'),
         },
-        {
-          path: `/dapp/issuer/impact`,
-          title: t('Impact')
-        },
+        // {
+        //   path: '/dapp/issuer/impact',
+        //   title: t('Impact'),
+        // },
       ];
     case 'investor':
       return [
         {
-          path: `/dapp/investor/bonds`,
-          title: t('Bonds')
+          path: '/dapp/investor/tokens/',
+          title: t('Tokens'),
         },
-        {
-          path: `/dapp/investor/orders`,
-          title: t('Orders')
-        },
-        {
-          path: `/dapp/investor/report`,
-          title: t('Report')
-        },
+        // {
+        //   path: '/dapp/investor/orders',
+        //   title: t('Orders'),
+        // },
+        // {
+        //   path: '/dapp/investor/report',
+        //   title: t('Report'),
+        // },
       ];
     case 'custodian':
       return [
         {
-          path: `/dapp/custodian`,
-          title: t('Custodian')
+          path: '/dapp/custodian/requests',
+          title: t('Requests'),
+        },
+        {
+          path: '/dapp/custodian/tokens',
+          title: t('Tokens'),
         },
       ];
     default:
@@ -79,34 +82,37 @@ const MainLayout = ({ children }) => {
 
   let routes = [
     {
-      path: `/login`,
+      path: '/login',
       title: t('Login'),
     },
   ];
 
-  const authHeaders = getAuthHeaders();
-  const currentRole = authHeaders?.['x-hasura-role'];
-  if (currentRole) {
+  const { role } = getCurrentUser();
+  if (role) {
     routes = [
-      ...getRoutesByRole(currentRole, { t, badgeCount }),
+      ...getRoutesByRole(role, { t }),
       ...getLoggedRoutes(t),
       {
-        path: `/d/logout`,
+        path: '/dapp/logout',
         title: t('Logout'),
       },
     ];
   }
 
-  routes = routes.map(item => item.path === path ? {...item, active: true} : item)
+  routes = routes.map((item) => {
+    if (item.path === path) {
+      return { ...item, active: true };
+    }
+
+    return item;
+  });
 
   return (
     <Layout>
       <Header className={s.header}>
         <div className={s.headerContent}>
           <div className={s.logoWrapper}>
-            <Link href="/">
-              <img src={logoUrl} className={s.logo} />
-            </Link>
+            <img src={logoUrl} className={s.logo} alt="" />
           </div>
           <div className={s.navWrapper}>
             <MenuView
@@ -117,17 +123,17 @@ const MainLayout = ({ children }) => {
           </div>
         </div>
       </Header>
-        <Col
-          xs={{ span: 24 }}
-          md={{ span: 22, offset: 1 }}
-          lg={{ span: 20, offset: 2 }}
-          xl={{ span: 18, offset: 3 }}
-        >
-          <Content className={s.content}>
-            {children}
-          </Content>
-        </Col>
-      <Footer style={{ fontWeight:600, textAlign: 'center' }}>
+      <Col
+        xs={{ span: 24 }}
+        md={{ span: 22, offset: 1 }}
+        lg={{ span: 20, offset: 2 }}
+        xl={{ span: 18, offset: 3 }}
+      >
+        <Content className={s.content}>
+          {children}
+        </Content>
+      </Col>
+      <Footer style={{ fontWeight: 600, textAlign: 'center' }}>
         ©2020 Evercity PTE LTD
       </Footer>
     </Layout>

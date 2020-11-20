@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { 
-  Modal, PageHeader, Breadcrumb,
+import {
+  Modal, PageHeader,
 } from 'antd';
 
-import useLocation from 'wouter/use-location';
-import pickKeys from 'utils/pickKeys';
+import pickKeys from '../utils/pickKeys';
 
 import ErrorMessage from './ErrorMessage';
 import Loader from './Loader';
@@ -15,8 +15,6 @@ import Breadcrumbs from './Breadcrumbs';
 import s from './ModalView.module.css';
 
 const ModalView = (props) => {
-  const [, setLocation] = useLocation();
-
   const {
     breadcrumbs, loading, visible, onVisibleChange,
     title, tags, content, extraContent, style, headerStyle,
@@ -27,7 +25,7 @@ const ModalView = (props) => {
     () => {
       onVisibleChange(visible);
     },
-    [visible]
+    [onVisibleChange, visible],
   );
 
   return (
@@ -69,15 +67,15 @@ ModalView.propTypes = {
   error: PropTypes.string,
   tags: PropTypes.oneOfType([
     PropTypes.object,
-    PropTypes.arrayOf(PropTypes.object)
+    PropTypes.arrayOf(PropTypes.object),
   ]),
-  breadcrumbs: PropTypes.array,
+  breadcrumbs: PropTypes.arrayOf(PropTypes.shape),
   visible: PropTypes.bool,
   onCancel: PropTypes.func,
   onVisibleChange: PropTypes.func,
   footer: PropTypes.element,
-  style: PropTypes.object,
-  headerStyle: PropTypes.object,
+  style: PropTypes.shape(),
+  headerStyle: PropTypes.shape(),
   extraContent: PropTypes.element,
   loading: PropTypes.bool,
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
@@ -9,12 +10,12 @@ const Slider = React.forwardRef(({ value: defaultValue, onChange, ...restProps }
 
   useEffect(
     () => setState(defaultValue),
-    [defaultValue]
+    [defaultValue],
   );
 
   const [debouncedUpdate] = useDebounce(
-    value => onChange(value),
-    500
+    (value) => onChange(value),
+    500,
   );
 
   return (
@@ -22,7 +23,7 @@ const Slider = React.forwardRef(({ value: defaultValue, onChange, ...restProps }
       {...restProps}
       ref={ref}
       value={Number(state)}
-      onChange={val => {
+      onChange={(val) => {
         const value = parseInt(val, 10);
 
         setState(value);

@@ -5,12 +5,12 @@ export default (initialState) => {
 
   const updateState = useCallback(
     (newState) => setState((prev) => ({ ...prev, ...newState })),
-    []
+    [],
   );
 
   return [
     state,
     updateState,
-    setState
+    setState,
   ];
 };

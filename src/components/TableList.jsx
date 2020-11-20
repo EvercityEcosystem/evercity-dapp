@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'antd';
@@ -19,11 +20,11 @@ const TableList = ({ noEmptyImage, ...restProps }) => (
 );
 
 TableList.propTypes = {
-  noEmptyImage: PropTypes.bool, 
+  noEmptyImage: PropTypes.bool,
 };
 
 TableList.defaultProps = {
-  noEmptyImage: false, 
+  noEmptyImage: false,
 };
 
 export default TableList;

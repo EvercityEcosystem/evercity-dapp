@@ -1,12 +1,13 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import useLocation from 'wouter/use-location';
 
-import { getRole } from './cookies';
+import { getCurrentUser } from './cookies';
 
-export const useCheckAuth = () => {
+export const checkAuth = () => {
   const [path, setLocation] = useLocation();
-  const currentRole = getRole();
+  const { role } = getCurrentUser();
 
-  if (!currentRole) {
+  if (!role) {
     window.location.href = `/login?redirect=${path}`;
     return ['/403', setLocation];
   }
@@ -14,14 +15,14 @@ export const useCheckAuth = () => {
   return [path, setLocation];
 };
 
-export const useCheckRole = desiredRole => {
+export const checkRole = (desiredRole) => {
   const [path, setLocation] = useLocation();
-  const currentRole = getRole();
+  const { role } = getCurrentUser();
 
-  if (currentRole !== desiredRole) {
+  if (role !== desiredRole) {
     window.location.href = `/login?redirect=${path}`;
     return ['/403', setLocation];
   }
 
   return [path, setLocation];
-}
+};
