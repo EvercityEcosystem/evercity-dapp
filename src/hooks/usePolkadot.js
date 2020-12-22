@@ -592,7 +592,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .bondActivate(bondId, bond?.nonce?.toNumber())
+          .bondActivate(bondId, bond.nonce.toNumber() + 1)
           .signAndSend(
             currentUserAddress,
             {

@@ -52,8 +52,7 @@ const Roles = () => {
   };
 
   return (
-    <div className={styles.formContainer}>
-      <Divider>Accounts</Divider>
+    <div className={styles.container}>
       <SimpleForm
         config={formConfig}
         style={{ width: '100%' }}

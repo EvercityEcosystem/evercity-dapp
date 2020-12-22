@@ -77,6 +77,7 @@ const connect = async () => ApiPromise.create({
       bond_debit: 'EverUSDBalance',
       bond_credit: 'EverUSDBalance',
       coupon_yield: 'EverUSDBalance',
+      nonce: 'u64',
     },
     AccountYield: {
       coupon_yield: 'EverUSDBalance',
