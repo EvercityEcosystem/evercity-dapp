@@ -246,6 +246,10 @@ export default ({
       return getButton(value, key);
     }
 
+    if (value.display === 'custom') {
+      return value.component;
+    }
+
     if (value.display === 'divider') {
       return <Divider orientation={value.orientation || 'left'}>{value.label}</Divider>;
     }

@@ -14,9 +14,9 @@ import usePolkadot from '../hooks/usePolkadot';
 
 import { getCurrentUser } from '../utils/cookies';
 
-import styles from './MasterBondActions.module.less';
+import styles from './BondActions.module.less';
 
-const MasterBondActions = ({ bond, mode }) => {
+const IssuerBondActions = ({ bond, mode }) => {
   const { address: currentUserAddress } = getCurrentUser();
   const [state, updateState] = useXState({
     visibleReportModal: false,
@@ -94,7 +94,12 @@ const MasterBondActions = ({ bond, mode }) => {
 
   if (bond.state === 'ACTIVE' && bond.issuer === currentUserAddress) {
     baseActions.push(
-      <Button type="primary" onClick={() => updateState({ visibleDepositModal: true })} className={styles.actionButton}>
+      <Button
+        type="primary"
+        size={mode === 'table' ? 'small' : 'middle'}
+        onClick={() => updateState({ visibleDepositModal: true })}
+        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
+      >
         Deposit
       </Button>,
     );
@@ -147,7 +152,7 @@ const MasterBondActions = ({ bond, mode }) => {
       <ModalView
         visible={state.visibleReportModal}
         onCancel={() => updateState({ visibleReportModal: false })}
-        width={800}
+        width={900}
         title={bond.id}
         content={(
           <BondReport bond={bond} />
@@ -160,13 +165,13 @@ const MasterBondActions = ({ bond, mode }) => {
   );
 };
 
-MasterBondActions.propTypes = {
+IssuerBondActions.propTypes = {
   bond: PropTypes.shape().isRequired,
   mode: PropTypes.string,
 };
 
-MasterBondActions.defaultProps = {
+IssuerBondActions.defaultProps = {
   mode: 'column',
 };
 
-export default MasterBondActions;
+export default IssuerBondActions;

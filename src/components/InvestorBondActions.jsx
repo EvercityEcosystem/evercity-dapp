@@ -13,7 +13,7 @@ import BondReport from './BondReport';
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
-import styles from './InvestorBondActions.module.less';
+import styles from './BondActions.module.less';
 
 const InvestorBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
@@ -89,7 +89,7 @@ const InvestorBondActions = ({ bond, mode }) => {
       type="primary"
       size={mode === 'table' ? 'small' : 'middle'}
       onClick={() => updateState({ visibleInvestModal: true })}
-      className={cx(styles.buyButton, { [styles.smallBuyButton]: mode === 'table' })}
+      className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
     >
       Buy Bond Units
     </Button>,
@@ -142,7 +142,7 @@ const InvestorBondActions = ({ bond, mode }) => {
       <ModalView
         visible={state.visibleReportModal}
         onCancel={() => updateState({ visibleReportModal: false })}
-        width={800}
+        width={900}
         title={bond.id}
         content={(
           <BondReport bond={bond} />

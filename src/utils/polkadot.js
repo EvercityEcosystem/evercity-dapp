@@ -9,8 +9,6 @@ const wsProvider = new WsProvider(WS_PROVIDER_URL);
 const connect = async () => ApiPromise.create({
   provider: wsProvider,
   types: {
-    Address: 'AccountId',
-    LookupSource: 'AccountId',
     EverUSDBalance: 'u64',
     Moment: 'u64',
     BondId: '[u8;8]',

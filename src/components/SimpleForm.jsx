@@ -164,7 +164,7 @@ const SimpleForm = (props) => {
         </Row>
         {submitText && (
           <div style={{
-            display: 'flex', width: '100%', paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5,
+            display: 'flex', width: '100%', paddingTop: 5, paddingBottom: 5,
           }}
           >
             <Button

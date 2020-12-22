@@ -8,6 +8,8 @@ import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
 import TableList from './TableList';
 import ComponentSwitcher from './ComponentSwitcher';
 import InvestorBondActions from './InvestorBondActions';
+import MasterBondActions from './MasterBondActions';
+import IssuerBondActions from './IssuerBondActions';
 
 import { getCurrentUser } from '../utils/cookies';
 
@@ -67,14 +69,11 @@ const BondsTable = ({ dataSource, onRowClick }) => {
       key: 'actions',
       render: (_, bond) => (
         <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer', 'custodian', 'manager', 'auditor'].indexOf(role)}
+          activeItemIndex={['investor', 'master', 'issuer'].indexOf(role)}
           items={[
             <InvestorBondActions bond={bond} mode="table" />,
-            null,
-            null,
-            null,
-            null,
-            null,
+            <MasterBondActions bond={bond} mode="table" />,
+            <IssuerBondActions bond={bond} mode="table" />,
           ]}
           defaultItem={
             null

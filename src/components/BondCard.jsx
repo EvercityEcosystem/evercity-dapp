@@ -69,14 +69,11 @@ const BondCard = ({ bond }) => {
           </div>
         )}
         <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer', 'custodian', 'manager', 'auditor'].indexOf(role)}
+          activeItemIndex={['investor', 'master', 'issuer'].indexOf(role)}
           items={[
             <InvestorBondActions bond={bond} />,
             <MasterBondActions bond={bond} />,
             <IssuerBondActions bond={bond} />,
-            null,
-            null,
-            null,
           ]}
           defaultItem={
             null

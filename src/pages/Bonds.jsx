@@ -71,17 +71,6 @@ const Bonds = () => {
   if (bonds.length) {
     data = (
       <Row gutter={26}>
-        <Col span={8}>
-          <Card className={styles.emptyCard} hoverable>
-            <Button
-              type="primary"
-              className={styles.bondIndexButton}
-              onClick={() => updateState({ bondIndexModalVisible: true })}
-            >
-              Add bond to index
-            </Button>
-          </Card>
-        </Col>
         {bonds.map((bond) => (
           <Col span={8}>
             <BondCard bond={bond} />

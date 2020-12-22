@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Row,
@@ -6,6 +6,7 @@ import {
   Statistic,
   Divider,
   Tabs,
+  Button,
 } from 'antd';
 
 import {
@@ -18,23 +19,31 @@ import {
 } from 'recharts';
 import dayjs from 'dayjs';
 
+import { DEFAULT_ADDRESS } from '../utils/env';
+
 import usePolkadot from '../hooks/usePolkadot';
+import useXState from '../hooks/useXState';
 
 import TableList from './TableList';
 
 import styles from './BondReport.module.less';
+import { getCurrentUser } from '../utils/cookies';
 
 const { TabPane } = Tabs;
 
-const BondCard = ({ bond }) => {
-  const [impactData, setImpactData] = useState([]);
-  const [packageLot, setPackageLot] = useState([]);
-  const [packageRegistry, setPackageRegistry] = useState([]);
+const BondReport = ({ bond }) => {
+  const [state, updateState] = useXState({
+    impactData: [],
+    packageLot: [],
+    packageRegistry: [],
+  });
+  const { address: currentUserAddress } = getCurrentUser();
 
   const {
     bondImpactReport,
     bondUnitPackageLot,
     bondUnitPackageRegistry,
+    bondUnitLotSettle,
   } = usePolkadot();
 
   useEffect(
@@ -42,48 +51,48 @@ const BondCard = ({ bond }) => {
       const getImpactData = async () => {
         const result = await bondImpactReport(bond.id);
 
-        const data = result.map((item, index) => ({
+        const impactData = result.map((item, index) => ({
           period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
           value: item.impact_data,
         }));
 
-        setImpactData(data);
+        updateState({ impactData });
       };
 
       getImpactData();
     },
-    [bond, bondImpactReport],
+    [bond, bondImpactReport, updateState],
   );
 
   useEffect(
     () => {
       const get = async () => {
-        const data = await bondUnitPackageLot(bond.id);
+        const packageLot = await bondUnitPackageLot(bond.id);
 
-        setPackageLot(data);
+        updateState({ packageLot });
       };
 
       get();
     },
-    [bond, bondUnitPackageLot],
+    [bond.id, bondUnitPackageLot, updateState],
   );
 
   useEffect(
     () => {
       const get = async () => {
-        const data = await bondUnitPackageRegistry(bond.id);
+        const packageRegistry = await bondUnitPackageRegistry(bond.id);
 
-        setPackageRegistry(data);
+        updateState({ packageRegistry });
       };
 
       get();
     },
-    [bond, bondUnitPackageRegistry],
+    [bond, bondUnitPackageRegistry, updateState],
   );
 
   const impactBaselineData = bond?.inner?.impact_data_baseline?.map((item, index) => ({
     period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
-    value: item,
+    value: item / 1000,
   }));
 
   const packageRegistryColumns = [
@@ -106,9 +115,9 @@ const BondCard = ({ bond }) => {
 
   const packageLotColumns = [
     {
-      title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
+      title: 'Bondholder',
+      dataIndex: 'bondholder',
+      key: 'bondholder',
     },
     {
       title: 'Units count',
@@ -116,15 +125,32 @@ const BondCard = ({ bond }) => {
       key: 'bond_units',
     },
     {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+    },
+    {
       title: 'Deadline',
       dataIndex: 'deadline',
       key: 'deadline',
-      render: (_, row) => dayjs(parseInt(row.deadline.replaceAll(',', ''), 10)).format('DD-MM-YYYY'),
+      render: (_, row) => dayjs(row.deadline).format('DD-MM-YYYY HH:mm'),
     },
     {
-      title: 'New bondholder',
-      dataIndex: 'new_bondholder',
-      key: 'new_bondholder',
+      title: '',
+      key: 'actions',
+      render: (_, row) => (
+        [DEFAULT_ADDRESS, currentUserAddress].includes(row.new_bondholder)
+          && currentUserAddress !== row.bondholder
+          && (
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => bondUnitLotSettle(row)}
+            >
+              Buy
+            </Button>
+          )
+      ),
     },
   ];
 
@@ -237,7 +263,7 @@ const BondCard = ({ bond }) => {
             left: 0,
           }}
         >
-          <Line type="monotone" dataKey="value" />
+          <Line type="monotone" strokeWidth={2} name="Impact baseline" dataKey="value" />
           <CartesianGrid stroke="#DDD" strokeDasharray="7 7" />
           <XAxis dataKey="period" />
           <YAxis dataKey="value" />
@@ -249,7 +275,7 @@ const BondCard = ({ bond }) => {
         <LineChart
           width={700}
           height={300}
-          data={impactData}
+          data={state.impactData}
           margin={{
             top: 5,
             right: 20,
@@ -257,12 +283,21 @@ const BondCard = ({ bond }) => {
             left: 0,
           }}
         >
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+          <Line strokeWidth={2} name="Impact report" type="monotone" dataKey="value" stroke="#8884d8" />
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis dataKey="period" />
           <YAxis dataKey="value" />
           <Tooltip />
         </LineChart>
+      </TabPane>
+      <TabPane tab="All bids" key="my_bids">
+        <TableList
+          pagination={false}
+          className={styles.table}
+          columns={packageLotColumns}
+          dataSource={state.packageLot}
+          size="middle"
+        />
       </TabPane>
       <TabPane tab="My bond units" key="my_units">
         <TableList
@@ -270,17 +305,7 @@ const BondCard = ({ bond }) => {
           className={styles.table}
           rowKey={(row) => row.id}
           columns={packageRegistryColumns}
-          dataSource={packageRegistry}
-          size="middle"
-        />
-      </TabPane>
-      <TabPane tab="My bids" key="my_bids">
-        <TableList
-          pagination={false}
-          className={styles.table}
-          rowKey={(row) => row.id}
-          columns={packageLotColumns}
-          dataSource={packageLot}
+          dataSource={state.packageRegistry}
           size="middle"
         />
       </TabPane>
@@ -288,11 +313,11 @@ const BondCard = ({ bond }) => {
   );
 };
 
-BondCard.propTypes = {
+BondReport.propTypes = {
   bond: PropTypes.shape().isRequired,
 };
 
-BondCard.defaultProps = {
+BondReport.defaultProps = {
 };
 
-export default BondCard;
+export default BondReport;

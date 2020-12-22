@@ -9,7 +9,6 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
-import { Affix } from 'antd';
 
 import SimpleForm from '../components/SimpleForm';
 
@@ -37,6 +36,36 @@ const BondConfig = () => {
   });
 
   const { prepareBond } = usePolkadot();
+
+  const periods = state.bond_duration - 2 < 0 ? 2 : state.bond_duration - 2;
+
+  let chartData = [...Array((periods)).keys()].map((item) => ({
+    period: dayjs().add(item + 2, 'year').format('YYYY'),
+    interest_rate: state.interest_rate_base_value,
+    interest_rate_min: state.interest_rate_margin_floor,
+    interest_rate_max: state.interest_rate_margin_cap,
+    penalty: state.interest_rate_penalty_for_missed_report,
+    impact_baseline: state?.[`impact_baseline_${item + 2}`] || IMPACT_BASELINE_DEFAULT,
+  }));
+
+  // grace period first
+  chartData = [
+    {
+      period: dayjs().format('YYYY'),
+      grace_period: state.interest_rate_start_period_value,
+      impact_baseline: state.impact_baseline_0 || IMPACT_BASELINE_DEFAULT,
+    },
+    {
+      period: dayjs().add(1, 'year').format('YYYY'),
+      interest_rate: state.interest_rate_base_value,
+      grace_period: state.interest_rate_start_period_value,
+      interest_rate_min: state.interest_rate_margin_floor,
+      interest_rate_max: state.interest_rate_margin_cap,
+      penalty: state.interest_rate_penalty_for_missed_report,
+      impact_baseline: state.impact_baseline_1 || IMPACT_BASELINE_DEFAULT,
+    },
+    ...chartData,
+  ];
 
   const formConfig = {
     bond_divider: {
@@ -97,6 +126,69 @@ const BondConfig = () => {
       display: 'text',
       span: 12,
       default: 10000000,
+    },
+    chart: {
+      display: 'custom',
+      component: (
+        <LineChart
+          width={800}
+          height={400}
+          data={chartData}
+          margin={{
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+          }}
+        >
+          <Line
+            name="Impact baseline"
+            dot={false}
+            strokeWidth={3}
+            stroke="#2f4fee"
+            dataKey="impact_baseline"
+          />
+          <Line
+            name="Interest rate"
+            dot={false}
+            strokeWidth={3}
+            stroke="#548F5D"
+            dataKey="interest_rate"
+          />
+          <Line
+            name="Grace period"
+            dot={false}
+            strokeWidth={3}
+            stroke="#392897"
+            dataKey="grace_period"
+          />
+          <Line
+            name="Minimum interest rate value"
+            dot={false}
+            strokeWidth={2}
+            stroke="#fdac47"
+            dataKey="interest_rate_min"
+          />
+          <Line
+            name="Maximum interest rate value"
+            dot={false}
+            strokeWidth={2}
+            stroke="#86a9dc"
+            dataKey="interest_rate_max"
+          />
+          <Line
+            name="Penalty for missed report"
+            dot={false}
+            strokeWidth={2}
+            stroke="#ff2255"
+            dataKey="penalty"
+          />
+          <CartesianGrid stroke="#EEE" strokeDasharray="5 5" />
+          <XAxis dataKey="period" />
+          <YAxis />
+          <Tooltip />
+        </LineChart>
+      ),
     },
     impact_divider: {
       display: 'divider',
@@ -240,100 +332,9 @@ const BondConfig = () => {
   });
 
   const onChange = (value) => updateState(value);
-  const periods = state.bond_duration - 2 < 0 ? 2 : state.bond_duration - 2;
-
-  let impactData = [...Array((periods)).keys()].map((item) => ({
-    period: dayjs().add(item + 2, 'year').format('YYYY'),
-    interest_rate: state.interest_rate_base_value,
-    interest_rate_min: state.interest_rate_margin_floor,
-    interest_rate_max: state.interest_rate_margin_cap,
-    penalty: state.interest_rate_penalty_for_missed_report,
-    impact_baseline: state?.[`impact_baseline_${item + 2}`] || IMPACT_BASELINE_DEFAULT,
-  }));
-
-  // grace period first
-  impactData = [
-    {
-      period: dayjs().format('YYYY'),
-      grace_period: state.interest_rate_start_period_value,
-      impact_baseline: state.impact_baseline_0 || IMPACT_BASELINE_DEFAULT,
-    },
-    {
-      period: dayjs().add(1, 'year').format('YYYY'),
-      interest_rate: state.interest_rate_base_value,
-      grace_period: state.interest_rate_start_period_value,
-      interest_rate_min: state.interest_rate_margin_floor,
-      interest_rate_max: state.interest_rate_margin_cap,
-      penalty: state.interest_rate_penalty_for_missed_report,
-      impact_baseline: state.impact_baseline_1 || IMPACT_BASELINE_DEFAULT,
-    },
-    ...impactData,
-  ];
 
   return (
     <div className={styles.container}>
-      <Affix style={{ position: 'absolute', top: 300, left: 20 }}>
-        <div className={styles.chartContainer}>
-          <LineChart
-            width={420}
-            height={400}
-            data={impactData}
-            margin={{
-              top: 26,
-              right: 20,
-              bottom: 5,
-              left: 0,
-            }}
-          >
-            <Line
-              name="Impact baseline"
-              dot={false}
-              strokeWidth={3}
-              stroke="#2f4fee"
-              dataKey="impact_baseline"
-            />
-            <Line
-              name="Interest rate"
-              dot={false}
-              strokeWidth={3}
-              stroke="#548F5D"
-              dataKey="interest_rate"
-            />
-            <Line
-              name="Grace period"
-              dot={false}
-              strokeWidth={3}
-              stroke="#392897"
-              dataKey="grace_period"
-            />
-            <Line
-              name="Minimum interest rate value"
-              dot={false}
-              strokeWidth={2}
-              stroke="#fdac47"
-              dataKey="interest_rate_min"
-            />
-            <Line
-              name="Maximum interest rate value"
-              dot={false}
-              strokeWidth={2}
-              stroke="#86a9dc"
-              dataKey="interest_rate_max"
-            />
-            <Line
-              name="Penalty for missed report"
-              dot={false}
-              strokeWidth={2}
-              stroke="#ff2255"
-              dataKey="penalty"
-            />
-            <CartesianGrid stroke="#EEE" strokeDasharray="5 5" />
-            <XAxis dataKey="period" />
-            <YAxis />
-            <Tooltip />
-          </LineChart>
-        </div>
-      </Affix>
       <SimpleForm
         config={formConfig}
         onValuesChange={onChange}

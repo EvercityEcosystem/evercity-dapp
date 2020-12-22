@@ -422,13 +422,14 @@ export default () => {
         bondID,
         deadline,
         bondholder,
-        unitsCount,
+        bond_units: unitsCount,
         amount,
+        new_bondholder: newBondholder,
       } = values;
 
       const lot = api.createType('BondUnitSaleLotStructOf', {
         deadline,
-        new_bondholder: currentUserAddress,
+        new_bondholder: newBondholder,
         bond_units: unitsCount,
         amount,
       });
@@ -466,11 +467,18 @@ export default () => {
       const result = await api
         .query
         .evercity
-        .bondUnitPackageLot(bondID, currentUserAddress);
+        .bondUnitPackageLot
+        .entries(bondID);
 
-      return result?.toHuman();
+      return result
+        .map(([{ args: [, bondholder] }, value]) => ({
+          bondID,
+          bondholder: bondholder.toHuman(),
+          ...value.toJSON()[0],
+        }))
+        .filter((item) => !!item.bond_units);
     },
-    [api, currentUserAddress],
+    [api],
   );
 
   const bondUnitPackageRegistry = useCallback(

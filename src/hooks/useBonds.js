@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 
@@ -12,18 +11,13 @@ export default () => {
   const [bonds, setBonds] = useState([]);
   const { bondRegistry } = usePolkadot();
 
-  const indicesArray = useMemo(
-    () => localStorage.getItem('bond_index')?.split(',')?.filter((item, index, arr) => arr.indexOf(item) === index) || [],
-    [],
-  );
-
   const fetchAll = useCallback(
-    () => [...PRE_INSTALLED_BONDS, ...indicesArray].map(async (bondId) => {
+    () => PRE_INSTALLED_BONDS.map(async (bondId) => {
       const registry = await bondRegistry(bondId);
 
       return { id: bondId, registry };
     }),
-    [bondRegistry, indicesArray],
+    [bondRegistry],
   );
 
   useEffect(

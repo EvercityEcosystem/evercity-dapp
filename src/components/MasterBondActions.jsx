@@ -13,7 +13,7 @@ import BondReport from './BondReport';
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
-import styles from './MasterBondActions.module.less';
+import styles from './BondActions.module.less';
 
 const MasterBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
@@ -75,7 +75,12 @@ const MasterBondActions = ({ bond, mode }) => {
 
   if (bond.state === 'PREPARE') {
     baseActions.push(
-      <Button type="primary" onClick={() => releaseBond(bond.id)} className={styles.actionButton}>
+      <Button
+        type="primary"
+        size={mode === 'table' ? 'small' : 'middle'}
+        onClick={() => releaseBond(bond.id)}
+        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
+      >
         Open book
       </Button>,
     );
@@ -83,7 +88,12 @@ const MasterBondActions = ({ bond, mode }) => {
 
   if (bond.state === 'BOOKING') {
     baseActions.push(
-      <Button type="primary" onClick={() => activateBond(bond.id)} className={styles.actionButton}>
+      <Button
+        type="primary"
+        size={mode === 'table' ? 'small' : 'middle'}
+        onClick={() => activateBond(bond.id)}
+        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
+      >
         Issue bond
       </Button>,
     );
@@ -118,7 +128,7 @@ const MasterBondActions = ({ bond, mode }) => {
       <ModalView
         visible={state.visibleReportModal}
         onCancel={() => updateState({ visibleReportModal: false })}
-        width={800}
+        width={900}
         title={bond.id}
         content={(
           <BondReport bond={bond} />
