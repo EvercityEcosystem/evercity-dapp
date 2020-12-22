@@ -2,17 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import useLocation from 'wouter/use-location';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'wouter';
 
-import { Layout, Col } from 'antd';
+import { Layout, Button } from 'antd';
 
 import MenuView from './MenuView';
 
 import { getCurrentUser } from '../utils/cookies';
 
-import s from './Layout.module.less';
+import styles from './Layout.module.less';
 import logoUrl from '../assets/logos/logo-header.svg';
 
-const { Header, Content, Footer } = Layout;
+const {
+  Sider,
+  Header,
+  Content,
+  Footer,
+} = Layout;
 
 const getLoggedRoutes = (t) => [
   {
@@ -29,16 +35,25 @@ const getRoutesByRole = (role, { t }) => {
           path: '/dapp/master/roles',
           title: t('Roles'),
         },
-        // {
-        //   path: '/dapp/master/tasks',
-        //   title: t('Tasks'),
-        // },
       ];
     case 'issuer':
       return [
         {
-          path: '/dapp/issuer/tokens/',
-          title: t('Tokens'),
+          title: t('Wallet'),
+          children: [
+            {
+              path: '/dapp/issuer/tokens/mint',
+              title: t('Mint EVERUSD'),
+            },
+            {
+              path: '/dapp/issuer/tokens/burn',
+              title: t('Burn EVERUSD'),
+            },
+          ],
+        },
+        {
+          path: '/dapp/issuer/bond',
+          title: t('New Bond'),
         },
         // {
         //   path: '/dapp/issuer/impact',
@@ -48,17 +63,31 @@ const getRoutesByRole = (role, { t }) => {
     case 'investor':
       return [
         {
-          path: '/dapp/investor/tokens/',
-          title: t('Tokens'),
+          title: t('Wallet'),
+          children: [
+            {
+              path: '/dapp/investor/tokens/mint',
+              title: t('Mint EVERUSD'),
+            },
+            {
+              path: '/dapp/investor/tokens/burn',
+              title: t('Burn EVERUSD'),
+            },
+          ],
         },
-        // {
-        //   path: '/dapp/investor/orders',
-        //   title: t('Orders'),
-        // },
-        // {
-        //   path: '/dapp/investor/report',
-        //   title: t('Report'),
-        // },
+        {
+          title: t('Bond units'),
+          children: [
+            {
+              path: '/dapp/investor/units/bid',
+              title: t('Bid'),
+            },
+            {
+              path: '/dapp/investor/units/settle',
+              title: t('Settle'),
+            },
+          ],
+        },
       ];
     case 'custodian':
       return [
@@ -67,8 +96,21 @@ const getRoutesByRole = (role, { t }) => {
           title: t('Requests'),
         },
         {
-          path: '/dapp/custodian/tokens',
-          title: t('Tokens'),
+          title: t('Financies'),
+          children: [
+            {
+              path: '/dapp/custodian/tokens/confirm',
+              title: t('Confirm Mint/Burn'),
+            },
+            {
+              path: '/dapp/custodian/tokens/decline',
+              title: t('Decline Mint/Burn'),
+            },
+          ],
+        },
+        {
+          path: '/dapp/custodian/reporting',
+          title: t('Reporting'),
         },
       ];
     default:
@@ -80,17 +122,11 @@ const MainLayout = ({ children }) => {
   const [path] = useLocation();
   const { t } = useTranslation();
 
-  let routes = [
-    {
-      path: '/login',
-      title: t('Login'),
-    },
-  ];
+  let routes = [];
 
   const { role } = getCurrentUser();
   if (role) {
     routes = [
-      ...getRoutesByRole(role, { t }),
       ...getLoggedRoutes(t),
       {
         path: '/dapp/logout',
@@ -98,6 +134,14 @@ const MainLayout = ({ children }) => {
       },
     ];
   }
+
+  let siderRoutes = [
+    {
+      path: '/',
+      title: t('Home'),
+    },
+    ...getRoutesByRole(role, { t }),
+  ];
 
   routes = routes.map((item) => {
     if (item.path === path) {
@@ -107,34 +151,60 @@ const MainLayout = ({ children }) => {
     return item;
   });
 
+  siderRoutes = siderRoutes.map((item) => {
+    if (item.path === path) {
+      return { ...item, active: true };
+    }
+
+    return item;
+  });
+
   return (
     <Layout>
-      <Header className={s.header}>
-        <div className={s.headerContent}>
-          <div className={s.logoWrapper}>
-            <img src={logoUrl} className={s.logo} alt="" />
+      <Header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.logoWrapper}>
+            <Link href="/">
+              <img src={logoUrl} className={styles.logo} alt="" />
+            </Link>
           </div>
-          <div className={s.navWrapper}>
+          <div className={styles.navWrapper}>
+            {!role && (
+              <div>
+                <Link to="/login">
+                  <Button className={styles.navButton} type="primary">Log in</Button>
+                </Link>
+              </div>
+            )}
             <MenuView
               theme="dark"
               mode="horizontal"
+              className={styles.navigation}
               nodes={routes.filter(Boolean)}
             />
           </div>
         </div>
       </Header>
-      <Col
-        xs={{ span: 24 }}
-        md={{ span: 22, offset: 1 }}
-        lg={{ span: 20, offset: 2 }}
-        xl={{ span: 18, offset: 3 }}
-      >
-        <Content className={s.content}>
+      <Layout className={styles.contentLayout}>
+        {!!role && (
+          <Sider
+            theme="light"
+            className={styles.sider}
+          >
+            <MenuView
+              theme="light"
+              mode="vertical"
+              className={styles.navigation}
+              nodes={siderRoutes}
+            />
+          </Sider>
+        )}
+        <Content className={styles.content}>
           {children}
         </Content>
-      </Col>
+      </Layout>
       <Footer style={{ fontWeight: 600, textAlign: 'center' }}>
-        ©2020 Evercity PTE LTD
+        © 2020 Evercity PTE LTD
       </Footer>
     </Layout>
   );

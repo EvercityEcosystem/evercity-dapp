@@ -10,7 +10,6 @@ import {
 
 import {
   CaretRightOutlined,
-  SendOutlined,
 } from '@ant-design/icons';
 
 import cx from 'classnames';
@@ -39,6 +38,7 @@ const SimpleForm = (props) => {
     size,
     submitText,
     submitIcon,
+    submitClassName,
     disabled,
     children,
     itemClassName,
@@ -159,13 +159,25 @@ const SimpleForm = (props) => {
         form={form}
         {...restProps}
       >
-        {formContent}
+        <Row gutter={32}>
+          {formContent}
+        </Row>
         {submitText && (
           <div style={{
             display: 'flex', width: '100%', paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5,
           }}
           >
-            <Button loading={loading} onClick={onFormSubmit} disabled={disabled} type="primary" ghost={ghost} style={{ width: '100%' }} htmlType="submit" block>
+            <Button
+              loading={loading}
+              onClick={onFormSubmit}
+              disabled={disabled}
+              type="primary"
+              ghost={ghost}
+              className={submitClassName}
+              style={{ width: '100%' }}
+              htmlType="submit"
+              block
+            >
               {submitIcon}
               {submitText}
             </Button>
@@ -186,6 +198,7 @@ SimpleForm.propTypes = {
   size: PropTypes.string,
   submitIcon: PropTypes.element,
   submitText: PropTypes.string,
+  submitClassName: PropTypes.string,
   disabled: PropTypes.bool,
   children: PropTypes.func,
   itemClassName: PropTypes.shape(),
@@ -200,8 +213,9 @@ SimpleForm.defaultProps = {
   config: null,
   style: {},
   size: 'default',
-  submitIcon: <SendOutlined />,
+  submitIcon: null,
   submitText: null,
+  submitClassName: null,
   disabled: false,
   children: noop,
   itemClassName: {},
