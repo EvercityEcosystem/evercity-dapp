@@ -1,26 +1,19 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Divider, message, Layout } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
-import Loader from '../components/Loader';
-import MenuView from '../components/MenuView';
 
-import { getCurrentUser } from '../utils/cookies';
-import { api, injector } from '../utils/polkadot';
+import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './CustodianTokens.module.less';
-
-const { Content, Sider } = Layout;
 
 const CustodianTokens = ({ params }) => {
   const { actionType = 'confirm' } = params;
   const { t } = useTranslation();
-  const [transactionSending, setTransactionSending] = useState(false);
-  const { address: currentUserAddress, role } = getCurrentUser();
+  const { confirmEverusdRequest, declineEverusdRequest } = usePolkadot();
 
   const confirmFormConfig = {
     action: {
@@ -31,8 +24,8 @@ const CustodianTokens = ({ params }) => {
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Confirm Mint EverUSD': 'tokenMintRequestConfirmEverusd' },
-        { 'Confirm Burn EverUSD': 'tokenBurnRequestConfirmEverusd' },
+        { 'Confirm Mint EverUSD': 'Mint' },
+        { 'Confirm Burn EverUSD': 'Burn' },
       ],
     },
     address: {
@@ -58,8 +51,8 @@ const CustodianTokens = ({ params }) => {
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Decline Mint EverUSD': 'tokenMintRequestDeclineEverusd' },
-        { 'Decline Burn EverUSD': 'tokenBurnRequestDeclineEverusd' },
+        { 'Decline Mint EverUSD': 'Mint' },
+        { 'Decline Burn EverUSD': 'Burn' },
       ],
     },
     address: {
@@ -72,27 +65,11 @@ const CustodianTokens = ({ params }) => {
 
   const handleSubmit = async (values) => {
     const { action, amount, address } = values;
-    const args = actionType === 'confirm' ? [address, amount] : [address];
 
-    try {
-      setTransactionSending(true);
-      await api
-        .tx
-        .evercity[action](...args)
-        .signAndSend(currentUserAddress, { signer: injector.signer }, ({ status, events }) => {
-          if (status.isInBlock) {
-            message.success('Transaction in block');
-          }
-
-          if (status.isFinalized) {
-            message.success('Block finalized');
-            setTransactionSending(false);
-          }
-        });
-    } catch (error) {
-      setTransactionSending(false);
-      console.error(error);
-      message.error('Signing and sending transaction process failed');
+    if (actionType === 'confirm') {
+      confirmEverusdRequest(action, amount, address);
+    } else {
+      declineEverusdRequest(action, address);
     }
   };
 
@@ -101,46 +78,17 @@ const CustodianTokens = ({ params }) => {
     wrapperCol: { span: 16 },
   };
 
-  const siderNodes = [
-    {
-      path: `/dapp/${role}/tokens/confirm`,
-      title: t('Confirm'),
-      active: actionType === 'confirm',
-    },
-    {
-      path: `/dapp/${role}/tokens/decline`,
-      title: t('Decline'),
-      active: actionType === 'decline',
-    },
-  ];
-
   return (
-    <div>
-      <Layout style={{ backgroundColor: '#fff', minHeight: 300 }}>
-        <Sider theme="light">
-          <MenuView
-            theme="light"
-            mode="vertical"
-            nodes={siderNodes}
-          />
-        </Sider>
-        <Content>
-          <div className={styles.formContainer}>
-            <Divider>Tokens</Divider>
-            <Loader spinning={transactionSending}>
-              <SimpleForm
-                config={actionType === 'confirm' ? confirmFormConfig : declineFormConfig}
-                style={{ width: '100%' }}
-                onSubmit={handleSubmit}
-                submitText={t('Submit')}
-                labelAlign="left"
-                initialValues={{ action: null, address: null, amount: null }}
-                {...layout}
-              />
-            </Loader>
-          </div>
-        </Content>
-      </Layout>
+    <div className={styles.container}>
+      <SimpleForm
+        config={actionType === 'confirm' ? confirmFormConfig : declineFormConfig}
+        onSubmit={handleSubmit}
+        submitText={t('Submit')}
+        className={styles.form}
+        labelAlign="left"
+        initialValues={{ action: null, address: null, amount: null }}
+        {...layout}
+      />
     </div>
   );
 };

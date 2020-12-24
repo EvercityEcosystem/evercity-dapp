@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -7,19 +7,23 @@ import { web3Accounts } from '@polkadot/extension-dapp';
 
 import SimpleForm from '../components/SimpleForm';
 import Loader from '../components/Loader';
+import { store } from '../components/PolkadotProvider';
 
+import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';
 
 import { saveCurrentUser } from '../utils/cookies';
 import { EXTENSION_URL } from '../utils/env';
-import { accountRegistry, injector } from '../utils/polkadot';
 
 import styles from './Login.module.less';
 
 const Login = () => {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
-  const [state, updateState] = useXState({
+  const { accountRegistry } = usePolkadot();
+  const { polkadotState } = useContext(store);
+
+  const [accountsState, updateState] = useXState({
     accounts: [],
     roles: [],
     address: null
@@ -33,7 +37,7 @@ const Login = () => {
       span: 24,
       allowClear: false,
       showSearch: true,
-      values: state?.accounts?.map(acc => ({
+      values: accountsState?.accounts?.map(acc => ({
         [`${acc.meta.name} ${acc.address}`]: acc.address
       }))
     },
@@ -47,7 +51,7 @@ const Login = () => {
       span: 24,
       allowClear: false,
       showSearch: true,
-      values: state?.roles?.map(role => ({
+      values: accountsState?.roles?.map(role => ({
         [role]: role
       }))
     },
@@ -82,8 +86,10 @@ const Login = () => {
   };
 
   useEffect(() => {
-    checkExtension();
-  }, [checkExtension]);
+    if (polkadotState.injector) {
+      checkExtension();
+    }
+  }, [checkExtension, polkadotState]);
 
   let block = (
     <div className={styles.formFooter}>
@@ -98,18 +104,18 @@ const Login = () => {
     </div>
   );
 
-  if (injector) {
+  if (polkadotState.injector) {
     let submitText = t('Refresh Accounts');
     let submitFunc = checkExtension;
     let config = {};
 
-    if (state?.accounts?.length) {
+    if (accountsState?.accounts?.length) {
       config = accountsFormConfig;
       submitFunc = handleAccountSubmit;
-      submitText = t('Login');
+      submitText = t('Log in');
     }
 
-    if (state?.roles?.length) {
+    if (accountsState?.roles?.length) {
       config = rolesFormConfig;
       submitFunc = handleRoleSubmit;
       submitText = t('Select Role');
@@ -120,17 +126,18 @@ const Login = () => {
         config={config}
         onSubmit={submitFunc}
         submitText={submitText}
+        submitClassName={styles.submitClassName}
         style={{ width: '100%' }}
         labelAlign="left"
       />
     );
   }
 
-  const injectorDetection = typeof (injector) === 'undefined';
+  const injectorDetection = typeof (polkadotState.injector) === 'undefined';
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <Loader spinning={injectorDetection}>
+        <Loader spinning={injectorDetection} tip="Detecting polkadot extension">
           {block}
         </Loader>
       </div>

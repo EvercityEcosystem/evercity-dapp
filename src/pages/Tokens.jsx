@@ -1,40 +1,27 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Divider, message, Layout } from 'antd';
+import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
-import Loader from '../components/Loader';
-import MenuView from '../components/MenuView';
 
-import { getCurrentUser } from '../utils/cookies';
-import { api, injector } from '../utils/polkadot';
+import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './Tokens.module.less';
 
-const { Content, Sider } = Layout;
-
 const Tokens = ({ params }) => {
-  const { actionType = 'request' } = params;
+  const { action } = params;
   const { t } = useTranslation();
-  const [transactionSending, setTransactionSending] = useState(false);
-  const { address: currentUserAddress, role } = getCurrentUser();
+  const {
+    requestMintTokens,
+    revokeMintTokens,
+    requestBurnTokens,
+    revokeBurnTokens,
+  } = usePolkadot();
 
-  const requestFormConfig = {
-    action: {
-      label: t('Action'),
-      required: true,
-      display: 'select',
-      span: 24,
-      allowClear: false,
-      showSearch: true,
-      values: [
-        { 'Request Mint EverUSD': 'tokenMintRequestCreateEverusd' },
-        { 'Request Burn EverUSD': 'tokenBurnRequestCreateEverusd' },
-      ],
-    },
+  const formConfig = {
     amount: {
       label: t('Amount'),
       required: true,
@@ -43,100 +30,34 @@ const Tokens = ({ params }) => {
     },
   };
 
-  const revokeFormConfig = {
-    action: {
-      label: t('Action'),
-      required: true,
-      display: 'select',
-      span: 24,
-      allowClear: false,
-      showSearch: true,
-      values: [
-        { 'Revoke Mint EverUSD': 'tokenMintRequestRevokeEverusd' },
-        { 'Revoke Burn EverUSD': 'tokenBurnRequestRevokeEverusd' },
-      ],
-    },
-  };
-
-  const handleSubmit = async (values) => {
-    const { action, amount } = values;
-    const args = actionType === 'request' ? [amount] : [];
-
-    try {
-      setTransactionSending(true);
-      await api
-        .tx
-        .evercity[action](...args)
-        .signAndSend(currentUserAddress, { signer: injector.signer }, ({ status, events }) => {
-          if (status.isInBlock) {
-            message.success('Transaction in block');
-          }
-
-          if (status.isFinalized) {
-            message.success('Block finalized');
-            setTransactionSending(false);
-          }
-        });
-    } catch (error) {
-      setTransactionSending(false);
-      console.error(error);
-      message.error('Signing and sending transaction process failed');
-    }
-  };
-
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
   };
 
-  const siderNodes = [
-    {
-      path: `/dapp/${role}/tokens/request`,
-      title: t('Request'),
-      active: actionType === 'request',
-    },
-    {
-      path: `/dapp/${role}/tokens/revoke`,
-      title: t('Revoke'),
-      active: actionType === 'revoke',
-    },
-  ];
+  const requestAction = action === 'mint' ? requestMintTokens : requestBurnTokens;
+  const revokeAction = action === 'mint' ? revokeMintTokens : revokeBurnTokens;
 
   return (
-    <div>
-      <Layout style={{ backgroundColor: '#fff', minHeight: 220 }}>
-        <Sider theme="light">
-          <MenuView
-            theme="light"
-            mode="vertical"
-            nodes={siderNodes}
-          />
-        </Sider>
-        <Content>
-          <div className={styles.formContainer}>
-            <Divider>Tokens</Divider>
-            <Loader spinning={transactionSending}>
-              <SimpleForm
-                config={actionType === 'request' ? requestFormConfig : revokeFormConfig}
-                style={{ width: '100%' }}
-                onSubmit={handleSubmit}
-                submitText={t('Submit')}
-                labelAlign="left"
-                initialValues={{ action: null, amount: null }}
-                {...layout}
-              />
-            </Loader>
-          </div>
-        </Content>
-      </Layout>
+    <div className={styles.container}>
+      <SimpleForm
+        config={formConfig}
+        onSubmit={requestAction}
+        submitText={t(`Request ${action}`)}
+        labelAlign="left"
+        className={styles.form}
+        initialValues={{ amount: null }}
+        {...layout}
+      />
+      <Button className={styles.revokeButton} onClick={revokeAction}>
+        {t(`Revoke ${action}`)}
+      </Button>
     </div>
   );
 };
 
 Tokens.propTypes = {
-  params: PropTypes.shape({
-    actionType: PropTypes.string,
-  }).isRequired,
+  params: PropTypes.shape({ action: PropTypes.string.isRequired }).isRequired,
 };
 
 Tokens.defaultProps = {};

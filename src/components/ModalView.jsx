@@ -18,7 +18,7 @@ const ModalView = (props) => {
   const {
     breadcrumbs, loading, visible, onVisibleChange,
     title, tags, content, extraContent, style, headerStyle,
-    info, error,
+    info, error, width,
   } = props;
 
   useEffect(
@@ -30,7 +30,7 @@ const ModalView = (props) => {
 
   return (
     <Modal
-      width={800}
+      width={width}
       className={s.modalContainer}
       destroyOnClose
       title={(
@@ -78,6 +78,7 @@ ModalView.propTypes = {
   headerStyle: PropTypes.shape(),
   extraContent: PropTypes.element,
   loading: PropTypes.bool,
+  width: PropTypes.number,
 };
 
 ModalView.defaultProps = {
@@ -94,6 +95,7 @@ ModalView.defaultProps = {
   headerStyle: {},
   extraContent: null,
   loading: false,
+  width: 800,
 };
 
 export default ModalView;

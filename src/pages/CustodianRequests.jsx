@@ -2,19 +2,24 @@
 /* eslint-disable no-console */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Divider, Statistic } from 'antd';
+import { message, Statistic } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
 
-import { api } from '../utils/polkadot';
 import useXState from '../hooks/useXState';
+import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './CustodianRequests.module.less';
 
 const CustodianRequests = () => {
   const { t } = useTranslation();
-  const [state, updateState] = useXState({ amount: '0', deadline: '0' });
+  const [state, updateState] = useXState({
+    amount: '0',
+    deadline: '0',
+    show: false,
+  });
+  const { checkMintRequest, checkBurnRequest } = usePolkadot();
 
   const formConfig = {
     action: {
@@ -39,11 +44,14 @@ const CustodianRequests = () => {
 
   const handleSubmit = async (values) => {
     const { action, address } = values;
+    const { amount, deadline } = action === 'mintRequestEverUSD' ? await checkMintRequest(address) : await checkBurnRequest(address);
 
-    const result = await api.query.evercity[action](address);
-    const { amount, deadline } = result?.toHuman();
-
-    updateState({ amount, deadline });
+    if (amount === '0' && deadline === '0') {
+      message.warning('No requests from this address');
+      updateState({ show: false });
+    } else {
+      updateState({ amount, deadline, show: true });
+    }
   };
 
   const layout = {
@@ -52,24 +60,25 @@ const CustodianRequests = () => {
   };
 
   return (
-    <div className={styles.formContainer}>
-      <Divider>Requests</Divider>
+    <div className={styles.container}>
+      {state.show && (
+        <div className={styles.results}>
+          <Statistic title={t('Amount')} value={state.amount} />
+          <Statistic.Countdown
+            title={t('Deadline')}
+            value={parseInt(state?.deadline?.replaceAll(',', ''), 10)}
+            format={state?.deadline === '0' ? '0' : 'DD HH:mm:ss'}
+          />
+        </div>
+      )}
       <SimpleForm
         config={formConfig}
-        style={{ width: '100%' }}
         onSubmit={handleSubmit}
         submitText={t('Submit')}
+        className={styles.form}
         labelAlign="left"
         {...layout}
       />
-      <div className={styles.results}>
-        <Statistic title={t('Amount')} value={state.amount} />
-        <Statistic.Countdown
-          title={t('Deadline')}
-          value={parseInt(state?.deadline?.replaceAll(',', ''), 10)}
-          format={state?.deadline === '0' ? '0' : 'DD HH:mm:ss'}
-        />
-      </div>
     </div>
   );
 };

@@ -77,7 +77,9 @@ export default ({
     }
 
     if (value.display === 'file') {
-      const propsByAccept = {};
+      const propsByAccept = {
+        beforeUpload: value.beforeUpload || noop,
+      };
 
       if (!value.accept || value.accept === '.json') {
         propsByAccept.beforeUpload = (file) => parseFile(file, value.onChange || noop);
@@ -242,6 +244,10 @@ export default ({
 
     if (value.display === 'button') {
       return getButton(value, key);
+    }
+
+    if (value.display === 'custom') {
+      return value.component;
     }
 
     if (value.display === 'divider') {

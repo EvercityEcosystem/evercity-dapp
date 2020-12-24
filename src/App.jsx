@@ -1,6 +1,6 @@
 import { hot } from 'react-hot-loader';
 
-import React from 'react';
+import React, { useEffect, useContext, useMemo } from 'react';
 import 'antd/dist/antd.css';
 
 import {
@@ -11,73 +11,113 @@ import './App.less';
 
 import Layout from './components/Layout';
 import ErrorFound from './components/ErrorFound';
+import Loader from './components/Loader';
+import { store } from './components/PolkadotProvider';
 
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Roles from './pages/Roles';
 import Tokens from './pages/Tokens';
-// import Tasks from './pages/Tasks';
-// import IssuerBonds from './pages/IssuerBonds';
-// import ImpactManagement from './pages/ImpactManagement';
-// import InvestorBonds from './pages/InvestorBonds';
-// import InvestorOrders from './pages/InvestorOrders';
-// import InvestorReport from './pages/InvestorReport';
+import Bonds from './pages/Bonds';
 import CustodianRequests from './pages/CustodianRequests';
 import CustodianTokens from './pages/CustodianTokens';
+import CustodianReporting from './pages/CustodianReporting';
 import Profile from './pages/Profile';
+import BondConfig from './pages/BondConfig';
 
 import { checkAuth, checkRole } from './utils/checks';
+import { connect, getInjector } from './utils/polkadot';
 
-const App = () => (
-  <Router>
-    <Layout>
-      <Switch>
-        <Route path="/login" component={Login} />
+const App = () => {
+  const { polkadotState, dispatch } = useContext(store);
 
-        <Route path="/dapp/:rest*">
-          <Router hook={checkAuth}>
-            <Switch>
-              <Route path="/dapp/profile" component={Profile} />
-              <Route path="/dapp/logout" component={Logout} />
+  useEffect(
+    () => {
+      const connectAPI = async () => {
+        const api = await connect();
+        dispatch({
+          type: 'setAPI',
+          payload: api,
+        });
+      };
 
-              <Route path="/dapp/master/:rest*">
-                <Router hook={() => checkRole('master')}>
-                  <Route path="/dapp/master/roles" component={Roles} />
-                  {/* <Route path="/dapp/master/tasks" component={Tasks} /> */}
-                </Router>
-              </Route>
+      connectAPI();
+    },
+    [dispatch],
+  );
 
-              <Route path="/dapp/issuer/:rest*">
-                <Router hook={() => checkRole('issuer')}>
-                  <Route path="/dapp/issuer/tokens/:actionType?" component={Tokens} />
-                  {/* <Route path="/dapp/issuer/impact" component={ImpactManagement} /> */}
-                </Router>
-              </Route>
+  useEffect(
+    () => {
+      const setInjector = async () => {
+        const injector = await getInjector();
+        dispatch({
+          type: 'setInjector',
+          payload: injector,
+        });
+      };
 
-              <Route path="/dapp/investor/:rest*">
-                <Router hook={() => checkRole('investor')}>
-                  <Route path="/dapp/investor/tokens/:actionType?" component={Tokens} />
-                  {/* <Route path="/dapp/investor/orders" component={InvestorOrders} />
-                  <Route path="/dapp/investor/report" component={InvestorReport} /> */}
-                </Router>
-              </Route>
+      setInjector();
+    },
+    [dispatch],
+  );
 
-              <Route path="/dapp/custodian/:rest*">
-                <Router hook={() => checkRole('custodian')}>
-                  <Route path="/dapp/custodian/requests" component={CustodianRequests} />
-                  <Route path="/dapp/custodian/tokens/:actionType?" component={CustodianTokens} />
-                </Router>
-              </Route>
-            </Switch>
-          </Router>
-        </Route>
+  const isAPIReady = useMemo(
+    () => polkadotState?.api?.isConnected && polkadotState?.api?.isReady,
+    [polkadotState],
+  );
 
-        <Route path="/404" component={ErrorFound} />
-        <Route path="/:rest*"><Redirect to="/login" /></Route>
-      </Switch>
-    </Layout>
-  </Router>
-);
+  return (
+    <Router>
+      <Loader spinning={!isAPIReady} tip="Connecting to blockchain node">
+        <Layout>
+          <Switch>
+            <Route path="/" component={Bonds} />
+            <Route path="/login" component={Login} />
+
+            <Route path="/dapp/:rest*">
+              <Router hook={checkAuth}>
+                <Switch>
+                  <Route path="/dapp/profile" component={Profile} />
+                  <Route path="/dapp/logout" component={Logout} />
+
+                  <Route path="/dapp/master/:rest*">
+                    <Router hook={() => checkRole('master')}>
+                      <Route path="/dapp/master/roles" component={Roles} />
+                    </Router>
+                  </Route>
+
+                  <Route path="/dapp/issuer/:rest*">
+                    <Router hook={() => checkRole('issuer')}>
+                      <Route path="/dapp/issuer/tokens/:action?" component={Tokens} />
+                      <Route path="/dapp/issuer/bond" component={BondConfig} />
+                    </Router>
+                  </Route>
+
+                  <Route path="/dapp/investor/:rest*">
+                    <Router hook={() => checkRole('investor')}>
+                      <Route path="/dapp/investor/tokens/:action?" component={Tokens} />
+                    </Router>
+                  </Route>
+
+                  <Route path="/dapp/custodian/:rest*">
+                    <Router hook={() => checkRole('custodian')}>
+                      <Route path="/dapp/custodian/requests" component={CustodianRequests} />
+                      <Route path="/dapp/custodian/tokens/:actionType?" component={CustodianTokens} />
+                      <Route path="/dapp/custodian/reporting" component={CustodianReporting} />
+                    </Router>
+                  </Route>
+                </Switch>
+              </Router>
+            </Route>
+
+            <Route path="/404" component={ErrorFound} />
+            <Route path="/:rest*"><Redirect to="/" /></Route>
+          </Switch>
+        </Layout>
+      </Loader>
+    </Router>
+  );
+};
 
 App.propTypes = {};
 
