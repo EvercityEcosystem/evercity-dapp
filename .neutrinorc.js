@@ -26,7 +26,7 @@ module.exports = {
     root: __dirname,
   },
   use: [
-    airbnb(),
+    // airbnb(),
     copy({
       patterns: [
         { from: 'src/assets/fonts/', to: 'fonts' },
