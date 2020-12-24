@@ -6,6 +6,8 @@ export const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/polkadot
 export const DEFAULT_AUDITOR_ADDRESS = '5G4J6NvaRAWh7QXdFr34E3D2UxiRFEeksbKnBVrFMGYXC5WU';
 export const DEFAULT_ADDRESS = '5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM';
 
+export const BONDS_PAGE_SIZE = 50;
+
 export const IMPACT_DATA_TYPES = {
   POWER_GENERATED: {
     title: 'Renewable energy generation (MWh)',
@@ -22,11 +24,3 @@ export const BOND_STATE_COLORS = {
   ACTIVE: '#31CC79',
   FINISHED: '#FFD700',
 };
-
-export const PRE_INSTALLED_BONDS = [
-  'ECBD101',
-  'ECBD102',
-  'ECBD103',
-  'ECBD104',
-  'ECBD105',
-];

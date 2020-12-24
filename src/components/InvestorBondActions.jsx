@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, message,
+  Button,
+  message,
+  Dropdown,
+  Menu,
 } from 'antd';
 import SparkMD5 from 'spark-md5';
 import cx from 'classnames';
+import { DownOutlined } from '@ant-design/icons';
 
 import ModalView from './ModalView';
 import SimpleForm from './SimpleForm';
-import BondReport from './BondReport';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
@@ -19,7 +22,6 @@ const InvestorBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
     visibleInvestModal: false,
     visibleCheckModal: false,
-    visibleReportModal: false,
     filehash: null,
   });
   const { bondUnitPackageBuy } = usePolkadot();
@@ -84,29 +86,6 @@ const InvestorBondActions = ({ bond, mode }) => {
     [state.filehash, bond, updateState],
   );
 
-  const baseActions = [
-    <Button
-      type="primary"
-      size={mode === 'table' ? 'small' : 'middle'}
-      onClick={() => updateState({ visibleInvestModal: true })}
-      className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
-    >
-      Buy Bond Units
-    </Button>,
-  ];
-
-  const extendedActions = [
-    ...baseActions,
-    <Button type="default" onClick={() => updateState({ visibleReportModal: true })} className={styles.button}>
-      View Report
-    </Button>,
-    <Button type="default" onClick={() => updateState({ visibleCheckModal: true })} className={styles.button}>
-      Check Documents
-    </Button>,
-  ];
-
-  const actions = mode === 'table' ? baseActions : extendedActions;
-
   return (
     <>
       <ModalView
@@ -139,18 +118,28 @@ const InvestorBondActions = ({ bond, mode }) => {
           />
         )}
       />
-      <ModalView
-        visible={state.visibleReportModal}
-        onCancel={() => updateState({ visibleReportModal: false })}
-        width={900}
-        title={bond.id}
-        content={(
-          <BondReport bond={bond} />
-        )}
-      />
-      <div className={cx(styles.actions, { [styles.tableActions]: mode === 'table' })}>
-        {['BOOKING', 'ACTIVE'].includes(bond?.state) && actions}
-      </div>
+      {['BOOKING', 'ACTIVE'].includes(bond?.state) && (
+        <Dropdown
+          overlay={(
+            <Menu>
+              <Menu.Item key="1" onClick={() => updateState({ visibleInvestModal: true })}>
+                Buy Bond Units
+              </Menu.Item>
+              <Menu.Item key="2" onClick={() => updateState({ visibleCheckModal: true })}>
+                Check Documents
+              </Menu.Item>
+            </Menu>
+          )}
+        >
+          <Button
+            className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
+            size={mode === 'table' ? 'small' : 'middle'}
+          >
+            Actions
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+      )}
     </>
   );
 };
@@ -161,7 +150,7 @@ InvestorBondActions.propTypes = {
 };
 
 InvestorBondActions.defaultProps = {
-  mode: 'column',
+  mode: 'table',
 };
 
 export default InvestorBondActions;

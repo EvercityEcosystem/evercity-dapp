@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Row,
@@ -6,61 +6,40 @@ import {
   PageHeader,
   Empty,
   Radio,
-  Card,
-  Button,
-  message,
 } from 'antd';
 
 import { useTranslation } from 'react-i18next';
 
 import useXState from '../hooks/useXState';
+import usePolkadot from '../hooks/usePolkadot';
 
 import BondCard from '../components/BondCard';
 import BondsTable from '../components/BondsTable';
 import Loader from '../components/Loader';
-import SimpleForm from '../components/SimpleForm';
-import ModalView from '../components/ModalView';
+import { store } from '../components/PolkadotProvider';
 
 import styles from './Bonds.module.less';
-import useBonds from '../hooks/useBonds';
-import usePolkadot from '../hooks/usePolkadot';
 
 const Bonds = () => {
+  const { polkadotState } = useContext(store);
   const { t } = useTranslation();
-  const { bonds } = useBonds();
+  const { fetchBonds } = usePolkadot();
   const [state, updateState] = useXState({
     view: 'cards',
     bondIndexModalVisible: false,
+    bondsLoading: false,
   });
 
-  const { bondRegistry } = usePolkadot();
-
-  const formConfig = {
-    bondID: {
-      label: 'Bond ID',
-      required: true,
-      span: 24,
+  useEffect(
+    () => {
+      (async () => {
+        updateState({ bondsLoading: true });
+        await fetchBonds();
+        updateState({ bondsLoading: false });
+      })();
     },
-  };
-
-  const addBondToIndex = async ({ bondID }) => {
-    const bond = await bondRegistry(bondID);
-
-    if (!bond?.inner?.bond_duration) {
-      message.error('Bond not found');
-      return;
-    }
-
-    const indices = localStorage.getItem('bond_index');
-    if (indices) {
-      localStorage.setItem('bond_index', `${bondID},${indices}`);
-    } else {
-      localStorage.setItem('bond_index', bondID);
-    }
-
-    message.success('Bond added to index');
-    updateState({ bondIndexModalVisible: false });
-  };
+    [fetchBonds, updateState],
+  );
 
   let data = (
     <div className={styles.container}>
@@ -68,10 +47,10 @@ const Bonds = () => {
     </div>
   );
 
-  if (bonds.length) {
+  if (polkadotState.bonds.length) {
     data = (
       <Row gutter={26}>
-        {bonds.map((bond) => (
+        {polkadotState.bonds.map((bond) => (
           <Col span={8}>
             <BondCard bond={bond} />
           </Col>
@@ -81,25 +60,11 @@ const Bonds = () => {
   }
 
   if (state.view === 'table') {
-    data = (<BondsTable dataSource={bonds} />);
+    data = (<BondsTable dataSource={polkadotState.bonds} />);
   }
 
   return (
     <div className={styles.container}>
-      <ModalView
-        visible={state.bondIndexModalVisible}
-        onCancel={() => updateState({ bondIndexModalVisible: false })}
-        width={400}
-        title="Check documents"
-        content={(
-          <SimpleForm
-            style={{ width: '100%' }}
-            config={formConfig}
-            submitText="Add bond"
-            onSubmit={addBondToIndex}
-          />
-        )}
-      />
       <PageHeader
         ghost={false}
         className={styles.pageHeader}
@@ -118,7 +83,7 @@ const Bonds = () => {
         )}
       />
       <div className={styles.projectsContainer}>
-        <Loader spinning={false}>
+        <Loader spinning={state.bondsLoading}>
           {data}
         </Loader>
       </div>

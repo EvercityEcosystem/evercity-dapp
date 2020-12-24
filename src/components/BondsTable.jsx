@@ -6,24 +6,27 @@ import { useTranslation } from 'react-i18next';
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
 
 import TableList from './TableList';
-import ComponentSwitcher from './ComponentSwitcher';
-import InvestorBondActions from './InvestorBondActions';
-import MasterBondActions from './MasterBondActions';
-import IssuerBondActions from './IssuerBondActions';
-
-import { getCurrentUser } from '../utils/cookies';
+import BondActions from './BondActions';
 
 import styles from './BondsTable.module.less';
 
 const BondsTable = ({ dataSource, onRowClick }) => {
   const { t } = useTranslation();
-  const { role } = getCurrentUser();
 
   const columns = [
     {
       title: t('ID'),
       dataIndex: 'id',
       key: 'id',
+    },
+    {
+      title: t('State'),
+      key: 'bond.state',
+      render: (_, bond) => (
+        <div className={styles.bondState}>
+          <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
+        </div>
+      ),
     },
     {
       title: t('Impact Data Dype'),
@@ -56,29 +59,10 @@ const BondsTable = ({ dataSource, onRowClick }) => {
       render: (_, bond) => `${bond?.inner?.interest_rate_base_value / 1000}%`,
     },
     {
-      title: t('State'),
-      key: 'bond.state',
-      render: (_, bond) => (
-        <div className={styles.bondState}>
-          <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
-        </div>
-      ),
-    },
-    {
       title: t('Actions'),
       key: 'actions',
       render: (_, bond) => (
-        <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer'].indexOf(role)}
-          items={[
-            <InvestorBondActions bond={bond} mode="table" />,
-            <MasterBondActions bond={bond} mode="table" />,
-            <IssuerBondActions bond={bond} mode="table" />,
-          ]}
-          defaultItem={
-            null
-          }
-        />
+        <BondActions bond={bond} mode="table" />
       ),
     },
   ];

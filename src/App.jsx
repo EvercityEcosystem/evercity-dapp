@@ -19,7 +19,6 @@ import Logout from './pages/Logout';
 import Roles from './pages/Roles';
 import Tokens from './pages/Tokens';
 import Bonds from './pages/Bonds';
-import BondUnits from './pages/BondUnits';
 import CustodianRequests from './pages/CustodianRequests';
 import CustodianTokens from './pages/CustodianTokens';
 import CustodianReporting from './pages/CustodianReporting';
@@ -97,7 +96,6 @@ const App = () => {
                   <Route path="/dapp/investor/:rest*">
                     <Router hook={() => checkRole('investor')}>
                       <Route path="/dapp/investor/tokens/:action?" component={Tokens} />
-                      <Route path="/dapp/investor/units/:action?" component={BondUnits} />
                     </Router>
                   </Route>
 

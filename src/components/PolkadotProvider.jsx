@@ -1,6 +1,8 @@
 import React, { createContext, useReducer } from 'react';
 
-const initialState = {};
+const initialState = {
+  bonds: [],
+};
 const store = createContext(initialState);
 const { Provider } = store;
 
@@ -10,16 +12,21 @@ const PolkadotProvider = ({ children }) => {
     switch (action.type) {
       case 'setAPI':
         return {
+          ...state,
           api: action?.payload,
-          injector: state?.injector,
         };
       case 'setInjector':
         return {
+          ...state,
           injector: action?.payload,
-          api: state?.api,
+        };
+      case 'setBonds':
+        return {
+          ...state,
+          bonds: action?.payload,
         };
       default:
-        throw new Error();
+        throw new Error('Action not found');
     }
   }, initialState);
 

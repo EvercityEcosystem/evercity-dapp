@@ -5,21 +5,22 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
-import SimpleForm from '../components/SimpleForm';
+import SimpleForm from './SimpleForm';
 
 import usePolkadot from '../hooks/usePolkadot';
 
-import styles from './BondUnits.module.less';
+import styles from './BondUnitsSellForm.module.less';
 
-const BondUnits = ({ params }) => {
+const BondUnitsSellForm = ({ bondID, maxSell }) => {
   const { t } = useTranslation();
-  const { bondUnitLotBid, bondUnitLotSettle } = usePolkadot();
-  const { action } = params;
+  const { bondUnitLotBid } = usePolkadot();
 
   const formConfig = {
     bondID: {
       label: t('Bond ID'),
       required: true,
+      disabled: true,
+      default: bondID,
       span: 24,
     },
     deadline: {
@@ -29,15 +30,16 @@ const BondUnits = ({ params }) => {
       default: Math.round(dayjs().add(7, 'days') / 1000) * 1000,
       suffix: '7 days by default',
     },
-    bondholder: {
-      label: action === 'bid' ? t('New bondholder') : t('Bondholder'),
-      required: action === 'settle',
+    new_bondholder: {
+      label: t('New bondholder'),
+      required: false,
       span: 24,
     },
     unitsCount: {
       label: t('Units count'),
       required: true,
       type: 'number',
+      max: maxSell,
       span: 24,
     },
     amount: {
@@ -53,19 +55,17 @@ const BondUnits = ({ params }) => {
     wrapperCol: { span: 16 },
   };
 
-  const bondUnitAction = action === 'bid' ? bondUnitLotBid : bondUnitLotSettle;
-
   return (
     <div className={styles.container}>
       <SimpleForm
         config={formConfig}
-        onSubmit={bondUnitAction}
-        submitText={t(`Units ${action}`)}
+        onSubmit={bondUnitLotBid}
+        submitText={t('Sell')}
         initialValues={{
           amount: null,
-          unitsCount: null,
+          unitsCount: maxSell,
           bondholder: null,
-          bondID: null,
+          bondID,
         }}
         labelAlign="left"
         className={styles.form}
@@ -75,10 +75,11 @@ const BondUnits = ({ params }) => {
   );
 };
 
-BondUnits.propTypes = {
-  params: PropTypes.shape({ action: PropTypes.string.isRequired }).isRequired,
+BondUnitsSellForm.propTypes = {
+  bondID: PropTypes.string.isRequired,
+  maxSell: PropTypes.number.isRequired,
 };
 
-BondUnits.defaultProps = {};
+BondUnitsSellForm.defaultProps = {};
 
-export default BondUnits;
+export default BondUnitsSellForm;

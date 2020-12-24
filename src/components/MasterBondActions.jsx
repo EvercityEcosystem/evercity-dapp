@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, message,
+  Button,
+  message,
+  Dropdown,
+  Menu,
 } from 'antd';
 import SparkMD5 from 'spark-md5';
 import cx from 'classnames';
+import { DownOutlined } from '@ant-design/icons';
 
 import ModalView from './ModalView';
 import SimpleForm from './SimpleForm';
-import BondReport from './BondReport';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
@@ -18,7 +21,6 @@ import styles from './BondActions.module.less';
 const MasterBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
     visibleCheckModal: false,
-    visibleReportModal: false,
   });
   const { releaseBond, activateBond } = usePolkadot();
 
@@ -71,46 +73,6 @@ const MasterBondActions = ({ bond, mode }) => {
     [state.filehash, bond, updateState],
   );
 
-  const baseActions = [];
-
-  if (bond.state === 'PREPARE') {
-    baseActions.push(
-      <Button
-        type="primary"
-        size={mode === 'table' ? 'small' : 'middle'}
-        onClick={() => releaseBond(bond.id)}
-        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
-      >
-        Open book
-      </Button>,
-    );
-  }
-
-  if (bond.state === 'BOOKING') {
-    baseActions.push(
-      <Button
-        type="primary"
-        size={mode === 'table' ? 'small' : 'middle'}
-        onClick={() => activateBond(bond.id)}
-        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
-      >
-        Issue bond
-      </Button>,
-    );
-  }
-
-  const extendedActions = [
-    ...baseActions,
-    <Button type="default" onClick={() => updateState({ visibleReportModal: true })} className={styles.button}>
-      View Report
-    </Button>,
-    <Button type="default" onClick={() => updateState({ visibleCheckModal: true })} className={styles.button}>
-      Check Documents
-    </Button>,
-  ];
-
-  const actions = mode === 'table' ? baseActions : extendedActions;
-
   return (
     <>
       <ModalView
@@ -125,18 +87,37 @@ const MasterBondActions = ({ bond, mode }) => {
           />
         )}
       />
-      <ModalView
-        visible={state.visibleReportModal}
-        onCancel={() => updateState({ visibleReportModal: false })}
-        width={900}
-        title={bond.id}
-        content={(
-          <BondReport bond={bond} />
-        )}
-      />
-      <div className={cx(styles.actions, { [styles.tableActions]: mode === 'table' })}>
-        {actions}
-      </div>
+      {['PREPARE', 'BOOKING', 'ACTIVE'].includes(bond?.state) && (
+        <Dropdown
+          overlay={(
+            <Menu>
+              {bond.state === 'PREPARE' && (
+                <Menu.Item key="1" onClick={() => releaseBond(bond.id)}>
+                  Open book
+                </Menu.Item>
+              )}
+              {bond.state === 'BOOKING' && (
+                <Menu.Item key="2" onClick={() => activateBond(bond.id)}>
+                  Issue bond
+                </Menu.Item>
+              )}
+              {['BOOKING', 'ACTIVE'].includes(bond.state) && (
+                <Menu.Item key="3" onClick={() => updateState({ visibleCheckModal: true })}>
+                  Check Documents
+                </Menu.Item>
+              )}
+            </Menu>
+          )}
+        >
+          <Button
+            className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
+            size={mode === 'table' ? 'small' : 'middle'}
+          >
+            Actions
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+      )}
     </>
   );
 };

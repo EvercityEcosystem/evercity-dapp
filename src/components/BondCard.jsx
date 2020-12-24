@@ -7,13 +7,9 @@ import {
   Tag,
 } from 'antd';
 
-import ComponentSwitcher from './ComponentSwitcher';
-import InvestorBondActions from './InvestorBondActions';
-import MasterBondActions from './MasterBondActions';
-import IssuerBondActions from './IssuerBondActions';
+import BondActions from './BondActions';
 
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
-import { getCurrentUser } from '../utils/cookies';
 
 import styles from './BondCard.module.less';
 
@@ -26,39 +22,42 @@ const BondCard = ({ bond }) => {
 
   const percentage = Math.floor((currentVolume / (totalVolume || 1)) * 100);
 
-  const { role } = getCurrentUser();
-
   return (
-    <Card
-      hoverable
-      className={styles.bondCard}
-    >
-      <div className={styles.bondState}>
-        <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
-      </div>
-      <div className={styles.content}>
-        <div className={styles.title}>
-          {bond?.id}
+    <>
+      <Card
+        hoverable
+        className={styles.bondCard}
+      >
+        <div className={styles.bondState}>
+          <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
         </div>
-        <div className={styles.types}>
-          <Tag color={IMPACT_DATA_TYPES[bond?.inner?.impact_data_type]?.color}>
-            {IMPACT_DATA_TYPES[bond?.inner?.impact_data_type]?.title}
-          </Tag>
-        </div>
-        <div className={styles.bondDataContainer}>
-          <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={bond?.inner?.bond_units_base_price} />
-        </div>
-        <div className={styles.bondDataContainer}>
-          {bond?.state === 'BOOKING' && (
-            <Countdown className={styles.bondData} title="Mincap Days Left" format="D" value={bond?.inner?.mincap_deadline} />
-          )}
-          <Statistic className={styles.bondData} suffix="%" title="Interest" value={bond?.inner?.interest_rate_base_value / 1000} />
-          <Statistic className={styles.bondData} suffix="years" title="Maturity" value={bond?.inner?.bond_duration} />
-        </div>
-        {['BOOKING', 'ACTIVE'].includes(bond?.state) && (
+        <div className={styles.content}>
+          <div className={styles.title}>
+            {bond?.id}
+          </div>
+          <div className={styles.types}>
+            <Tag color={IMPACT_DATA_TYPES[bond?.inner?.impact_data_type]?.color}>
+              {IMPACT_DATA_TYPES[bond?.inner?.impact_data_type]?.title}
+            </Tag>
+          </div>
+          <div className={styles.bondDataContainer}>
+            <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={bond?.inner?.bond_units_base_price} />
+          </div>
+          <div className={styles.bondDataContainer}>
+            <Statistic className={styles.bondData} suffix="$" title="Total Volume" value={totalVolume} />
+          </div>
+          <div className={styles.bondDataContainer}>
+            {bond?.state === 'BOOKING' && (
+              <Countdown className={styles.bondData} title="Mincap Days Left" format="D" value={bond?.inner?.mincap_deadline} />
+            )}
+            <Statistic className={styles.bondData} suffix="%" title="Interest" value={bond?.inner?.interest_rate_base_value / 1000} />
+            <Statistic className={styles.bondData} suffix="years" title="Maturity" value={bond?.inner?.bond_duration} />
+          </div>
           <div className={styles.bookingProgress}>
             <div className={styles.bookingProgressLabel}>
-              {`${percentage}% booked of $${totalVolume}`}
+              {['BOOKING', 'ACTIVE', 'FINISHED'].includes(bond?.state)
+                ? `${percentage}% booked`
+                : 'Booking coming soon'}
             </div>
             <Progress
               percent={percentage}
@@ -67,20 +66,12 @@ const BondCard = ({ bond }) => {
               showInfo={false}
             />
           </div>
-        )}
-        <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer'].indexOf(role)}
-          items={[
-            <InvestorBondActions bond={bond} />,
-            <MasterBondActions bond={bond} />,
-            <IssuerBondActions bond={bond} />,
-          ]}
-          defaultItem={
-            null
-          }
-        />
-      </div>
-    </Card>
+          <div className={styles.actions}>
+            <BondActions bond={bond} />
+          </div>
+        </div>
+      </Card>
+    </>
   );
 };
 

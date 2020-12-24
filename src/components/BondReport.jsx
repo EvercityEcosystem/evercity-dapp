@@ -25,6 +25,7 @@ import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';
 
 import TableList from './TableList';
+import BondUnitsSellForm from './BondUnitsSellForm';
 
 import styles from './BondReport.module.less';
 import { getCurrentUser } from '../utils/cookies';
@@ -36,6 +37,8 @@ const BondReport = ({ bond }) => {
     impactData: [],
     packageLot: [],
     packageRegistry: [],
+    sellFormShown: false,
+    maxSell: 0,
   });
   const { address: currentUserAddress } = getCurrentUser();
 
@@ -97,7 +100,7 @@ const BondReport = ({ bond }) => {
 
   const packageRegistryColumns = [
     {
-      title: 'Amount',
+      title: 'Units count',
       dataIndex: 'bond_units',
       key: 'bond_units',
     },
@@ -110,6 +113,24 @@ const BondReport = ({ bond }) => {
       title: 'Coupon yield',
       dataIndex: 'coupon_yield',
       key: 'coupon_yield',
+    },
+    {
+      title: '',
+      key: 'actions',
+      render: (_, row) => (
+        !!currentUserAddress && (
+          <Button
+            size="small"
+            type="primary"
+            onClick={() => updateState({
+              sellFormShown: true,
+              maxSell: row.bond_units,
+            })}
+          >
+            Sell details
+          </Button>
+        )
+      ),
     },
   ];
 
@@ -269,26 +290,30 @@ const BondReport = ({ bond }) => {
           <YAxis dataKey="value" />
           <Tooltip />
         </LineChart>
-        <Divider orientation="left">
-          Impact report by period
-        </Divider>
-        <LineChart
-          width={700}
-          height={300}
-          data={state.impactData}
-          margin={{
-            top: 5,
-            right: 20,
-            bottom: 5,
-            left: 0,
-          }}
-        >
-          <Line strokeWidth={2} name="Impact report" type="monotone" dataKey="value" stroke="#8884d8" />
-          <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis dataKey="period" />
-          <YAxis dataKey="value" />
-          <Tooltip />
-        </LineChart>
+        {bond.state === 'ACTIVE' && (
+          <>
+            <Divider orientation="left">
+              Impact report by period
+            </Divider>
+            <LineChart
+              width={700}
+              height={300}
+              data={state.impactData}
+              margin={{
+                top: 5,
+                right: 20,
+                bottom: 5,
+                left: 0,
+              }}
+            >
+              <Line strokeWidth={2} name="Impact report" type="monotone" dataKey="value" stroke="#8884d8" />
+              <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+              <XAxis dataKey="period" />
+              <YAxis dataKey="value" />
+              <Tooltip />
+            </LineChart>
+          </>
+        )}
       </TabPane>
       <TabPane tab="All bids" key="my_bids">
         <TableList
@@ -299,16 +324,25 @@ const BondReport = ({ bond }) => {
           size="middle"
         />
       </TabPane>
-      <TabPane tab="My bond units" key="my_units">
-        <TableList
-          pagination={false}
-          className={styles.table}
-          rowKey={(row) => row.id}
-          columns={packageRegistryColumns}
-          dataSource={state.packageRegistry}
-          size="middle"
-        />
-      </TabPane>
+      {!!currentUserAddress && (
+        <TabPane tab="My bond units" key="my_units">
+          <Row>
+            <TableList
+              pagination={false}
+              className={styles.table}
+              rowKey={(row) => row.id}
+              columns={packageRegistryColumns}
+              dataSource={state.packageRegistry}
+              size="middle"
+            />
+          </Row>
+          <Row style={{ marginTop: 20 }}>
+            {state.sellFormShown && (
+              <BondUnitsSellForm bondID={bond.id} maxSell={state.maxSell} />
+            )}
+          </Row>
+        </TabPane>
+      )}
     </Tabs>
   );
 };

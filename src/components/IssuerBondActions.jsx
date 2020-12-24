@@ -1,54 +1,27 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, message,
+  Button,
+  Dropdown,
+  Menu,
 } from 'antd';
 import cx from 'classnames';
+import { DownOutlined } from '@ant-design/icons';
 
 import ModalView from './ModalView';
 import SimpleForm from './SimpleForm';
-import BondReport from './BondReport';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
-import { getCurrentUser } from '../utils/cookies';
-
 import styles from './BondActions.module.less';
 
 const IssuerBondActions = ({ bond, mode }) => {
-  const { address: currentUserAddress } = getCurrentUser();
   const [state, updateState] = useXState({
-    visibleReportModal: false,
     visibleImpactModal: false,
     visibleDepositModal: false,
   });
   const { bondImpactReportSend, bondDepositEverusd } = usePolkadot();
-
-  useEffect(
-    () => {
-      const isDocumentValid = [
-        bond.inner?.docs_pack_root_hash_main,
-        bond.inner?.docs_pack_root_hash_tech,
-        bond.inner?.docs_pack_root_hash_legal,
-        bond.inner?.docs_pack_root_hash_finance,
-      ].includes(state.filehash);
-
-      if (!state.filehash) {
-        return;
-      }
-
-      if (isDocumentValid) {
-        message.success('Document is valid');
-        updateState({ filehash: null });
-        return;
-      }
-
-      message.error('Document is not valid');
-      updateState({ filehash: null });
-    },
-    [state.filehash, bond, updateState],
-  );
 
   const depositFormConfig = {
     amount: {
@@ -80,8 +53,6 @@ const IssuerBondActions = ({ bond, mode }) => {
     },
   };
 
-  const baseActions = [];
-
   const sendImpactData = async ({ period, impactData }) => {
     await bondImpactReportSend(bond.id, period, impactData);
     updateState({ visibleImpactModal: false });
@@ -91,31 +62,6 @@ const IssuerBondActions = ({ bond, mode }) => {
     await bondDepositEverusd(bond.id, amount);
     updateState({ visibleDepositModal: false });
   };
-
-  if (bond.state === 'ACTIVE' && bond.issuer === currentUserAddress) {
-    baseActions.push(
-      <Button
-        type="primary"
-        size={mode === 'table' ? 'small' : 'middle'}
-        onClick={() => updateState({ visibleDepositModal: true })}
-        className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
-      >
-        Deposit
-      </Button>,
-    );
-  }
-
-  const extendedActions = [
-    ...baseActions,
-    <Button type="default" onClick={() => updateState({ visibleImpactModal: true })} className={styles.button}>
-      Send impact data
-    </Button>,
-    <Button type="default" onClick={() => updateState({ visibleReportModal: true })} className={styles.button}>
-      View Report
-    </Button>,
-  ];
-
-  const actions = mode === 'table' ? baseActions : extendedActions;
 
   return (
     <>
@@ -149,18 +95,28 @@ const IssuerBondActions = ({ bond, mode }) => {
           />
         )}
       />
-      <ModalView
-        visible={state.visibleReportModal}
-        onCancel={() => updateState({ visibleReportModal: false })}
-        width={900}
-        title={bond.id}
-        content={(
-          <BondReport bond={bond} />
-        )}
-      />
-      <div className={cx(styles.actions, { [styles.tableActions]: mode === 'table' })}>
-        {actions}
-      </div>
+      {['BOOKING', 'ACTIVE'].includes(bond?.state) && (
+        <Dropdown
+          overlay={(
+            <Menu>
+              <Menu.Item key="1" onClick={() => updateState({ visibleDepositModal: true })}>
+                Deposit
+              </Menu.Item>
+              <Menu.Item key="2" onClick={() => updateState({ visibleImpactModal: true })}>
+                Send impact data
+              </Menu.Item>
+            </Menu>
+          )}
+        >
+          <Button
+            className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
+            size={mode === 'table' ? 'small' : 'middle'}
+          >
+            Actions
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+      )}
     </>
   );
 };
@@ -171,7 +127,7 @@ IssuerBondActions.propTypes = {
 };
 
 IssuerBondActions.defaultProps = {
-  mode: 'column',
+  mode: 'card',
 };
 
 export default IssuerBondActions;

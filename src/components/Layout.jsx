@@ -75,19 +75,6 @@ const getRoutesByRole = (role, { t }) => {
             },
           ],
         },
-        {
-          title: t('Bond units'),
-          children: [
-            {
-              path: '/dapp/investor/units/bid',
-              title: t('Bid'),
-            },
-            {
-              path: '/dapp/investor/units/settle',
-              title: t('Settle'),
-            },
-          ],
-        },
       ];
     case 'custodian':
       return [

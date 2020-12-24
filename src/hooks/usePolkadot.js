@@ -4,33 +4,64 @@ import {
 } from 'react';
 
 import { notification } from 'antd';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { u8aToString } from '@polkadot/util';
 
 import { store } from '../components/PolkadotProvider';
 
 import { getAvailableRoles } from '../utils/roles';
 import { getCurrentUser } from '../utils/cookies';
-import { DEFAULT_AUDITOR_ADDRESS } from '../utils/env';
-
-const transactionCallback = (message) => ({ status }) => {
-  if (status.isInBlock) {
-    notification.success({
-      message,
-      description: 'Transaction is in block',
-    });
-  }
-
-  if (status.isFinalized) {
-    notification.success({
-      message,
-      description: 'Block finalized',
-    });
-  }
-};
+import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
 
 export default () => {
-  const { polkadotState } = useContext(store);
+  const { polkadotState, dispatch } = useContext(store);
   const { address: currentUserAddress } = getCurrentUser();
   const { api, injector } = polkadotState;
+
+  const fetchBonds = useCallback(
+    async () => {
+      const result = await api
+        .query
+        .evercity
+        .bondRegistry
+        .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
+
+      const payload = result.map(([{ args }, value]) => {
+        const id = u8aToString(args[0]);
+
+        return ({
+          id,
+          ...value.toJSON(),
+        });
+      });
+
+      dispatch({
+        type: 'setBonds',
+        payload,
+      });
+    },
+    [api, dispatch],
+  );
+
+  const transactionCallback = useCallback(
+    (message) => ({ status }) => {
+      if (status.isInBlock) {
+        notification.success({
+          message,
+          description: 'Transaction is in block',
+        });
+      }
+
+      if (status.isFinalized) {
+        notification.success({
+          message,
+          description: 'Block finalized',
+        });
+        fetchBonds();
+      }
+    },
+    [fetchBonds],
+  );
 
   const accountRegistry = useCallback(
     async (address) => {
@@ -55,18 +86,6 @@ export default () => {
         .balanceEverUSD(address);
 
       return data?.toHuman();
-    },
-    [api],
-  );
-
-  const bondRegistry = useCallback(
-    async (bondId) => {
-      const data = await api
-        .query
-        .evercity
-        .bondRegistry(bondId);
-
-      return data.toJSON();
     },
     [api],
   );
@@ -100,7 +119,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const revokeMintTokens = useCallback(
@@ -130,7 +154,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const requestBurnTokens = useCallback(
@@ -162,7 +191,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const revokeBurnTokens = useCallback(
@@ -192,7 +226,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const createOrAssignRole = useCallback(
@@ -224,7 +263,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const checkMintRequest = useCallback(
@@ -281,7 +325,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const declineEverusdRequest = useCallback(
@@ -312,7 +361,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const totalSupplyEverUSD = useCallback(
@@ -356,7 +410,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const bondImpactReport = useCallback(
@@ -413,7 +472,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const bondUnitLotSettle = useCallback(
@@ -459,7 +523,7 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [api, injector, currentUserAddress, transactionCallback],
   );
 
   const bondUnitPackageLot = useCallback(
@@ -483,6 +547,10 @@ export default () => {
 
   const bondUnitPackageRegistry = useCallback(
     async (bondID) => {
+      if (!currentUserAddress) {
+        return [];
+      }
+
       const result = await api
         .query
         .evercity
@@ -551,7 +619,7 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [api, injector, currentUserAddress, transactionCallback],
   );
 
   const releaseBond = useCallback(
@@ -583,7 +651,7 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [api, injector, currentUserAddress, transactionCallback],
   );
 
   const activateBond = useCallback(
@@ -621,7 +689,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const bondImpactReportSend = useCallback(
@@ -651,7 +724,12 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   const bondDepositEverusd = useCallback(
@@ -681,12 +759,17 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress],
+    [
+      api,
+      injector,
+      currentUserAddress,
+      transactionCallback,
+    ],
   );
 
   return {
     accountRegistry,
-    bondRegistry,
+    fetchBonds,
     balanceEverUSD,
     requestMintTokens,
     revokeMintTokens,
