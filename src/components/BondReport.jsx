@@ -56,7 +56,7 @@ const BondReport = ({ bond }) => {
 
         const impactData = result.map((item, index) => ({
           period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
-          value: item.impact_data,
+          impactData: parseInt((item?.impact_data?.replaceAll(',', '') || ''), 10),
         }));
 
         updateState({ impactData });
@@ -273,25 +273,32 @@ const BondReport = ({ bond }) => {
         <Divider orientation="left">
           Impact baseline by period
         </Divider>
-        <LineChart
-          width={700}
-          height={300}
-          data={impactBaselineData}
-          margin={{
-            top: 26,
-            right: 20,
-            bottom: 5,
-            left: 0,
-          }}
-        >
-          <Line type="monotone" strokeWidth={2} name="Impact baseline" dataKey="value" />
-          <CartesianGrid stroke="#DDD" strokeDasharray="7 7" />
-          <XAxis dataKey="period" />
-          <YAxis dataKey="value" />
-          <Tooltip />
-        </LineChart>
-        {bond.state === 'ACTIVE' && (
-          <>
+        <div className={styles.chartContainer}>
+          <LineChart
+            width={700}
+            height={300}
+            data={impactBaselineData}
+            margin={{
+              top: 26,
+              bottom: 5,
+              right: 60,
+            }}
+          >
+            <Line
+              type="monotone"
+              strokeWidth={2}
+              name="Impact baseline"
+              dataKey="value"
+              dot={false}
+            />
+            <CartesianGrid stroke="#DDD" strokeDasharray="7 7" />
+            <XAxis dataKey="period" />
+            <YAxis dataKey="value" />
+            <Tooltip />
+          </LineChart>
+        </div>
+        {['ACTIVE', 'FINISHED'].includes(bond.state) && (
+          <div className={styles.chartContainer}>
             <Divider orientation="left">
               Impact report by period
             </Divider>
@@ -301,18 +308,23 @@ const BondReport = ({ bond }) => {
               data={state.impactData}
               margin={{
                 top: 5,
-                right: 20,
+                right: 60,
                 bottom: 5,
-                left: 0,
               }}
             >
-              <Line strokeWidth={2} name="Impact report" type="monotone" dataKey="value" stroke="#8884d8" />
+              <Line
+                strokeWidth={2}
+                name="Impact report"
+                type="monotone"
+                dataKey="impactData"
+                dot={false}
+              />
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="period" />
-              <YAxis dataKey="value" />
+              <YAxis dataKey="impactData" />
               <Tooltip />
             </LineChart>
-          </>
+          </div>
         )}
       </TabPane>
       <TabPane tab="All bids" key="my_bids">

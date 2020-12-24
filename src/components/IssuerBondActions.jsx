@@ -14,6 +14,8 @@ import SimpleForm from './SimpleForm';
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
+import stopPropagation from '../utils/bubbling';
+
 import styles from './BondActions.module.less';
 
 const IssuerBondActions = ({ bond, mode }) => {
@@ -67,7 +69,7 @@ const IssuerBondActions = ({ bond, mode }) => {
     <>
       <ModalView
         visible={state.visibleDepositModal}
-        onCancel={() => updateState({ visibleDepositModal: false })}
+        onCancel={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: false }))}
         width={400}
         title="Bond deposit"
         content={(
@@ -82,7 +84,7 @@ const IssuerBondActions = ({ bond, mode }) => {
       />
       <ModalView
         visible={state.visibleImpactModal}
-        onCancel={() => updateState({ visibleImpactModal: false })}
+        onCancel={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: false }))}
         width={400}
         title="Send impact data"
         content={(
@@ -99,10 +101,10 @@ const IssuerBondActions = ({ bond, mode }) => {
         <Dropdown
           overlay={(
             <Menu>
-              <Menu.Item key="1" onClick={() => updateState({ visibleDepositModal: true })}>
+              <Menu.Item key="1" onClick={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: true }))}>
                 Deposit
               </Menu.Item>
-              <Menu.Item key="2" onClick={() => updateState({ visibleImpactModal: true })}>
+              <Menu.Item key="2" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
                 Send impact data
               </Menu.Item>
             </Menu>

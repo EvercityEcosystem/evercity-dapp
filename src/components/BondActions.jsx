@@ -9,37 +9,20 @@ import ComponentSwitcher from './ComponentSwitcher';
 import InvestorBondActions from './InvestorBondActions';
 import MasterBondActions from './MasterBondActions';
 import IssuerBondActions from './IssuerBondActions';
-import BondReport from './BondReport';
-import ModalView from './ModalView';
-
-import useXState from '../hooks/useXState';
 
 import { getCurrentUser } from '../utils/cookies';
 
 import styles from './BondActions.module.less';
 
-const BondCard = ({ bond, mode }) => {
+const BondActions = ({ bond, mode }) => {
   const { role } = getCurrentUser();
-  const [state, updateState] = useXState({
-    visibleReportModal: false,
-  });
 
   return (
     <>
-      <ModalView
-        visible={state.visibleReportModal}
-        onCancel={() => updateState({ visibleReportModal: false })}
-        width={900}
-        title={bond.id}
-        content={(
-          <BondReport bond={bond} />
-        )}
-      />
       <div className={cx(styles.actions, { [styles.tableActions]: mode === 'table' })}>
         <Button
           size={mode === 'table' ? 'small' : 'middle'}
           type="primary"
-          onClick={() => updateState({ visibleReportModal: true })}
           className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
         >
           View bond
@@ -60,13 +43,13 @@ const BondCard = ({ bond, mode }) => {
   );
 };
 
-BondCard.propTypes = {
+BondActions.propTypes = {
   bond: PropTypes.shape().isRequired,
   mode: PropTypes.string,
 };
 
-BondCard.defaultProps = {
+BondActions.defaultProps = {
   mode: 'card',
 };
 
-export default BondCard;
+export default BondActions;

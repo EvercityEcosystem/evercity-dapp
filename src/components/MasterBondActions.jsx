@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
-  message,
   Dropdown,
   Menu,
 } from 'antd';
-import SparkMD5 from 'spark-md5';
 import cx from 'classnames';
 import { DownOutlined } from '@ant-design/icons';
 
@@ -15,6 +13,9 @@ import SimpleForm from './SimpleForm';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
+import useDocuments from '../hooks/useDocuments';
+
+import stopPropagation from '../utils/bubbling';
 
 import styles from './BondActions.module.less';
 
@@ -24,60 +25,13 @@ const MasterBondActions = ({ bond, mode }) => {
   });
   const { releaseBond, activateBond } = usePolkadot();
 
-  const checkDocumentsFormConfig = {
-    docs: {
-      display: 'file',
-      placeholder: 'Upload document',
-      accept: '.pdf,.xls,.xlsx',
-      span: 24,
-      beforeUpload: async (file) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-          const spark = new SparkMD5.ArrayBuffer();
-          spark.append(reader.result);
-          const filehash = spark.end();
-
-          updateState({ filehash });
-        };
-
-        reader.readAsArrayBuffer(file);
-
-        return false;
-      },
-    },
-  };
-
-  useEffect(
-    () => {
-      const isDocumentValid = [
-        bond.inner?.docs_pack_root_hash_main,
-        bond.inner?.docs_pack_root_hash_tech,
-        bond.inner?.docs_pack_root_hash_legal,
-        bond.inner?.docs_pack_root_hash_finance,
-      ].includes(state.filehash);
-
-      if (!state.filehash) {
-        return;
-      }
-
-      if (isDocumentValid) {
-        message.success('Document is valid');
-        updateState({ filehash: null });
-        return;
-      }
-
-      message.error('Document is not valid');
-      updateState({ filehash: null });
-    },
-    [state.filehash, bond, updateState],
-  );
+  const { checkDocumentsFormConfig } = useDocuments({ state, updateState, bond });
 
   return (
     <>
       <ModalView
         visible={state.visibleCheckModal}
-        onCancel={() => updateState({ visibleCheckModal: false })}
+        onCancel={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: false }))}
         width={400}
         title="Check documents"
         content={(
@@ -92,17 +46,17 @@ const MasterBondActions = ({ bond, mode }) => {
           overlay={(
             <Menu>
               {bond.state === 'PREPARE' && (
-                <Menu.Item key="1" onClick={() => releaseBond(bond.id)}>
+                <Menu.Item key="1" onClick={(e) => stopPropagation(e, () => releaseBond(bond.id))}>
                   Open book
                 </Menu.Item>
               )}
               {bond.state === 'BOOKING' && (
-                <Menu.Item key="2" onClick={() => activateBond(bond.id)}>
+                <Menu.Item key="2" onClick={(e) => stopPropagation(e, () => activateBond(bond.id))}>
                   Issue bond
                 </Menu.Item>
               )}
               {['BOOKING', 'ACTIVE'].includes(bond.state) && (
-                <Menu.Item key="3" onClick={() => updateState({ visibleCheckModal: true })}>
+                <Menu.Item key="3" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
                   Check Documents
                 </Menu.Item>
               )}

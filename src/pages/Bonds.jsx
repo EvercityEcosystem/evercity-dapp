@@ -17,6 +17,8 @@ import BondCard from '../components/BondCard';
 import BondsTable from '../components/BondsTable';
 import Loader from '../components/Loader';
 import { store } from '../components/PolkadotProvider';
+import BondReport from '../components/BondReport';
+import ModalView from '../components/ModalView';
 
 import styles from './Bonds.module.less';
 
@@ -26,7 +28,7 @@ const Bonds = () => {
   const { fetchBonds } = usePolkadot();
   const [state, updateState] = useXState({
     view: 'cards',
-    bondIndexModalVisible: false,
+    currentBond: null,
     bondsLoading: false,
   });
 
@@ -52,7 +54,7 @@ const Bonds = () => {
       <Row gutter={26}>
         {polkadotState.bonds.map((bond) => (
           <Col span={8}>
-            <BondCard bond={bond} />
+            <BondCard bond={bond} onClick={updateState} />
           </Col>
         ))}
       </Row>
@@ -60,11 +62,20 @@ const Bonds = () => {
   }
 
   if (state.view === 'table') {
-    data = (<BondsTable dataSource={polkadotState.bonds} />);
+    data = (<BondsTable dataSource={polkadotState.bonds} onRowClick={updateState} />);
   }
 
   return (
     <div className={styles.container}>
+      <ModalView
+        visible={!!state.currentBond}
+        onCancel={() => updateState({ currentBond: null })}
+        width={900}
+        title={state.currentBond?.id}
+        content={(
+          <BondReport bond={state.currentBond} />
+        )}
+      />
       <PageHeader
         ghost={false}
         className={styles.pageHeader}

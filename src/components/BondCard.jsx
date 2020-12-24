@@ -15,7 +15,7 @@ import styles from './BondCard.module.less';
 
 const { Countdown } = Statistic;
 
-const BondCard = ({ bond }) => {
+const BondCard = ({ bond, onClick }) => {
   const currentVolume = (bond?.issued_amount || 0) * (bond?.inner?.bond_units_base_price || 0);
   const totalVolume = (bond?.inner?.bond_units_maxcap_amount || 0)
     * (bond?.inner?.bond_units_base_price || 0);
@@ -27,6 +27,7 @@ const BondCard = ({ bond }) => {
       <Card
         hoverable
         className={styles.bondCard}
+        onClick={() => onClick({ currentBond: bond })}
       >
         <div className={styles.bondState}>
           <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
@@ -77,6 +78,7 @@ const BondCard = ({ bond }) => {
 
 BondCard.propTypes = {
   bond: PropTypes.shape().isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 BondCard.defaultProps = {

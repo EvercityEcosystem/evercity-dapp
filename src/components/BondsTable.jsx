@@ -67,12 +67,6 @@ const BondsTable = ({ dataSource, onRowClick }) => {
     },
   ];
 
-  const onClick = (record) => {
-    if (onRowClick) {
-      onRowClick(record);
-    }
-  };
-
   return (
     <div className={styles.container}>
       <TableList
@@ -80,8 +74,8 @@ const BondsTable = ({ dataSource, onRowClick }) => {
         columns={columns}
         dataSource={dataSource}
         size="middle"
-        onRow={(record) => ({
-          onClick: () => onClick(record),
+        onRow={(currentBond) => ({
+          onClick: () => onRowClick({ currentBond }),
         })}
       />
     </div>
@@ -90,12 +84,11 @@ const BondsTable = ({ dataSource, onRowClick }) => {
 
 BondsTable.propTypes = {
   dataSource: PropTypes.arrayOf(PropTypes.shape()),
-  onRowClick: PropTypes.func,
+  onRowClick: PropTypes.func.isRequired,
 };
 
 BondsTable.defaultProps = {
   dataSource: [],
-  onRowClick: null,
 };
 
 export default BondsTable;

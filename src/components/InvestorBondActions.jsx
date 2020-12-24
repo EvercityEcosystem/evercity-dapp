@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
-  message,
   Dropdown,
   Menu,
 } from 'antd';
-import SparkMD5 from 'spark-md5';
 import cx from 'classnames';
 import { DownOutlined } from '@ant-design/icons';
 
@@ -15,6 +13,9 @@ import SimpleForm from './SimpleForm';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
+import useDocuments from '../hooks/useDocuments';
+
+import stopPropagation from '../utils/bubbling';
 
 import styles from './BondActions.module.less';
 
@@ -25,6 +26,7 @@ const InvestorBondActions = ({ bond, mode }) => {
     filehash: null,
   });
   const { bondUnitPackageBuy } = usePolkadot();
+  const { checkDocumentsFormConfig } = useDocuments({ state, updateState, bond });
 
   const buyFormConfig = {
     amount: {
@@ -37,60 +39,11 @@ const InvestorBondActions = ({ bond, mode }) => {
     },
   };
 
-  const checkDocumentsFormConfig = {
-    docs: {
-      display: 'file',
-      placeholder: 'Upload document',
-      accept: '.pdf,.xls,.xlsx',
-      span: 24,
-      beforeUpload: async (file) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-          const spark = new SparkMD5.ArrayBuffer();
-          spark.append(reader.result);
-          const filehash = spark.end();
-
-          updateState({ filehash });
-        };
-
-        reader.readAsArrayBuffer(file);
-
-        return false;
-      },
-    },
-  };
-
-  useEffect(
-    () => {
-      const isDocumentValid = [
-        bond.inner?.docs_pack_root_hash_main,
-        bond.inner?.docs_pack_root_hash_tech,
-        bond.inner?.docs_pack_root_hash_legal,
-        bond.inner?.docs_pack_root_hash_finance,
-      ].includes(state.filehash);
-
-      if (!state.filehash) {
-        return;
-      }
-
-      if (isDocumentValid) {
-        message.success('Document is valid');
-        updateState({ filehash: null });
-        return;
-      }
-
-      message.error('Document is not valid');
-      updateState({ filehash: null });
-    },
-    [state.filehash, bond, updateState],
-  );
-
   return (
     <>
       <ModalView
         visible={state.visibleInvestModal}
-        onCancel={() => updateState({ visibleInvestModal: false })}
+        onCancel={(e) => stopPropagation(e, () => updateState({ visibleInvestModal: false }))}
         width={400}
         title="Buy Bond Units"
         content={(
@@ -108,7 +61,7 @@ const InvestorBondActions = ({ bond, mode }) => {
       />
       <ModalView
         visible={state.visibleCheckModal}
-        onCancel={() => updateState({ visibleCheckModal: false })}
+        onCancel={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: false }))}
         width={400}
         title="Check documents"
         content={(
@@ -122,10 +75,10 @@ const InvestorBondActions = ({ bond, mode }) => {
         <Dropdown
           overlay={(
             <Menu>
-              <Menu.Item key="1" onClick={() => updateState({ visibleInvestModal: true })}>
+              <Menu.Item key="1" onClick={(e) => stopPropagation(e, () => updateState({ visibleInvestModal: true }))}>
                 Buy Bond Units
               </Menu.Item>
-              <Menu.Item key="2" onClick={() => updateState({ visibleCheckModal: true })}>
+              <Menu.Item key="2" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
                 Check Documents
               </Menu.Item>
             </Menu>
