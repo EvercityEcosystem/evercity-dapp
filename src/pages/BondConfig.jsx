@@ -102,6 +102,16 @@ const BondConfig = () => {
       span: 12,
       default: DEFAULT_PERIODS,
     },
+    payment_period: {
+      label: 'Coupon period, days',
+      suffix: 'Frequency of interest rate recalculation',
+      required: true,
+      type: 'number',
+      display: 'text',
+      span: 12,
+      default: 365,
+      disabled: true,
+    },
     bond_finishing_period: {
       label: 'Face value payment period, days',
       required: true,
@@ -219,15 +229,6 @@ const BondConfig = () => {
       min: 1,
       max: 100,
       default: IR_DEFAULT,
-    },
-    payment_period: {
-      label: 'Coupon period, days',
-      suffix: 'Frequency of interest rate recalculation',
-      required: true,
-      type: 'number',
-      display: 'text',
-      span: 12,
-      default: 120,
     },
     interest_pay_period: {
       label: 'Interest rate payment period, days',
