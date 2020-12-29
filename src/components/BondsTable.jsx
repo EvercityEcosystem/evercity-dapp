@@ -4,13 +4,14 @@ import { Tag, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
+import { toPercent, toEverUSD } from '../utils/converters';
 
 import TableList from './TableList';
 import BondActions from './BondActions';
 
 import styles from './BondsTable.module.less';
 
-const BondsTable = ({ dataSource, onRowClick }) => {
+const BondsTable = ({ dataSource, onClick }) => {
   const { t } = useTranslation();
 
   const columns = [
@@ -29,7 +30,7 @@ const BondsTable = ({ dataSource, onRowClick }) => {
       ),
     },
     {
-      title: t('Impact Data Dype'),
+      title: t('Impact indicator'),
       key: 'bond_type',
       render: (_, record) => (
         <Tag color={IMPACT_DATA_TYPES[record?.inner?.impact_data_type]?.color}>
@@ -38,31 +39,37 @@ const BondsTable = ({ dataSource, onRowClick }) => {
       ),
     },
     {
-      title: t('Bond Unit Price'),
+      title: t('Bond price'),
       key: 'bond_type',
-      render: (_, bond) => `$ ${bond?.inner?.bond_units_base_price}`,
+      render: (_, bond) => `$ ${toEverUSD(bond?.inner?.bond_units_base_price)}`,
     },
     {
-      title: t('Issued Units'),
+      title: t('Booked'),
       key: 'issued',
       render: (_, bond) => {
         const percentage = Math.floor(
           ((bond?.issued_amount || 0) / (bond?.inner?.bond_units_maxcap_amount || 1)) * 100,
         );
 
-        return <Progress percent={percentage} />;
+        return (
+          <Progress
+            percent={percentage}
+            status="active"
+            strokeColor="#31CC79"
+          />
+        );
       },
     },
     {
       title: t('Interest'),
-      key: 'interest_rate_base_value',
-      render: (_, bond) => `${bond?.inner?.interest_rate_base_value / 1000}%`,
+      key: 'interest',
+      render: (_, bond) => `${toPercent(bond.currentInterestRate)}%`,
     },
     {
       title: t('Actions'),
       key: 'actions',
       render: (_, bond) => (
-        <BondActions bond={bond} mode="table" />
+        <BondActions onClick={() => onClick({ currentBond: bond })} bond={bond} mode="table" />
       ),
     },
   ];
@@ -74,9 +81,6 @@ const BondsTable = ({ dataSource, onRowClick }) => {
         columns={columns}
         dataSource={dataSource}
         size="middle"
-        onRow={(currentBond) => ({
-          onClick: () => onRowClick({ currentBond }),
-        })}
       />
     </div>
   );
@@ -84,7 +88,7 @@ const BondsTable = ({ dataSource, onRowClick }) => {
 
 BondsTable.propTypes = {
   dataSource: PropTypes.arrayOf(PropTypes.shape()),
-  onRowClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 BondsTable.defaultProps = {

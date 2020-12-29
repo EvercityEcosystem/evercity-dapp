@@ -62,7 +62,7 @@ const Bonds = () => {
   }
 
   if (state.view === 'table') {
-    data = (<BondsTable dataSource={polkadotState.bonds} onRowClick={updateState} />);
+    data = (<BondsTable dataSource={polkadotState.bonds} onClick={updateState} />);
   }
 
   return (

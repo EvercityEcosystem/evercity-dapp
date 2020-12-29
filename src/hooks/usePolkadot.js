@@ -12,35 +12,78 @@ import { store } from '../components/PolkadotProvider';
 import { getAvailableRoles } from '../utils/roles';
 import { getCurrentUser } from '../utils/cookies';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
+import { toEverUSD } from '../utils/converters';
 
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
   const { address: currentUserAddress } = getCurrentUser();
   const { api, injector } = polkadotState;
 
+  const bondCouponYield = useCallback(
+    async (bondID) => {
+      if (!currentUserAddress) {
+        return [];
+      }
+
+      const result = await api
+        .query
+        .evercity
+        .bondCouponYield(bondID);
+
+      return result?.toJSON();
+    },
+    [api, currentUserAddress],
+  );
+
   const fetchBonds = useCallback(
     async () => {
+      let payload = [];
+
+      if (!api) {
+        return payload;
+      }
+
       const result = await api
         .query
         .evercity
         .bondRegistry
         .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
 
-      const payload = result.map(([{ args }, value]) => {
+      const promises = result.map(async ([{ args }, value]) => {
         const id = u8aToString(args[0]);
+        const couponYield = await bondCouponYield(id);
+        const bondData = value.toJSON();
+
+        let currentInterestRate = bondData?.inner?.interest_rate_base_value;
+
+        if (!!couponYield.length) {
+          currentInterestRate = couponYield[couponYield.length - 1]?.interest_rate
+        }
 
         return ({
           id,
-          ...value.toJSON(),
+          bondCouponYield: couponYield,
+          currentInterestRate,
+          ...bondData,
         });
       });
+
+      try {
+        payload = await Promise.all(promises);
+        
+      } catch (error) {
+        notification.error({
+          message: 'An error has occured while loading bonds',
+          description: error,
+        });
+      }
 
       dispatch({
         type: 'setBonds',
         payload,
       });
     },
-    [api, dispatch],
+    [api, dispatch, bondCouponYield],
   );
 
   const transactionCallback = useCallback(
@@ -85,7 +128,7 @@ export default () => {
         .evercity
         .balanceEverUSD(address);
 
-      return data?.toHuman();
+      return toEverUSD(data?.toNumber());
     },
     [api],
   );
@@ -425,7 +468,7 @@ export default () => {
         .evercity
         .bondImpactReport(bondID);
 
-      return result?.toHuman();
+      return result?.toJSON();
     },
     [api],
   );
@@ -441,7 +484,7 @@ export default () => {
       } = values;
 
       const lot = api.createType('BondUnitSaleLotStructOf', {
-        deadline,
+        deadline: deadline.unix() * 1000,
         new_bondholder: bondholder,
         bond_units: unitsCount,
         amount,
@@ -534,13 +577,22 @@ export default () => {
         .bondUnitPackageLot
         .entries(bondID);
 
-      return result
-        .map(([{ args: [, bondholder] }, value]) => ({
-          bondID,
-          bondholder: bondholder.toHuman(),
-          ...value.toJSON()[0],
-        }))
-        .filter((item) => !!item.bond_units);
+      const allLots = [];
+
+      result.forEach(([{ args: [, bondholder] }, value]) => {
+        const inner = value.toJSON();
+        inner.forEach(data => {
+          allLots.push(
+            {
+              bondID,
+              bondholder: bondholder.toHuman(),
+              ...data,
+            }
+          )
+        });
+      })
+
+      return allLots.filter((item) => !!item.bond_units);
     },
     [api],
   );
@@ -587,10 +639,10 @@ export default () => {
         start_period: values.start_period,
         payment_period: values.payment_period,
         bond_duration: values.bond_duration,
-        mincap_deadline: values.mincap_deadline,
+        mincap_deadline: values.mincap_deadline.unix() * 1000,
         bond_units_mincap_amount: values.bond_units_mincap_amount,
         bond_units_maxcap_amount: values.bond_units_maxcap_amount,
-        bond_units_base_price: values.bond_units_base_price,
+        bond_units_base_price: values.bond_units_base_price * 10 ** 9,
         impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`] * 1000),
       };
 
@@ -792,5 +844,6 @@ export default () => {
     activateBond,
     bondImpactReportSend,
     bondDepositEverusd,
+    bondCouponYield,
   };
 };

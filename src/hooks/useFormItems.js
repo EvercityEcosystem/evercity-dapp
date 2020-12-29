@@ -5,7 +5,17 @@ import React, { useCallback, useMemo } from 'react';
 import { set, get } from 'unchanged';
 
 import {
-  Col, Form, Input, Checkbox, Upload, message, Select, Button, Divider, Tooltip,
+  Col,
+  Form,
+  Input,
+  Checkbox,
+  Upload,
+  message,
+  Select,
+  Button,
+  Divider,
+  Tooltip,
+  DatePicker,
 } from 'antd';
 
 import {
@@ -110,6 +120,12 @@ export default ({
       );
     }
 
+    if (value.display === 'date') {
+      return (
+        <DatePicker style={{ width: '100%' }} />
+      )
+    }
+
     if (value.display === 'select') {
       return (
         <Select
@@ -168,6 +184,11 @@ export default ({
           size={value.size || size}
           step={value.step}
           disabled={disabled}
+          suffix={value.suffix && (
+            <Tooltip title={value.suffix}>
+              <InfoCircleOutlined style={{ color: 'rgba(0,0,0,.45)' }} />
+            </Tooltip>
+          )}
         />
       );
     }
