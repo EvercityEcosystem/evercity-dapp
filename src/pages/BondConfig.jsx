@@ -324,7 +324,7 @@ const BondConfig = () => {
         { 'Half year': 182 },
         { 'One quarter': 91 },
       ],
-      default: 365,
+      default: 'One year',
     },
     interest_rate_start_period_value: {
       label: 'Grace period interest rate, %',
@@ -353,8 +353,6 @@ const BondConfig = () => {
       default: IMPACT_BASELINE_DEFAULT,
     };
   });
-
-  console.log(state);
 
   const onChange = (value) => updateState(value);
 

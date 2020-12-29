@@ -634,16 +634,16 @@ export default () => {
         impact_data_type: values.impact_data_type,
         impact_data_max_deviation_cap: values.impact_data_max_deviation_cap,
         impact_data_max_deviation_floor: values.impact_data_max_deviation_floor,
-        impact_data_send_period: values.impact_data_send_period,
-        interest_pay_period: values.interest_pay_period,
-        start_period: values.start_period,
-        payment_period: values.payment_period,
+        impact_data_send_period: values.impact_data_send_period * 24 * 60 * 60,
+        interest_pay_period: values.interest_pay_period * 24 * 60 * 60,
+        start_period: parseInt(values.start_period, 10) * 24 * 60 * 60,
+        payment_period: values.payment_period * 24 * 60 * 60,
         bond_duration: values.bond_duration,
         mincap_deadline: values.mincap_deadline.unix() * 1000,
         bond_units_mincap_amount: values.bond_units_mincap_amount,
         bond_units_maxcap_amount: values.bond_units_maxcap_amount,
         bond_units_base_price: values.bond_units_base_price * 10 ** 9,
-        impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`] * 1000),
+        impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`]),
       };
 
       try {
