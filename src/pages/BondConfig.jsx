@@ -45,13 +45,14 @@ const BondConfig = () => {
   const bondDuration = state.bond_duration || 0;
   const periods = bondDuration - 2 <= 0 ? 1 : bondDuration - 2;
   const impactMeasure = IMPACT_DATA_TYPES[state.impact_data_type].measure;
+  const penalty = (state.interest_rate_penalty_for_missed_report || 0) + (state.interest_rate_base_value || 0);
 
   let chartData = [...Array((periods)).keys()].map((item) => ({
     period: dayjs().add(item + 2, 'year').format('YYYY'),
     interest_rate: state.interest_rate_base_value || 0,
     interest_rate_min: state.interest_rate_margin_floor || 0,
     interest_rate_max: state.interest_rate_margin_cap || 0,
-    penalty: state.interest_rate_penalty_for_missed_report || 0,
+    penalty,
     impact_baseline: state?.[`impact_baseline_${item + 2}`] || IMPACT_BASELINE_DEFAULT,
   }));
 
@@ -68,7 +69,7 @@ const BondConfig = () => {
       grace_period: state.interest_rate_start_period_value || 0,
       interest_rate_min: state.interest_rate_margin_floor || 0,
       interest_rate_max: state.interest_rate_margin_cap || 0,
-      penalty: state.interest_rate_penalty_for_missed_report || 0,
+      penalty,
       impact_baseline: state.impact_baseline_1 || IMPACT_BASELINE_DEFAULT,
     },
     ...chartData,
