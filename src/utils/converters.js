@@ -1,4 +1,6 @@
-export const toEverUSD = (amount) => (amount || 0) / 10 ** 9;
+export const toEverUSD = (amount) => (amount || 0) * 10 ** 9;
+
+export const fromEverUSD = (amount) => (amount || 0) / 10 ** 9;
 
 export const toPercent = (amount) => (amount || 0) / 10 ** 3;
 

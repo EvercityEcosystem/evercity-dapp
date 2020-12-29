@@ -10,16 +10,16 @@ import {
 import BondActions from './BondActions';
 
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
-import { toPercent, toEverUSD } from '../utils/converters';
+import { toPercent, fromEverUSD } from '../utils/converters';
 
 import styles from './BondCard.module.less';
 
 const { Countdown } = Statistic;
 
 const BondCard = ({ bond, onClick }) => {
-  const currentVolume = (bond?.issued_amount || 0) * toEverUSD(bond?.inner?.bond_units_base_price);
+  const currentVolume = (bond?.issued_amount || 0) * fromEverUSD(bond?.inner?.bond_units_base_price);
   const totalVolume = (bond?.inner?.bond_units_maxcap_amount || 0)
-    * toEverUSD(bond?.inner?.bond_units_base_price);
+    * fromEverUSD(bond?.inner?.bond_units_base_price);
 
   const percentage = Math.floor((currentVolume / (totalVolume || 1)) * 100);
 
@@ -42,7 +42,7 @@ const BondCard = ({ bond, onClick }) => {
             </Tag>
           </div>
           <div className={styles.bondDataContainer}>
-            <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={toEverUSD(bond?.inner?.bond_units_base_price)} />
+            <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={fromEverUSD(bond?.inner?.bond_units_base_price)} />
           </div>
           <div className={styles.bondDataContainer}>
             <Statistic className={styles.bondData} suffix="$" title="Total Volume" value={totalVolume} />

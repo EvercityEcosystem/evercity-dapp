@@ -4,7 +4,7 @@ import { Tag, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
-import { toPercent, toEverUSD } from '../utils/converters';
+import { toPercent, fromEverUSD } from '../utils/converters';
 
 import TableList from './TableList';
 import BondActions from './BondActions';
@@ -41,7 +41,7 @@ const BondsTable = ({ dataSource, onClick }) => {
     {
       title: t('Bond price'),
       key: 'bond_type',
-      render: (_, bond) => `$ ${toEverUSD(bond?.inner?.bond_units_base_price)}`,
+      render: (_, bond) => `$ ${fromEverUSD(bond?.inner?.bond_units_base_price)}`,
     },
     {
       title: t('Booked'),

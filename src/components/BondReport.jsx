@@ -20,7 +20,7 @@ import {
 import dayjs from 'dayjs';
 
 import { DEFAULT_ADDRESS, IMPACT_DATA_TYPES } from '../utils/env';
-import { toPercent, toEverUSD, fromBondDays } from '../utils/converters';
+import { toPercent, fromEverUSD, fromBondDays } from '../utils/converters';
 import { getCurrentUser } from '../utils/cookies';
 
 import usePolkadot from '../hooks/usePolkadot';
@@ -182,7 +182,7 @@ const BondReport = ({ bond }) => {
             <Statistic className={styles.bondData} suffix="years" title="Time to maturity" value={bond.inner.bond_duration} />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="$" title="Bond price" value={toEverUSD(bond.inner.bond_units_base_price)} />
+            <Statistic className={styles.bondData} suffix="$" title="Bond price" value={fromEverUSD(bond.inner.bond_units_base_price)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} title="Number of bonds purchased" value={bond.issued_amount} />

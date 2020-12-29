@@ -12,7 +12,7 @@ import { store } from '../components/PolkadotProvider';
 import { getAvailableRoles } from '../utils/roles';
 import { getCurrentUser } from '../utils/cookies';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
-import { toEverUSD, toBondDays } from '../utils/converters';
+import { fromEverUSD, toBondDays, toEverUSD } from '../utils/converters';
 
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -113,7 +113,7 @@ export default () => {
         .evercity
         .accountRegistry(address);
 
-      const { roles: roleMask, identity } = data.toHuman();
+      const { roles: roleMask, identity } = data.toJSON();
       const roles = getAvailableRoles(roleMask);
 
       return { roles, identity };
@@ -128,7 +128,7 @@ export default () => {
         .evercity
         .balanceEverUSD(address);
 
-      return toEverUSD(data?.toNumber());
+      return fromEverUSD(data?.toNumber());
     },
     [api],
   );
@@ -141,7 +141,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .tokenMintRequestCreateEverusd(amount)
+          .tokenMintRequestCreateEverusd(toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -213,7 +213,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .tokenBurnRequestCreateEverusd(amount)
+          .tokenBurnRequestCreateEverusd(toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -321,8 +321,11 @@ export default () => {
         .evercity
         .mintRequestEverUSD(address);
 
-      const { amount, deadline } = result?.toHuman();
-      return { amount, deadline };
+      const { amount, deadline } = result?.toJSON();
+      return {
+        amount: fromEverUSD(amount),
+        deadline,
+      };
     },
     [api],
   );
@@ -334,8 +337,11 @@ export default () => {
         .evercity
         .burnRequestEverUSD(address);
 
-      const { amount, deadline } = result?.toHuman();
-      return { amount, deadline };
+      const { amount, deadline } = result?.toJSON();
+      return {
+        amount: fromEverUSD(amount),
+        deadline,
+      };
     },
     [api],
   );
@@ -347,7 +353,7 @@ export default () => {
       try {
         await api
           .tx
-          .evercity[command](address, amount)
+          .evercity[command](address, toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -419,7 +425,7 @@ export default () => {
         .evercity
         .totalSupplyEverUSD();
 
-      return data?.toNumber();
+      return fromEverUSD(data?.toNumber());
     },
     [api],
   );
@@ -608,7 +614,7 @@ export default () => {
         .evercity
         .bondUnitPackageRegistry(bondID, currentUserAddress);
 
-      return result?.toHuman();
+      return result?.toJSON();
     },
     [api, currentUserAddress],
   );

@@ -20,7 +20,7 @@ const Roles = () => {
     () => {
       const getBalance = async () => {
         const res = await balanceEverUSD(address);
-        setBalance(res);
+        setBalance(res.toFixed(2));
       };
 
       getBalance();
@@ -41,7 +41,7 @@ const Roles = () => {
           />
         </div>
         <Statistic className={styles.statistic} title={t('Role')} value={role} />
-        <Statistic className={styles.statistic} title={t('Account Balance (EVERUSD)')} value={balance} />
+        <Statistic className={styles.statistic} suffix="$" title={t('Account Balance (EVERUSD)')} value={balance} />
       </div>
     </div>
   );
