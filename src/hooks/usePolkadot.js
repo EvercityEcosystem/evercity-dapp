@@ -12,7 +12,7 @@ import { store } from '../components/PolkadotProvider';
 import { getAvailableRoles } from '../utils/roles';
 import { getCurrentUser } from '../utils/cookies';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
-import { toEverUSD } from '../utils/converters';
+import { toEverUSD, toBondDays } from '../utils/converters';
 
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -419,7 +419,7 @@ export default () => {
         .evercity
         .totalSupplyEverUSD();
 
-      return data?.toHuman();
+      return data?.toNumber();
     },
     [api],
   );
@@ -628,16 +628,16 @@ export default () => {
         interest_rate_base_value: values.interest_rate_base_value * 1000,
         interest_rate_margin_cap: values.interest_rate_margin_cap * 1000,
         interest_rate_margin_floor: values.interest_rate_margin_floor * 1000,
-        // days to seconds
-        bond_finishing_period: values.bond_finishing_period * 24 * 60 * 60,
+        
+        interest_pay_period: toBondDays(values.interest_pay_period),
+        bond_finishing_period: toBondDays(values.bond_finishing_period),
+        impact_data_send_period: toBondDays(values.impact_data_send_period),
+        start_period: toBondDays(parseInt(values.start_period, 10)),
+        payment_period: toBondDays(values.payment_period),
 
         impact_data_type: values.impact_data_type,
         impact_data_max_deviation_cap: values.impact_data_max_deviation_cap,
         impact_data_max_deviation_floor: values.impact_data_max_deviation_floor,
-        impact_data_send_period: values.impact_data_send_period * 24 * 60 * 60,
-        interest_pay_period: values.interest_pay_period * 24 * 60 * 60,
-        start_period: parseInt(values.start_period, 10) * 24 * 60 * 60,
-        payment_period: values.payment_period * 24 * 60 * 60,
         bond_duration: values.bond_duration,
         mincap_deadline: values.mincap_deadline.unix() * 1000,
         bond_units_mincap_amount: values.bond_units_mincap_amount,
@@ -819,6 +819,18 @@ export default () => {
     ],
   );
 
+  const dayDuration = useCallback(
+    async () => {
+      const result = await api
+        .constants
+        .evercity
+        .timeStep();
+
+      return result?.toJSON();
+    },
+    [api, currentUserAddress],
+  );
+
   return {
     accountRegistry,
     fetchBonds,
@@ -845,5 +857,6 @@ export default () => {
     bondImpactReportSend,
     bondDepositEverusd,
     bondCouponYield,
+    dayDuration,
   };
 };

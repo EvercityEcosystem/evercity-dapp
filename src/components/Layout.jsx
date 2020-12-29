@@ -83,7 +83,7 @@ const getRoutesByRole = (role, { t }) => {
           title: t('Requests'),
         },
         {
-          title: t('Financies'),
+          title: t('Finance'),
           children: [
             {
               path: '/dapp/custodian/tokens/confirm',

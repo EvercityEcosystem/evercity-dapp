@@ -320,11 +320,11 @@ const BondConfig = () => {
       allowClear: false,
       showSearch: true,
       values: [
-        { 'One year': 365 },
-        { 'Half year': 182 },
-        { 'One quarter': 91 },
+        { 'One year': '365' },
+        { 'Half year': '182' },
+        { 'One quarter': '91' },
       ],
-      default: 'One year',
+      default: '365',
     },
     interest_rate_start_period_value: {
       label: 'Grace period interest rate, %',

@@ -1,7 +1,7 @@
-export const toEverUSD = (amount) => {
-  return (amount || 0) / 10 ** 9;
-};
+export const toEverUSD = (amount) => (amount || 0) / 10 ** 9;
 
-export const toPercent = (amount) => {
-  return (amount || 0) / 10 ** 3;
-};
+export const toPercent = (amount) => (amount || 0) / 10 ** 3;
+
+export const fromBondDays = (value) => value / 60;
+
+export const toBondDays = (value) => value * 60;

@@ -43,7 +43,7 @@ const BondUnitsSellForm = ({ bondID, maxSell }) => {
       span: 24,
     },
     amount: {
-      label: t('Total price for lot'),
+      label: t('Total price for lot, $'),
       required: true,
       type: 'number',
       span: 24,

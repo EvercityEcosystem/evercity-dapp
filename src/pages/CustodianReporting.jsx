@@ -8,6 +8,8 @@ import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './CustodianReporting.module.less';
 
+import { toEverUSD } from '../utils/converters';
+
 const CustodianReporting = () => {
   const [totalSupply, setTotalSupply] = useState(0);
   const { totalSupplyEverUSD } = usePolkadot();
@@ -26,7 +28,7 @@ const CustodianReporting = () => {
 
   return (
     <div className={styles.container}>
-      <Statistic title="Total supply EVERUSD" value={totalSupply} />
+      <Statistic suffix="$" title="Total supply EVERUSD" value={toEverUSD(totalSupply)} />
     </div>
   );
 };

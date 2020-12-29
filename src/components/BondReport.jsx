@@ -20,7 +20,8 @@ import {
 import dayjs from 'dayjs';
 
 import { DEFAULT_ADDRESS, IMPACT_DATA_TYPES } from '../utils/env';
-import { toPercent, toEverUSD } from '../utils/converters';
+import { toPercent, toEverUSD, fromBondDays } from '../utils/converters';
+import { getCurrentUser } from '../utils/cookies';
 
 import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';
@@ -29,7 +30,6 @@ import TableList from './TableList';
 import BondUnitsSellForm from './BondUnitsSellForm';
 
 import styles from './BondReport.module.less';
-import { getCurrentUser } from '../utils/cookies';
 
 const { TabPane } = Tabs;
 
@@ -125,7 +125,7 @@ const BondReport = ({ bond }) => {
               maxSell: row.bond_units,
             })}
           >
-            Sell details
+            Sell
           </Button>
         )
       ),
@@ -231,7 +231,7 @@ const BondReport = ({ bond }) => {
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="days" title="Interest rate payment period" value={(bond.inner.interest_pay_period || 0)} />
+            <Statistic className={styles.bondData} suffix="days" title="Interest rate payment period" value={fromBondDays(bond.inner.interest_pay_period || 0)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} suffix="%" title="Interest rate penalty" value={toPercent(bond.inner.interest_rate_penalty_for_missed_report)} />
@@ -249,7 +249,7 @@ const BondReport = ({ bond }) => {
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Time window to submit impact data" value={bond.inner.impact_data_send_period} />
+            <Statistic className={styles.bondData} suffix="days" title="Time window to submit impact data" value={fromBondDays(bond.inner.impact_data_send_period)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} title="Impact value leading to maximum interest rate" value={bond.inner.impact_data_max_deviation_floor || 0} />
