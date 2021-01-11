@@ -8,12 +8,15 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Label,
 } from 'recharts';
 
 import SimpleForm from '../components/SimpleForm';
 
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
+
+import { IMPACT_DATA_TYPES } from '../utils/env';
 
 import styles from './BondConfig.module.less';
 
@@ -23,7 +26,8 @@ const IR_PENALTY_DEFAULT = 2;
 const IR_MC_DEFAULT = 5;
 const IR_MF_DEFAULT = 1;
 const IR_DEFAULT = 3;
-const IMPACT_BASELINE_DEFAULT = 4;
+const IMPACT_BASELINE_DEFAULT = 4000;
+const DEFAULT_IMPACT_DATA_TYPE = 'POWER_GENERATED';
 
 const BondConfig = () => {
   const [state, updateState] = useXState({
@@ -33,18 +37,22 @@ const BondConfig = () => {
     interest_rate_margin_floor: IR_MF_DEFAULT,
     interest_rate_margin_cap: IR_MC_DEFAULT,
     interest_rate_penalty_for_missed_report: IR_PENALTY_DEFAULT,
+    impact_data_type: DEFAULT_IMPACT_DATA_TYPE,
   });
 
   const { prepareBond } = usePolkadot();
 
-  const periods = state.bond_duration - 2 < 0 ? 2 : state.bond_duration - 2;
+  const bondDuration = state.bond_duration || 0;
+  const periods = bondDuration - 2 <= 0 ? 1 : bondDuration - 2;
+  const impactMeasure = IMPACT_DATA_TYPES[state.impact_data_type].measure;
+  const penalty = (state.interest_rate_penalty_for_missed_report || 0) + (state.interest_rate_base_value || 0);
 
   let chartData = [...Array((periods)).keys()].map((item) => ({
     period: dayjs().add(item + 2, 'year').format('YYYY'),
-    interest_rate: state.interest_rate_base_value,
-    interest_rate_min: state.interest_rate_margin_floor,
-    interest_rate_max: state.interest_rate_margin_cap,
-    penalty: state.interest_rate_penalty_for_missed_report,
+    interest_rate: state.interest_rate_base_value || 0,
+    interest_rate_min: state.interest_rate_margin_floor || 0,
+    interest_rate_max: state.interest_rate_margin_cap || 0,
+    penalty,
     impact_baseline: state?.[`impact_baseline_${item + 2}`] || IMPACT_BASELINE_DEFAULT,
   }));
 
@@ -52,16 +60,16 @@ const BondConfig = () => {
   chartData = [
     {
       period: dayjs().format('YYYY'),
-      grace_period: state.interest_rate_start_period_value,
+      grace_period: state.interest_rate_start_period_value || 0,
       impact_baseline: state.impact_baseline_0 || IMPACT_BASELINE_DEFAULT,
     },
     {
       period: dayjs().add(1, 'year').format('YYYY'),
-      interest_rate: state.interest_rate_base_value,
-      grace_period: state.interest_rate_start_period_value,
-      interest_rate_min: state.interest_rate_margin_floor,
-      interest_rate_max: state.interest_rate_margin_cap,
-      penalty: state.interest_rate_penalty_for_missed_report,
+      interest_rate: state.interest_rate_base_value || 0,
+      grace_period: state.interest_rate_start_period_value || 0,
+      interest_rate_min: state.interest_rate_margin_floor || 0,
+      interest_rate_max: state.interest_rate_margin_cap || 0,
+      penalty,
       impact_baseline: state.impact_baseline_1 || IMPACT_BASELINE_DEFAULT,
     },
     ...chartData,
@@ -73,21 +81,20 @@ const BondConfig = () => {
       label: 'Bond details',
     },
     bond_id: {
-      label: 'Ticker Name',
+      label: 'Ticker name',
       required: true,
       span: 12,
       default: 'BOND',
     },
     mincap_deadline: {
-      label: 'Issuance Date, timestamp(ms)',
+      label: 'Issuance date',
       required: true,
-      type: 'number',
-      display: 'text',
+      display: 'date',
       span: 12,
-      default: Math.floor(dayjs().add(30, 'day') / 1000) * 1000,
+      default: dayjs().add(30, 'day'),
     },
     bond_duration: {
-      label: 'Time To Maturity, periods',
+      label: 'Time to maturity, periods',
       min: 2,
       required: true,
       type: 'number',
@@ -95,24 +102,36 @@ const BondConfig = () => {
       span: 12,
       default: DEFAULT_PERIODS,
     },
+    payment_period: {
+      label: 'Coupon period, days',
+      suffix: 'Frequency of interest rate recalculation',
+      required: true,
+      type: 'number',
+      display: 'text',
+      span: 12,
+      default: 365,
+      disabled: true,
+    },
     bond_finishing_period: {
-      label: 'Maturity Payment Period, days',
+      label: 'Face value payment period, days',
       required: true,
       type: 'number',
       display: 'text',
       span: 12,
       default: 1,
+      suffix: 'Number of days after bond maturity to pay bond par value',
     },
     bond_units_mincap_amount: {
-      label: 'Minimum Amount of Bond Sale',
+      label: 'Minimum amount of bond sale, bond units',
       required: true,
       type: 'number',
       display: 'text',
       span: 12,
       default: 100,
+      suffix: 'Minimum number of bond units sold needed to issue bond',
     },
     bond_units_maxcap_amount: {
-      label: 'Maximum Amount of Bond Sale',
+      label: 'Number of bonds in issue, bond units',
       required: true,
       type: 'number',
       display: 'text',
@@ -120,16 +139,16 @@ const BondConfig = () => {
       default: 600,
     },
     bond_units_base_price: {
-      label: 'Bond Price',
+      label: 'Bond price, USD',
       required: true,
       type: 'number',
       display: 'text',
       span: 12,
-      default: 10000000,
+      default: 100,
     },
     chart: {
       display: 'custom',
-      component: (
+      component: !!bondDuration && (
         <LineChart
           width={800}
           height={400}
@@ -147,6 +166,7 @@ const BondConfig = () => {
             strokeWidth={3}
             stroke="#2f4fee"
             dataKey="impact_baseline"
+            yAxisId="right"
           />
           <Line
             name="Interest rate"
@@ -154,6 +174,7 @@ const BondConfig = () => {
             strokeWidth={3}
             stroke="#548F5D"
             dataKey="interest_rate"
+            yAxisId="left"
           />
           <Line
             name="Grace period"
@@ -161,6 +182,7 @@ const BondConfig = () => {
             strokeWidth={3}
             stroke="#392897"
             dataKey="grace_period"
+            yAxisId="left"
           />
           <Line
             name="Minimum interest rate value"
@@ -168,6 +190,7 @@ const BondConfig = () => {
             strokeWidth={2}
             stroke="#fdac47"
             dataKey="interest_rate_min"
+            yAxisId="left"
           />
           <Line
             name="Maximum interest rate value"
@@ -175,6 +198,7 @@ const BondConfig = () => {
             strokeWidth={2}
             stroke="#86a9dc"
             dataKey="interest_rate_max"
+            yAxisId="left"
           />
           <Line
             name="Penalty for missed report"
@@ -182,10 +206,12 @@ const BondConfig = () => {
             strokeWidth={2}
             stroke="#ff2255"
             dataKey="penalty"
+            yAxisId="left"
           />
           <CartesianGrid stroke="#EEE" strokeDasharray="5 5" />
-          <XAxis dataKey="period" />
-          <YAxis />
+          <XAxis dataKey="period" label={{ value: 'Periods', offset: -10, position: 'insideBottom' }} />
+          <YAxis yAxisId="left" label={{ value: '%', angle: -90, position: 'insideLeft' }} />
+          <YAxis yAxisId="right" orientation="right" label={{ value: impactMeasure, angle: -90, position: 'right' }} />
           <Tooltip />
         </LineChart>
       ),
@@ -195,7 +221,7 @@ const BondConfig = () => {
       label: 'Interest rate details',
     },
     interest_rate_base_value: {
-      label: 'Interest Rate, %',
+      label: 'Basic interest rate, %',
       required: true,
       type: 'number',
       display: 'text',
@@ -204,29 +230,21 @@ const BondConfig = () => {
       max: 100,
       default: IR_DEFAULT,
     },
-    payment_period: {
-      label: 'Payment Period',
-      suffix: 'Frequency of Interest Rate Payment/Recalculation (once in x days)',
-      required: true,
-      type: 'number',
-      display: 'text',
-      span: 12,
-      default: 120,
-    },
     interest_pay_period: {
-      label: 'Interest Rate Payment Period',
+      label: 'Interest rate payment period, days',
       required: true,
       type: 'number',
       display: 'text',
       span: 12,
       default: 60,
+      suffix: 'Number of days to pay interest rate after interest recalculation',
     },
     floating_rate_divider: {
       display: 'divider',
       label: 'Floating rate details',
     },
     impact_data_type: {
-      label: 'Impact Indicator for Reporting',
+      label: 'Impact indicator for reporting',
       required: true,
       display: 'select',
       span: 12,
@@ -236,10 +254,10 @@ const BondConfig = () => {
         { 'Renewable energy generation (MWh)': 'POWER_GENERATED' },
         { 'CO2 reduction (MtCO2e)': 'CO2_EMISSIONS_REDUCTION' },
       ],
-      default: 'POWER_GENERATED',
+      default: DEFAULT_IMPACT_DATA_TYPE,
     },
     interest_rate_margin_floor: {
-      label: 'Minimum Interest Rate Value, %',
+      label: 'Minimum interest rate, %',
       required: true,
       type: 'number',
       display: 'text',
@@ -249,7 +267,7 @@ const BondConfig = () => {
       default: IR_MF_DEFAULT,
     },
     interest_rate_margin_cap: {
-      label: 'Maximum Interest Rate Value, %',
+      label: 'Maximum interest rate, %',
       required: true,
       type: 'number',
       display: 'text',
@@ -259,8 +277,7 @@ const BondConfig = () => {
       default: IR_MC_DEFAULT,
     },
     impact_data_max_deviation_cap: {
-      label: 'Max Deviation Cap',
-      suffix: 'Impact Value Leading to the Minimum Interest Rate Value',
+      label: `Impact value leading to maximum interest rate, ${impactMeasure}`,
       required: true,
       type: 'number',
       display: 'text',
@@ -268,8 +285,7 @@ const BondConfig = () => {
       default: 16000,
     },
     impact_data_max_deviation_floor: {
-      label: 'Max Deviation Floor',
-      suffix: 'Impact Value Which Results in the Maximum Interest Rate Value',
+      label: `Impact value leading to minimum interest rate, ${impactMeasure}`,
       required: true,
       type: 'number',
       display: 'text',
@@ -277,8 +293,8 @@ const BondConfig = () => {
       default: 4000,
     },
     impact_data_send_period: {
-      label: 'Time Window to Submit Impact',
-      suffix: 'Time Window to Submit Impact Data Report (# days before interest rate reset)',
+      label: 'Time window to submit impact data, days',
+      suffix: 'days before interest rate reset',
       required: true,
       type: 'number',
       display: 'text',
@@ -286,8 +302,8 @@ const BondConfig = () => {
       default: 60,
     },
     interest_rate_penalty_for_missed_report: {
-      label: 'Interest Rate Penalty',
-      suffix: 'Interest Rate Increase Penalty in Case of Missed Report, %',
+      label: 'Interest rate penalty, %',
+      suffix: 'Interest rate penalty in case of missed report, %',
       required: true,
       type: 'number',
       display: 'text',
@@ -299,13 +315,19 @@ const BondConfig = () => {
     start_period: {
       label: 'Grace Period',
       required: true,
-      type: 'number',
-      display: 'text',
+      display: 'select',
       span: 12,
-      default: 120,
+      allowClear: false,
+      showSearch: true,
+      values: [
+        { 'One year': '365' },
+        { 'Half year': '182' },
+        { 'One quarter': '91' },
+      ],
+      default: '365',
     },
     interest_rate_start_period_value: {
-      label: 'Grace Period Interest Rate, %',
+      label: 'Grace period interest rate, %',
       required: true,
       type: 'number',
       display: 'text',
@@ -320,12 +342,13 @@ const BondConfig = () => {
     },
   };
 
-  [...Array(state.bond_duration).keys()].forEach((item) => {
+  [...Array(bondDuration).keys()].forEach((item) => {
     formConfig[`impact_baseline_${item}`] = {
-      label: `Impact baseline for period ${item + 1}`,
+      label: `Impact baseline for period ${item + 1}, ${impactMeasure}`,
       required: true,
       type: 'number',
       display: 'text',
+      step: 100,
       span: 12,
       default: IMPACT_BASELINE_DEFAULT,
     };

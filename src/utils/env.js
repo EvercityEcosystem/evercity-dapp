@@ -12,10 +12,12 @@ export const IMPACT_DATA_TYPES = {
   POWER_GENERATED: {
     title: 'Renewable energy generation (MWh)',
     color: 'cyan',
+    measure: 'MWh',
   },
   CO2_EMISSIONS_REDUCTION: {
     title: 'CO2 reduction (MtCO2e)',
     color: 'green',
+    measure: 'MtCO2e',
   },
 };
 

@@ -3,6 +3,7 @@ const react = require('@neutrinojs/react');
 const jest = require('@neutrinojs/jest');
 const copy = require('@neutrinojs/copy');
 let lessLoader = require('neutrino-middleware-less-loader');
+const antdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 
 const webpack = require('webpack');
 
@@ -52,6 +53,7 @@ module.exports = {
     }),
     jest(),
     defineEnv,
-    neutrino => neutrino.config.node.set('Buffer', true)
+    neutrino => neutrino.config.node.set('Buffer', true),
+    neutrino => neutrino.config.plugin('antddayjs').use(antdDayjsWebpackPlugin),
   ],
 };

@@ -1,4 +1,4 @@
-const stopPropagation = (event, cb) => {
+const stopPropagation = (event, cb = () => {}) => {
   if (event?.domEvent) {
     event?.domEvent.stopPropagation();
   } else {

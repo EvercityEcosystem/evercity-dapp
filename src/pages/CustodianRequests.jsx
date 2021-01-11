@@ -45,8 +45,9 @@ const CustodianRequests = () => {
   const handleSubmit = async (values) => {
     const { action, address } = values;
     const { amount, deadline } = action === 'mintRequestEverUSD' ? await checkMintRequest(address) : await checkBurnRequest(address);
+    console.log(amount, deadline);
 
-    if (amount === '0' && deadline === '0') {
+    if (!amount && !deadline) {
       message.warning('No requests from this address');
       updateState({ show: false });
     } else {
@@ -66,8 +67,8 @@ const CustodianRequests = () => {
           <Statistic title={t('Amount')} value={state.amount} />
           <Statistic.Countdown
             title={t('Deadline')}
-            value={parseInt(state?.deadline?.replaceAll(',', ''), 10)}
-            format={state?.deadline === '0' ? '0' : 'DD HH:mm:ss'}
+            value={state?.deadline}
+            format="DD HH:mm:ss"
           />
         </div>
       )}

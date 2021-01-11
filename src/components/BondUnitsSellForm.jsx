@@ -25,10 +25,10 @@ const BondUnitsSellForm = ({ bondID, maxSell }) => {
     },
     deadline: {
       label: t('Deadline'),
+      display: 'date',
       required: true,
       span: 24,
-      default: Math.round(dayjs().add(7, 'days') / 1000) * 1000,
-      suffix: '7 days by default',
+      default: dayjs().add(7, 'days'),
     },
     new_bondholder: {
       label: t('New bondholder'),
@@ -36,14 +36,14 @@ const BondUnitsSellForm = ({ bondID, maxSell }) => {
       span: 24,
     },
     unitsCount: {
-      label: t('Units count'),
+      label: t('Number of bonds'),
       required: true,
       type: 'number',
       max: maxSell,
       span: 24,
     },
     amount: {
-      label: t('Amount'),
+      label: t('Total price for lot, $'),
       required: true,
       type: 'number',
       span: 24,

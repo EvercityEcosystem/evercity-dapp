@@ -14,7 +14,7 @@ import { getCurrentUser } from '../utils/cookies';
 
 import styles from './BondActions.module.less';
 
-const BondActions = ({ bond, mode }) => {
+const BondActions = ({ bond, mode, onClick }) => {
   const { role } = getCurrentUser();
 
   return (
@@ -24,6 +24,7 @@ const BondActions = ({ bond, mode }) => {
           size={mode === 'table' ? 'small' : 'middle'}
           type="primary"
           className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
+          onClick={onClick}
         >
           View bond
         </Button>
@@ -46,6 +47,7 @@ const BondActions = ({ bond, mode }) => {
 BondActions.propTypes = {
   bond: PropTypes.shape().isRequired,
   mode: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
 };
 
 BondActions.defaultProps = {

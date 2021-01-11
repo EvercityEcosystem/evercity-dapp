@@ -10,15 +10,16 @@ import {
 import BondActions from './BondActions';
 
 import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
+import { toPercent, fromEverUSD } from '../utils/converters';
 
 import styles from './BondCard.module.less';
 
 const { Countdown } = Statistic;
 
 const BondCard = ({ bond, onClick }) => {
-  const currentVolume = (bond?.issued_amount || 0) * (bond?.inner?.bond_units_base_price || 0);
+  const currentVolume = (bond?.issued_amount || 0) * fromEverUSD(bond?.inner?.bond_units_base_price);
   const totalVolume = (bond?.inner?.bond_units_maxcap_amount || 0)
-    * (bond?.inner?.bond_units_base_price || 0);
+    * fromEverUSD(bond?.inner?.bond_units_base_price);
 
   const percentage = Math.floor((currentVolume / (totalVolume || 1)) * 100);
 
@@ -27,7 +28,6 @@ const BondCard = ({ bond, onClick }) => {
       <Card
         hoverable
         className={styles.bondCard}
-        onClick={() => onClick({ currentBond: bond })}
       >
         <div className={styles.bondState}>
           <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
@@ -42,7 +42,7 @@ const BondCard = ({ bond, onClick }) => {
             </Tag>
           </div>
           <div className={styles.bondDataContainer}>
-            <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={bond?.inner?.bond_units_base_price} />
+            <Statistic className={styles.bondData} suffix="$" title="Unit Base Price" value={fromEverUSD(bond?.inner?.bond_units_base_price)} />
           </div>
           <div className={styles.bondDataContainer}>
             <Statistic className={styles.bondData} suffix="$" title="Total Volume" value={totalVolume} />
@@ -51,7 +51,7 @@ const BondCard = ({ bond, onClick }) => {
             {bond?.state === 'BOOKING' && (
               <Countdown className={styles.bondData} title="Mincap Days Left" format="D" value={bond?.inner?.mincap_deadline} />
             )}
-            <Statistic className={styles.bondData} suffix="%" title="Interest" value={bond?.inner?.interest_rate_base_value / 1000} />
+            <Statistic className={styles.bondData} suffix="%" title="Interest" value={toPercent(bond?.currentInterestRate)} />
             <Statistic className={styles.bondData} suffix="years" title="Maturity" value={bond?.inner?.bond_duration} />
           </div>
           <div className={styles.bookingProgress}>
@@ -68,7 +68,7 @@ const BondCard = ({ bond, onClick }) => {
             />
           </div>
           <div className={styles.actions}>
-            <BondActions bond={bond} />
+            <BondActions bond={bond} onClick={() => onClick({ currentBond: bond })} />
           </div>
         </div>
       </Card>

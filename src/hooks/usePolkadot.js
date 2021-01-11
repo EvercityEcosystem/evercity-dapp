@@ -12,35 +12,78 @@ import { store } from '../components/PolkadotProvider';
 import { getAvailableRoles } from '../utils/roles';
 import { getCurrentUser } from '../utils/cookies';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
+import { fromEverUSD, toBondDays, toEverUSD } from '../utils/converters';
 
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
   const { address: currentUserAddress } = getCurrentUser();
   const { api, injector } = polkadotState;
 
+  const bondCouponYield = useCallback(
+    async (bondID) => {
+      if (!currentUserAddress) {
+        return [];
+      }
+
+      const result = await api
+        .query
+        .evercity
+        .bondCouponYield(bondID);
+
+      return result?.toJSON();
+    },
+    [api, currentUserAddress],
+  );
+
   const fetchBonds = useCallback(
     async () => {
+      let payload = [];
+
+      if (!api) {
+        return payload;
+      }
+
       const result = await api
         .query
         .evercity
         .bondRegistry
         .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
 
-      const payload = result.map(([{ args }, value]) => {
+      const promises = result.map(async ([{ args }, value]) => {
         const id = u8aToString(args[0]);
+        const couponYield = await bondCouponYield(id);
+        const bondData = value.toJSON();
+
+        let currentInterestRate = bondData?.inner?.interest_rate_base_value;
+
+        if (!!couponYield.length) {
+          currentInterestRate = couponYield[couponYield.length - 1]?.interest_rate
+        }
 
         return ({
           id,
-          ...value.toJSON(),
+          bondCouponYield: couponYield,
+          currentInterestRate,
+          ...bondData,
         });
       });
+
+      try {
+        payload = await Promise.all(promises);
+        
+      } catch (error) {
+        notification.error({
+          message: 'An error has occured while loading bonds',
+          description: error,
+        });
+      }
 
       dispatch({
         type: 'setBonds',
         payload,
       });
     },
-    [api, dispatch],
+    [api, dispatch, bondCouponYield],
   );
 
   const transactionCallback = useCallback(
@@ -70,7 +113,7 @@ export default () => {
         .evercity
         .accountRegistry(address);
 
-      const { roles: roleMask, identity } = data.toHuman();
+      const { roles: roleMask, identity } = data.toJSON();
       const roles = getAvailableRoles(roleMask);
 
       return { roles, identity };
@@ -85,7 +128,7 @@ export default () => {
         .evercity
         .balanceEverUSD(address);
 
-      return data?.toHuman();
+      return fromEverUSD(data?.toNumber());
     },
     [api],
   );
@@ -98,7 +141,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .tokenMintRequestCreateEverusd(amount)
+          .tokenMintRequestCreateEverusd(toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -170,7 +213,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .tokenBurnRequestCreateEverusd(amount)
+          .tokenBurnRequestCreateEverusd(toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -278,8 +321,11 @@ export default () => {
         .evercity
         .mintRequestEverUSD(address);
 
-      const { amount, deadline } = result?.toHuman();
-      return { amount, deadline };
+      const { amount, deadline } = result?.toJSON();
+      return {
+        amount: fromEverUSD(amount),
+        deadline,
+      };
     },
     [api],
   );
@@ -291,8 +337,11 @@ export default () => {
         .evercity
         .burnRequestEverUSD(address);
 
-      const { amount, deadline } = result?.toHuman();
-      return { amount, deadline };
+      const { amount, deadline } = result?.toJSON();
+      return {
+        amount: fromEverUSD(amount),
+        deadline,
+      };
     },
     [api],
   );
@@ -304,7 +353,7 @@ export default () => {
       try {
         await api
           .tx
-          .evercity[command](address, amount)
+          .evercity[command](address, toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -376,7 +425,7 @@ export default () => {
         .evercity
         .totalSupplyEverUSD();
 
-      return data?.toHuman();
+      return fromEverUSD(data?.toNumber());
     },
     [api],
   );
@@ -425,7 +474,7 @@ export default () => {
         .evercity
         .bondImpactReport(bondID);
 
-      return result?.toHuman();
+      return result?.toJSON();
     },
     [api],
   );
@@ -441,7 +490,7 @@ export default () => {
       } = values;
 
       const lot = api.createType('BondUnitSaleLotStructOf', {
-        deadline,
+        deadline: deadline.unix() * 1000,
         new_bondholder: bondholder,
         bond_units: unitsCount,
         amount,
@@ -534,13 +583,22 @@ export default () => {
         .bondUnitPackageLot
         .entries(bondID);
 
-      return result
-        .map(([{ args: [, bondholder] }, value]) => ({
-          bondID,
-          bondholder: bondholder.toHuman(),
-          ...value.toJSON()[0],
-        }))
-        .filter((item) => !!item.bond_units);
+      const allLots = [];
+
+      result.forEach(([{ args: [, bondholder] }, value]) => {
+        const inner = value.toJSON();
+        inner.forEach(data => {
+          allLots.push(
+            {
+              bondID,
+              bondholder: bondholder.toHuman(),
+              ...data,
+            }
+          )
+        });
+      })
+
+      return allLots.filter((item) => !!item.bond_units);
     },
     [api],
   );
@@ -556,7 +614,7 @@ export default () => {
         .evercity
         .bondUnitPackageRegistry(bondID, currentUserAddress);
 
-      return result?.toHuman();
+      return result?.toJSON();
     },
     [api, currentUserAddress],
   );
@@ -576,22 +634,22 @@ export default () => {
         interest_rate_base_value: values.interest_rate_base_value * 1000,
         interest_rate_margin_cap: values.interest_rate_margin_cap * 1000,
         interest_rate_margin_floor: values.interest_rate_margin_floor * 1000,
-        // days to seconds
-        bond_finishing_period: values.bond_finishing_period * 24 * 60 * 60,
+        
+        interest_pay_period: toBondDays(values.interest_pay_period),
+        bond_finishing_period: toBondDays(values.bond_finishing_period),
+        impact_data_send_period: toBondDays(values.impact_data_send_period),
+        start_period: toBondDays(parseInt(values.start_period, 10)),
+        payment_period: toBondDays(values.payment_period),
 
         impact_data_type: values.impact_data_type,
         impact_data_max_deviation_cap: values.impact_data_max_deviation_cap,
         impact_data_max_deviation_floor: values.impact_data_max_deviation_floor,
-        impact_data_send_period: values.impact_data_send_period,
-        interest_pay_period: values.interest_pay_period,
-        start_period: values.start_period,
-        payment_period: values.payment_period,
         bond_duration: values.bond_duration,
-        mincap_deadline: values.mincap_deadline,
+        mincap_deadline: values.mincap_deadline.unix() * 1000,
         bond_units_mincap_amount: values.bond_units_mincap_amount,
         bond_units_maxcap_amount: values.bond_units_maxcap_amount,
-        bond_units_base_price: values.bond_units_base_price,
-        impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`] * 1000),
+        bond_units_base_price: values.bond_units_base_price * 10 ** 9,
+        impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`]),
       };
 
       try {
@@ -767,6 +825,18 @@ export default () => {
     ],
   );
 
+  const dayDuration = useCallback(
+    async () => {
+      const result = await api
+        .constants
+        .evercity
+        .timeStep();
+
+      return result?.toJSON();
+    },
+    [api, currentUserAddress],
+  );
+
   return {
     accountRegistry,
     fetchBonds,
@@ -792,5 +862,7 @@ export default () => {
     activateBond,
     bondImpactReportSend,
     bondDepositEverusd,
+    bondCouponYield,
+    dayDuration,
   };
 };

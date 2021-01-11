@@ -16,7 +16,7 @@ const CustodianReporting = () => {
     () => {
       const getTotalSupply = async () => {
         const result = await totalSupplyEverUSD();
-        setTotalSupply(result);
+        setTotalSupply(result.toFixed(2));
       };
 
       getTotalSupply();
@@ -26,7 +26,7 @@ const CustodianReporting = () => {
 
   return (
     <div className={styles.container}>
-      <Statistic title="Total supply EVERUSD" value={totalSupply} />
+      <Statistic suffix="$" title="Total supply EVERUSD" value={totalSupply} />
     </div>
   );
 };
