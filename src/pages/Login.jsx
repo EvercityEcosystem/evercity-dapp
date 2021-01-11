@@ -79,7 +79,7 @@ const Login = () => {
 
   const handleRoleSubmit = async (values) => {
     const { role } = values;
-    const { address } = state;
+    const { address } = accountsState;
 
     saveCurrentUser(address, role);
     setLocation('/dapp/profile');
