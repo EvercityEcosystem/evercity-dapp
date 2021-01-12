@@ -46,6 +46,11 @@ const App = () => {
     [dispatch],
   );
 
+  const isAPIReady = useMemo(
+    () => polkadotState?.api?.isConnected && polkadotState?.api?.isReady,
+    [polkadotState],
+  );
+
   useEffect(
     () => {
       const setInjector = async () => {
@@ -58,12 +63,7 @@ const App = () => {
 
       setInjector();
     },
-    [dispatch],
-  );
-
-  const isAPIReady = useMemo(
-    () => polkadotState?.api?.isConnected && polkadotState?.api?.isReady,
-    [polkadotState],
+    [dispatch, isAPIReady],
   );
 
   return (
