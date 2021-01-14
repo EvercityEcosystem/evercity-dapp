@@ -7,6 +7,7 @@ export const DEFAULT_AUDITOR_ADDRESS = '5G4J6NvaRAWh7QXdFr34E3D2UxiRFEeksbKnBVrF
 export const DEFAULT_ADDRESS = '5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM';
 
 export const BONDS_PAGE_SIZE = 50;
+export const LIST_VIEW_DEFAULT_MODE = 'cards';
 
 export const IMPACT_DATA_TYPES = {
   POWER_GENERATED: {

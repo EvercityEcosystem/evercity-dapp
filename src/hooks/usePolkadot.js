@@ -10,7 +10,7 @@ import { u8aToString } from '@polkadot/util';
 import { store } from '../components/PolkadotProvider';
 
 import { getAvailableRoles } from '../utils/roles';
-import { getCurrentUser } from '../utils/cookies';
+import { getCurrentUser } from '../utils/storage';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
 import { fromEverUSD, toBondDays, toEverUSD } from '../utils/converters';
 

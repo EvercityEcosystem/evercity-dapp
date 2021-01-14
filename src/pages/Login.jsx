@@ -12,7 +12,7 @@ import { store } from '../components/PolkadotProvider';
 import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';
 
-import { saveCurrentUser } from '../utils/cookies';
+import { saveCurrentUser } from '../utils/storage';
 import { EXTENSION_URL } from '../utils/env';
 
 import styles from './Login.module.less';

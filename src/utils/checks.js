@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import useLocation from 'wouter/use-location';
 
-import { getCurrentUser } from './cookies';
+import { getCurrentUser } from './storage';
 
 export const checkAuth = () => {
   const [path, setLocation] = useLocation();

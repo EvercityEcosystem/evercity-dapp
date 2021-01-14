@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 
 import { DEFAULT_ADDRESS, IMPACT_DATA_TYPES } from '../utils/env';
 import { toPercent, fromEverUSD, fromBondDays } from '../utils/converters';
-import { getCurrentUser } from '../utils/cookies';
+import { getCurrentUser } from '../utils/storage';
 
 import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';

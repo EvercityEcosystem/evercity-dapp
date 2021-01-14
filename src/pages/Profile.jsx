@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { message, Statistic } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 
-import { getCurrentUser } from '../utils/cookies';
+import { getCurrentUser } from '../utils/storage';
 import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './Profile.module.less';

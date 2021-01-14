@@ -10,7 +10,7 @@ import InvestorBondActions from './InvestorBondActions';
 import MasterBondActions from './MasterBondActions';
 import IssuerBondActions from './IssuerBondActions';
 
-import { getCurrentUser } from '../utils/cookies';
+import { getCurrentUser } from '../utils/storage';
 
 import styles from './BondActions.module.less';
 

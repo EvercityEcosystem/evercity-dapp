@@ -2,6 +2,7 @@
   "name": "evercity-dapp",
   "version": "1.0.0",
   "main": "index.js",
+  "license" : "Apache-2.0",
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
     "build": "webpack --mode production",
@@ -14,7 +15,6 @@
     "antd": "^4.6.3",
     "classnames": "^2.2.6",
     "dayjs": "^1.9.7",
-    "js-cookie": "^2.2.1",
     "neutrino-middleware-less-loader": "^6.0.3",
     "prop-types": "^15",
     "react": "^16",

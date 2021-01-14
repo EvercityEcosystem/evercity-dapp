@@ -20,14 +20,19 @@ import { store } from '../components/PolkadotProvider';
 import BondReport from '../components/BondReport';
 import ModalView from '../components/ModalView';
 
+import { setViewParams, getViewParams } from '../utils/storage';
+
 import styles from './Bonds.module.less';
 
 const Bonds = () => {
   const { polkadotState } = useContext(store);
   const { t } = useTranslation();
   const { fetchBonds } = usePolkadot();
+
+  const { listView: defaultListView } = getViewParams();
+
   const [state, updateState] = useXState({
-    view: 'cards',
+    listView: defaultListView,
     currentBond: null,
     bondsLoading: false,
   });
@@ -61,7 +66,7 @@ const Bonds = () => {
     );
   }
 
-  if (state.view === 'table') {
+  if (state.listView === 'table') {
     data = (<BondsTable dataSource={polkadotState.bonds} onClick={updateState} />);
   }
 
@@ -86,7 +91,16 @@ const Bonds = () => {
         )}
         extra={(
           <div className={styles.viewSettings}>
-            <Radio.Group buttonStyle="solid" value={state.view} onChange={(e) => updateState({ view: e?.target?.value })}>
+            <Radio.Group
+              buttonStyle="solid"
+              value={state.listView}
+              onChange={(e) => {
+                const listView = e?.target?.value;
+
+                updateState({ listView });
+                setViewParams({ listView });
+              }}
+            >
               <Radio.Button className={styles.selectorButton} value="cards">Cards</Radio.Button>
               <Radio.Button className={styles.selectorButton} value="table">Table</Radio.Button>
             </Radio.Group>

@@ -8,7 +8,7 @@ import { Layout, Button } from 'antd';
 
 import MenuView from './MenuView';
 
-import { getCurrentUser } from '../utils/cookies';
+import { getCurrentUser } from '../utils/storage';
 
 import styles from './Layout.module.less';
 import logoUrl from '../assets/logos/logo-header.svg';
