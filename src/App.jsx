@@ -62,7 +62,6 @@ const App = () => {
     () => {
       connectAPI();
       setInjector();
-      setTimeStep();
     },
     [dispatch],
   );
@@ -70,6 +69,15 @@ const App = () => {
   const isAPIReady = useMemo(
     () => polkadotState?.api?.isConnected && polkadotState?.api?.isReady,
     [polkadotState],
+  );
+
+  useEffect(
+    () => {
+      if (isAPIReady){
+        setTimeStep();
+      }
+    },
+    [isAPIReady],
   );
 
   return (
