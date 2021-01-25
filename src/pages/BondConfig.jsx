@@ -17,60 +17,71 @@ import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
 import { IMPACT_DATA_TYPES } from '../utils/env';
+import { toEverUSD } from '../utils/converters';
 
 import styles from './BondConfig.module.less';
 
-const DEFAULT_PERIODS = 12;
-const IR_SP_DEFAULT = 1;
-const IR_PENALTY_DEFAULT = 2;
-const IR_MC_DEFAULT = 5;
-const IR_MF_DEFAULT = 1;
-const IR_DEFAULT = 3;
-const IMPACT_BASELINE_DEFAULT = 4000;
-const DEFAULT_IMPACT_DATA_TYPE = 'POWER_GENERATED';
+const U64MAX = 18446744073709551615n;
+const MIN_PAYMENT_PERIOD = 1;
+const MIN_BOND_DURATION = 1;
+const DEFAULT_IMPACT_BASELINE = 4000;
+
+const DEFAULT_BOND_PARAMS = {
+  bond_duration: 12,
+  interest_rate_start_period_value: 1,
+  interest_rate_base_value: 3,
+  interest_rate_margin_floor: 1,
+  interest_rate_margin_cap: 5,
+  interest_rate_penalty_for_missed_report: 2,
+  impact_data_type: 'POWER_GENERATED',
+  bond_units_mincap_amount: 100,
+  bond_units_maxcap_amount: 600,
+  payment_period: 365,
+  interest_pay_period: 60,
+  bond_finishing_period: 1,
+  mincap_deadline: dayjs().add(30, 'day'),
+  impact_data_send_period: 60,
+  impact_data_max_deviation_floor: 4000,
+  impact_data_max_deviation_cap: 16000,
+  bond_units_base_price: 100,
+  start_period: '365',
+}
 
 const BondConfig = () => {
-  const [state, updateState] = useXState({
-    bond_duration: DEFAULT_PERIODS,
-    interest_rate_start_period_value: IR_SP_DEFAULT,
-    interest_rate_base_value: IR_DEFAULT,
-    interest_rate_margin_floor: IR_MF_DEFAULT,
-    interest_rate_margin_cap: IR_MC_DEFAULT,
-    interest_rate_penalty_for_missed_report: IR_PENALTY_DEFAULT,
-    impact_data_type: DEFAULT_IMPACT_DATA_TYPE,
-  });
+  const [state, updateState] = useXState(DEFAULT_BOND_PARAMS);
 
   const { prepareBond } = usePolkadot();
 
-  const bondDuration = state.bond_duration || 0;
-  const periods = bondDuration - 2 <= 0 ? 1 : bondDuration - 2;
+  const bondDuration = state.bond_duration > 0 ? state.bond_duration : 0;
   const impactMeasure = IMPACT_DATA_TYPES[state.impact_data_type].measure;
   const penalty = (state.interest_rate_penalty_for_missed_report || 0) + (state.interest_rate_base_value || 0);
+  
+  const startPeriod = state.mincap_deadline.add(state.start_period, 'day');
+  const startPeriodInterestRate = state.interest_rate_start_period_value || 0;
 
-  let chartData = [...Array((periods)).keys()].map((item) => ({
-    period: dayjs().add(item + 2, 'year').format('YYYY'),
+  let chartData = [...Array((bondDuration)).keys()].map((item) => ({
+    period: startPeriod.add(state.payment_period * (item + 1), 'day').format('DD-MM-YYYY'),
     interest_rate: state.interest_rate_base_value || 0,
     interest_rate_min: state.interest_rate_margin_floor || 0,
     interest_rate_max: state.interest_rate_margin_cap || 0,
     penalty,
-    impact_baseline: state?.[`impact_baseline_${item + 2}`] || IMPACT_BASELINE_DEFAULT,
+    impact_baseline: state?.[`impact_baseline_${item + 1}`] || DEFAULT_IMPACT_BASELINE,
   }));
 
   // grace period first
   chartData = [
     {
-      period: dayjs().format('YYYY'),
-      grace_period: state.interest_rate_start_period_value || 0,
-      impact_baseline: state.impact_baseline_0 || IMPACT_BASELINE_DEFAULT,
+      period:  state.mincap_deadline.format('DD-MM-YYYY'),
+      grace_period: startPeriodInterestRate
     },
     {
-      period: dayjs().add(1, 'year').format('YYYY'),
+      period: startPeriod.format('DD-MM-YYYY'),
+      grace_period: startPeriodInterestRate,
       interest_rate: state.interest_rate_base_value || 0,
-      grace_period: state.interest_rate_start_period_value || 0,
       interest_rate_min: state.interest_rate_margin_floor || 0,
       interest_rate_max: state.interest_rate_margin_cap || 0,
       penalty,
-      impact_baseline: state.impact_baseline_1 || IMPACT_BASELINE_DEFAULT,
+      impact_baseline: state.impact_baseline_0 || DEFAULT_IMPACT_BASELINE,
     },
     ...chartData,
   ];
@@ -91,16 +102,24 @@ const BondConfig = () => {
       required: true,
       display: 'date',
       span: 12,
-      default: dayjs().add(30, 'day'),
+      default: DEFAULT_BOND_PARAMS.mincap_deadline,
     },
     bond_duration: {
       label: 'Time to maturity, periods',
-      min: 2,
       required: true,
       type: 'number',
       display: 'text',
       span: 12,
-      default: DEFAULT_PERIODS,
+      default: DEFAULT_BOND_PARAMS.bond_duration,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value < MIN_BOND_DURATION) {
+              throw new Error(`Must be bigger or equal ${MIN_BOND_DURATION}`);
+            }
+          }
+        }
+      ]
     },
     payment_period: {
       label: 'Coupon period, days',
@@ -109,8 +128,23 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 365,
-      disabled: true,
+      default: DEFAULT_BOND_PARAMS.payment_period,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value < MIN_PAYMENT_PERIOD) {
+              throw new Error(`Must be bigger or equal ${MIN_PAYMENT_PERIOD}`);
+            }
+          }
+        },
+        {
+          validator: async (rule, value) => {
+            if (value > parseInt(state.start_period, 10)) {
+              throw new Error('Must be less or equal than grace period');
+            }
+          }
+        }
+      ]
     },
     bond_finishing_period: {
       label: 'Face value payment period, days',
@@ -118,7 +152,7 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 1,
+      default: DEFAULT_BOND_PARAMS.bond_finishing_period,
       suffix: 'Number of days after bond maturity to pay bond par value',
     },
     bond_units_mincap_amount: {
@@ -127,8 +161,24 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 100,
+      default: DEFAULT_BOND_PARAMS.bond_units_mincap_amount,
       suffix: 'Minimum number of bond units sold needed to issue bond',
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value <= 0) {
+              throw new Error('Must be bigger than 0');
+            }
+          }
+        },
+        {
+          validator: async (rule, value) => {
+            if (value > state.bond_units_maxcap_amount) {
+              throw new Error('Must be less than maxcap');
+            }
+          }
+        }
+      ]
     },
     bond_units_maxcap_amount: {
       label: 'Number of bonds in issue, bond units',
@@ -136,7 +186,23 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 600,
+      default: DEFAULT_BOND_PARAMS.bond_units_maxcap_amount,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value < state.bond_units_mincap_amount) {
+              throw new Error('Must be bigger than mincap');
+            }
+          }
+        },
+        {
+          validator: async (rule, value) => {
+            if (toEverUSD(value * state.bond_units_base_price) > U64MAX) {
+              throw new Error('Bond price * maxcap is too large');
+            }
+          }
+        },
+      ]
     },
     bond_units_base_price: {
       label: 'Bond price, USD',
@@ -144,7 +210,23 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 100,
+      default: DEFAULT_BOND_PARAMS.bond_units_base_price,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value <= 0) {
+              throw new Error('Must be bigger than 0');
+            }
+          }
+        },
+        {
+          validator: async (rule, value) => {
+            if (toEverUSD(value * state.bond_units_maxcap_amount) > U64MAX) {
+              throw new Error('Bond price * maxcap is too large');
+            }
+          }
+        },
+      ]
     },
     chart: {
       display: 'custom',
@@ -228,7 +310,7 @@ const BondConfig = () => {
       span: 12,
       min: 1,
       max: 100,
-      default: IR_DEFAULT,
+      default: DEFAULT_BOND_PARAMS.interest_rate_base_value,
     },
     interest_pay_period: {
       label: 'Interest rate payment period, days',
@@ -236,8 +318,17 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 60,
+      default: DEFAULT_BOND_PARAMS.interest_pay_period,
       suffix: 'Number of days to pay interest rate after interest recalculation',
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value > state.payment_period) {
+              throw new Error('Must be less than payment_period');
+            }
+          }
+        }
+      ]
     },
     floating_rate_divider: {
       display: 'divider',
@@ -254,7 +345,7 @@ const BondConfig = () => {
         { 'Renewable energy generation (MWh)': 'POWER_GENERATED' },
         { 'CO2 reduction (MtCO2e)': 'CO2_EMISSIONS_REDUCTION' },
       ],
-      default: DEFAULT_IMPACT_DATA_TYPE,
+      default: DEFAULT_BOND_PARAMS.impact_data_type,
     },
     interest_rate_margin_floor: {
       label: 'Minimum interest rate, %',
@@ -264,7 +355,7 @@ const BondConfig = () => {
       span: 12,
       min: 1,
       max: 100,
-      default: IR_MF_DEFAULT,
+      default: DEFAULT_BOND_PARAMS.interest_rate_margin_floor,
     },
     interest_rate_margin_cap: {
       label: 'Maximum interest rate, %',
@@ -274,7 +365,7 @@ const BondConfig = () => {
       span: 12,
       min: 1,
       max: 100,
-      default: IR_MC_DEFAULT,
+      default: DEFAULT_BOND_PARAMS.interest_rate_margin_cap,
     },
     impact_data_max_deviation_cap: {
       label: `Impact value leading to maximum interest rate, ${impactMeasure}`,
@@ -282,7 +373,16 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 16000,
+      default: DEFAULT_BOND_PARAMS.impact_data_max_deviation_cap,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value < state.impact_data_max_deviation_floor) {
+              throw new Error('Must be bigger than max deviation floor');
+            }
+          }
+        }
+      ]
     },
     impact_data_max_deviation_floor: {
       label: `Impact value leading to minimum interest rate, ${impactMeasure}`,
@@ -290,7 +390,16 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 4000,
+      default: DEFAULT_BOND_PARAMS.impact_data_max_deviation_floor,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value > state.impact_data_max_deviation_cap) {
+              throw new Error('Must be less than max deviation cap');
+            }
+          }
+        }
+      ]
     },
     impact_data_send_period: {
       label: 'Time window to submit impact data, days',
@@ -299,7 +408,16 @@ const BondConfig = () => {
       type: 'number',
       display: 'text',
       span: 12,
-      default: 60,
+      default: DEFAULT_BOND_PARAMS.impact_data_send_period,
+      rules: [
+        {
+          validator: async (rule, value) => {
+            if (value > state.payment_period) {
+              throw new Error('Must be less than payment_period');
+            }
+          }
+        }
+      ]
     },
     interest_rate_penalty_for_missed_report: {
       label: 'Interest rate penalty, %',
@@ -310,7 +428,7 @@ const BondConfig = () => {
       span: 12,
       min: 1,
       max: 100,
-      default: IR_PENALTY_DEFAULT,
+      default: DEFAULT_BOND_PARAMS.interest_rate_penalty_for_missed_report,
     },
     start_period: {
       label: 'Grace Period',
@@ -324,7 +442,7 @@ const BondConfig = () => {
         { 'Half year': '182' },
         { 'One quarter': '91' },
       ],
-      default: '365',
+      default: DEFAULT_BOND_PARAMS.start_period,
     },
     interest_rate_start_period_value: {
       label: 'Grace period interest rate, %',
@@ -334,7 +452,7 @@ const BondConfig = () => {
       min: 1,
       max: 100,
       span: 12,
-      default: IR_SP_DEFAULT,
+      default: DEFAULT_BOND_PARAMS.interest_rate_start_period_value,
     },
     impact_baseline_divider: {
       display: 'divider',
@@ -350,7 +468,16 @@ const BondConfig = () => {
       display: 'text',
       step: 100,
       span: 12,
-      default: IMPACT_BASELINE_DEFAULT,
+      default: DEFAULT_IMPACT_BASELINE,
+      rules: [{
+        validator: async (rule, value) => {
+          if (value > state.impact_data_max_deviation_cap) {
+            throw new Error('Must be less than max deviation cap');
+          } else if (value < state.impact_data_max_deviation_floor) {
+            throw new Error('Must be bigger than max deviation floor');
+          }
+        }
+      }]
     };
   });
 

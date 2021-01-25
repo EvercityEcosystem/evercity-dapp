@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Row,
@@ -26,6 +26,7 @@ import { getCurrentUser } from '../utils/storage';
 import usePolkadot from '../hooks/usePolkadot';
 import useXState from '../hooks/useXState';
 
+import { store } from './PolkadotProvider';
 import TableList from './TableList';
 import BondUnitsSellForm from './BondUnitsSellForm';
 
@@ -42,6 +43,8 @@ const BondReport = ({ bond }) => {
     maxSell: 0,
   });
   const { address: currentUserAddress, role } = getCurrentUser();
+  const { polkadotState } = useContext(store);
+  const { timeStep } = polkadotState;
 
   const {
     bondImpactReport,
@@ -59,6 +62,8 @@ const BondReport = ({ bond }) => {
           period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
           impactData: item.impact_data,
         }));
+
+        console.log(result);
 
         updateState({ impactData });
       };
@@ -96,7 +101,7 @@ const BondReport = ({ bond }) => {
 
   const impactMeasure = IMPACT_DATA_TYPES[bond.inner.impact_data_type].measure;
   const impactBaselineData = bond.inner.impact_data_baseline.map((item, index) => ({
-    period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
+    period: dayjs(bond.creation_date).add(fromBondDays(bond.inner.payment_period, timeStep), 'day').format('DD-MM-YYYY'),
     value: item,
   }));
 
@@ -231,7 +236,7 @@ const BondReport = ({ bond }) => {
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="days" title="Interest rate payment period" value={fromBondDays(bond.inner.interest_pay_period || 0)} />
+            <Statistic className={styles.bondData} suffix="days" title="Interest rate payment period" value={fromBondDays(bond.inner.interest_pay_period || 0, timeStep)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} suffix="%" title="Interest rate penalty" value={toPercent(bond.inner.interest_rate_penalty_for_missed_report)} />
@@ -249,7 +254,7 @@ const BondReport = ({ bond }) => {
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="days" title="Time window to submit impact data" value={fromBondDays(bond.inner.impact_data_send_period)} />
+            <Statistic className={styles.bondData} suffix="days" title="Time window to submit impact data" value={fromBondDays(bond.inner.impact_data_send_period, timeStep)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} title="Impact value leading to maximum interest rate" value={bond.inner.impact_data_max_deviation_floor || 0} />

@@ -17,7 +17,7 @@ import { fromEverUSD, toBondDays, toEverUSD } from '../utils/converters';
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
   const { address: currentUserAddress } = getCurrentUser();
-  const { api, injector } = polkadotState;
+  const { api, injector, timeStep } = polkadotState;
 
   const bondCouponYield = useCallback(
     async (bondID) => {
@@ -635,11 +635,11 @@ export default () => {
         interest_rate_margin_cap: values.interest_rate_margin_cap * 1000,
         interest_rate_margin_floor: values.interest_rate_margin_floor * 1000,
         
-        interest_pay_period: toBondDays(values.interest_pay_period),
-        bond_finishing_period: toBondDays(values.bond_finishing_period),
-        impact_data_send_period: toBondDays(values.impact_data_send_period),
-        start_period: toBondDays(parseInt(values.start_period, 10)),
-        payment_period: toBondDays(values.payment_period),
+        interest_pay_period: toBondDays(values.interest_pay_period, timeStep),
+        bond_finishing_period: toBondDays(values.bond_finishing_period, timeStep),
+        impact_data_send_period: toBondDays(values.impact_data_send_period, timeStep),
+        start_period: toBondDays(parseInt(values.start_period, 10), timeStep),
+        payment_period: toBondDays(values.payment_period, timeStep),
 
         impact_data_type: values.impact_data_type,
         impact_data_max_deviation_cap: values.impact_data_max_deviation_cap,
@@ -827,11 +827,7 @@ export default () => {
 
   const dayDuration = useCallback(
     async () => {
-      const result = await api
-        .constants
-        .evercity
-        .timeStep();
-
+      const result = await api.consts.evercity.timeStep;
       return result?.toJSON();
     },
     [api, currentUserAddress],

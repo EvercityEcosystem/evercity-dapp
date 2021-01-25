@@ -10,8 +10,8 @@ export const saveCurrentUser = (address, role) => {
 };
 
 export const forgetCurrentUser = () => {
-  localStorage.remove('userAddress');
-  localStorage.remove('userRole');
+  localStorage.removeItem('userAddress');
+  localStorage.removeItem('userRole');
 };
 
 export const getCurrentUser = () => ({

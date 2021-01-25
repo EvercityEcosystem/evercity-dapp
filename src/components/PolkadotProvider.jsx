@@ -25,6 +25,11 @@ const PolkadotProvider = ({ children }) => {
           ...state,
           bonds: action?.payload,
         };
+      case 'setTimeStep':
+        return {
+          ...state,
+          timeStep: action?.payload,
+        };
       default:
         throw new Error('Action not found');
     }

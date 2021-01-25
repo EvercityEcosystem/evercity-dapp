@@ -27,36 +27,42 @@ import BondConfig from './pages/BondConfig';
 
 import { checkAuth, checkRole } from './utils/checks';
 import { connect, getInjector } from './utils/polkadot';
+import usePolkadot from './hooks/usePolkadot';
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
+  const { dayDuration } = usePolkadot();
+
+  const connectAPI = async () => {
+    const api = await connect();
+    dispatch({
+      type: 'setAPI',
+      payload: api,
+    });
+  };
+
+  const setTimeStep = async () => {
+    const timeStep = await dayDuration();
+
+    dispatch({
+      type: 'setTimeStep',
+      payload: timeStep,
+    });
+  };
+
+  const setInjector = async () => {
+    const injector = await getInjector();
+    dispatch({
+      type: 'setInjector',
+      payload: injector,
+    });
+  };
 
   useEffect(
     () => {
-      const connectAPI = async () => {
-        const api = await connect();
-        dispatch({
-          type: 'setAPI',
-          payload: api,
-        });
-      };
-
       connectAPI();
-    },
-    [dispatch],
-  );
-
-  useEffect(
-    () => {
-      const setInjector = async () => {
-        const injector = await getInjector();
-        dispatch({
-          type: 'setInjector',
-          payload: injector,
-        });
-      };
-
       setInjector();
+      setTimeStep();
     },
     [dispatch],
   );
