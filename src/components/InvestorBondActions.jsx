@@ -25,7 +25,12 @@ const InvestorBondActions = ({ bond, mode }) => {
     visibleCheckModal: false,
     filehash: null,
   });
-  const { bondUnitPackageBuy } = usePolkadot();
+
+  const {
+    bondUnitPackageBuy,
+    bondWithdrawEverusd
+  } = usePolkadot();
+
   const { checkDocumentsFormConfig } = useDocuments({ state, updateState, bond });
 
   const buyFormConfig = {
@@ -71,16 +76,23 @@ const InvestorBondActions = ({ bond, mode }) => {
           />
         )}
       />
-      {['BOOKING', 'ACTIVE'].includes(bond?.state) && (
+      {['BOOKING', 'ACTIVE', 'FINISHED'].includes(bond?.state) && (
         <Dropdown
           overlay={(
             <Menu>
-              <Menu.Item key="1" onClick={(e) => stopPropagation(e, () => updateState({ visibleInvestModal: true }))}>
-                Buy Bond Units
+              {['ACTIVE', 'BOOKING'].includes(bond.state) && (
+                <Menu.Item key="invest" onClick={(e) => stopPropagation(e, () => updateState({ visibleInvestModal: true }))}>
+                  Buy Bond Units
+                </Menu.Item>
+              )}
+              <Menu.Item key="check" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
+                Check documents
               </Menu.Item>
-              <Menu.Item key="2" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
-                Check Documents
-              </Menu.Item>
+              {['ACTIVE', 'FINISHED'].includes(bond.state) && (
+                <Menu.Item key="withdraw" onClick={(e) => stopPropagation(e, () => bondWithdrawEverusd(bond.id))}>
+                  Withdraw
+                </Menu.Item>
+              )}
             </Menu>
           )}
         >

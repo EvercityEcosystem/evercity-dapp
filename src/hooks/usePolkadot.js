@@ -4,23 +4,39 @@ import {
 } from 'react';
 
 import { notification } from 'antd';
+import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { u8aToString } from '@polkadot/util';
 
 import { store } from '../components/PolkadotProvider';
 
 import { getAvailableRoles } from '../utils/roles';
-import { getCurrentUser } from '../utils/storage';
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from '../utils/env';
-import { fromEverUSD, toBondDays, toEverUSD } from '../utils/converters';
+import { getCurrentUserAddress } from '../utils/storage';
+import { fromEverUSD, toBondDays, toEverUSD, toPercent } from '../utils/converters';
+import { calculateInterestRate } from '../utils/interestRate';
+import { bondCurrentPeriod } from '../utils/period';
 
 export default () => {
   const { polkadotState, dispatch } = useContext(store);
-  const { address: currentUserAddress } = getCurrentUser();
   const { api, injector, timeStep } = polkadotState;
+
+  const bondImpactReport = useCallback(
+    async (bondID) => {
+      const result = await api
+        .query
+        .evercity
+        .bondImpactReport(bondID);
+
+      return result?.toJSON();
+    },
+    [api],
+  );
 
   const bondCouponYield = useCallback(
     async (bondID) => {
+      const currentUserAddress = getCurrentUserAddress();
+
       if (!currentUserAddress) {
         return [];
       }
@@ -32,7 +48,25 @@ export default () => {
 
       return result?.toJSON();
     },
-    [api, currentUserAddress],
+    [api],
+  );
+
+  const bondUnitPackageRegistry = useCallback(
+    async (bondID) => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      if (!currentUserAddress) {
+        return [];
+      }
+
+      const result = await api
+        .query
+        .evercity
+        .bondUnitPackageRegistry(bondID, currentUserAddress);
+
+      return result?.toJSON();
+    },
+    [api],
   );
 
   const fetchBonds = useCallback(
@@ -43,34 +77,52 @@ export default () => {
         return payload;
       }
 
-      const result = await api
-        .query
-        .evercity
-        .bondRegistry
-        .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
+      let result
+
+      try {
+        result = await api
+          .query
+          .evercity
+          .bondRegistry
+          .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
+      } catch (error) {
+        console.error('bond fetching error: ', error.message);
+        return payload;
+      }
 
       const promises = result.map(async ([{ args }, value]) => {
-        const id = u8aToString(args[0]);
+        const id = u8aToString(args[0])?.replace(/\u0000/g, '');
         const couponYield = await bondCouponYield(id);
         const bondData = value.toJSON();
 
-        let currentInterestRate = bondData?.inner?.interest_rate_base_value;
+        const packageRegistry = await bondUnitPackageRegistry(id);
+        const impactData = await bondImpactReport(id);
+        const currentPeriod = bondCurrentPeriod(bondData, id);
 
-        if (!!couponYield.length) {
-          currentInterestRate = couponYield[couponYield.length - 1]?.interest_rate
-        }
+        const {
+          inner
+        } = bondData;
+
+        const {
+          interest_rate_base_value: interestRate,
+        } = inner;
+
+        const calculatedInterestRate = toPercent(calculateInterestRate(bondData, impactData, currentPeriod) || interestRate);
+        const currentInterestRate = calculatedInterestRate?.toFixed(2);
 
         return ({
           id,
           bondCouponYield: couponYield,
           currentInterestRate,
+          packageRegistry,
+          impactData,
+          currentPeriod,
           ...bondData,
         });
       });
 
       try {
         payload = await Promise.all(promises);
-        
       } catch (error) {
         notification.error({
           message: 'An error has occured while loading bonds',
@@ -83,27 +135,7 @@ export default () => {
         payload,
       });
     },
-    [api, dispatch, bondCouponYield],
-  );
-
-  const transactionCallback = useCallback(
-    (message) => ({ status }) => {
-      if (status.isInBlock) {
-        notification.success({
-          message,
-          description: 'Transaction is in block',
-        });
-      }
-
-      if (status.isFinalized) {
-        notification.success({
-          message,
-          description: 'Block finalized',
-        });
-        fetchBonds();
-      }
-    },
-    [fetchBonds],
+    [api, dispatch],
   );
 
   const accountRegistry = useCallback(
@@ -121,27 +153,58 @@ export default () => {
     [api],
   );
 
-  const balanceEverUSD = useCallback(
-    async (address) => {
+  const fetchBalance = useCallback(
+    async () => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      if (!api || !currentUserAddress) {
+        return 0;
+      }
+
       const data = await api
         .query
         .evercity
-        .balanceEverUSD(address);
+        .balanceEverUSD(currentUserAddress);
 
-      return fromEverUSD(data?.toNumber());
+      const balance = parseInt(data?.toBigInt());
+
+      return Math.floor(fromEverUSD(balance));
     },
     [api],
   );
 
+  const transactionCallback = (message) => ({ status }) => {
+    if (status.isInBlock) {
+      notification.success({
+        message,
+        description: 'Transaction is in block',
+      });
+    }
+
+    if (status.isFinalized) {
+      notification.success({
+        message,
+        description: 'Block finalized',
+      });
+      fetchBonds();
+      fetchBalance();
+    }
+  };
+
   const requestMintTokens = useCallback(
     async (values) => {
+      const currentUserAddress = getCurrentUserAddress();
       const { amount } = values;
+
+      if (amount <= 0) {
+        return;
+      }
 
       try {
         await api
           .tx
           .evercity
-          .tokenMintRequestCreateEverusd(toEverUSD(amount))
+          .tokenMintRequestCreateEverusd(BigInt(toEverUSD(amount)))
           .signAndSend(
             currentUserAddress,
             {
@@ -165,13 +228,14 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const revokeMintTokens = useCallback(
     async () => {
+      const currentUserAddress = getCurrentUserAddress();
+
       try {
         await api
           .tx
@@ -200,7 +264,6 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
@@ -208,12 +271,17 @@ export default () => {
   const requestBurnTokens = useCallback(
     async (values) => {
       const { amount } = values;
+      const currentUserAddress = getCurrentUserAddress();
+
+      if (amount <= 0) {
+        return;
+      }
 
       try {
         await api
           .tx
           .evercity
-          .tokenBurnRequestCreateEverusd(toEverUSD(amount))
+          .tokenBurnRequestCreateEverusd(BigInt(toEverUSD(amount)))
           .signAndSend(
             currentUserAddress,
             {
@@ -237,13 +305,14 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const revokeBurnTokens = useCallback(
     async () => {
+      const currentUserAddress = getCurrentUserAddress();
+
       try {
         await api
           .tx
@@ -272,7 +341,6 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
@@ -281,6 +349,7 @@ export default () => {
     async (values) => {
       const { action, role, address } = values;
       const identity = Math.floor(Math.random() * 50);
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
@@ -309,7 +378,6 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
@@ -348,17 +416,17 @@ export default () => {
 
   const confirmEverusdRequest = useCallback(
     async (action, amount, address) => {
-      const command = action === 'Mint' ? 'tokenMintRequestConfirmEverusd' : 'tokenBurnRequestConfirmEverusd';
+      const command = action === 'mint' ? 'tokenMintRequestConfirmEverusd' : 'tokenBurnRequestConfirmEverusd';
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
           .tx
-          .evercity[command](address, toEverUSD(amount))
+          .evercity[command](address, BigInt(toEverUSD(amount)))
           .signAndSend(
             currentUserAddress,
             {
-              signer: injector.signer,
-              nonce: -1,
+              signer: injector.signer
             },
             transactionCallback(`${action} confirm`),
           );
@@ -377,14 +445,14 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const declineEverusdRequest = useCallback(
     async (action, address) => {
-      const command = action === 'Mint' ? 'tokenMintRequestDeclineEverusd' : 'tokenBurnRequestDeclineEverusd';
+      const command = action === 'mint' ? 'tokenMintRequestDeclineEverusd' : 'tokenBurnRequestDeclineEverusd';
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
@@ -413,7 +481,6 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
@@ -430,9 +497,19 @@ export default () => {
     [api],
   );
 
+  const bondRegistry = useCallback(
+    async (bondID) => {
+      const bond = await api.query.evercity.bondRegistry(bondID);
+
+      return bond?.toJSON();
+    },
+    [api],
+  )
+
   const bondUnitPackageBuy = useCallback(
     async (bondID, bondUnitsCount) => {
       const bond = await api.query.evercity.bondRegistry(bondID);
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
@@ -462,25 +539,13 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
-  const bondImpactReport = useCallback(
-    async (bondID) => {
-      const result = await api
-        .query
-        .evercity
-        .bondImpactReport(bondID);
-
-      return result?.toJSON();
-    },
-    [api],
-  );
-
   const bondUnitLotBid = useCallback(
     async (values) => {
+      const currentUserAddress = getCurrentUserAddress();
       const {
         bondID,
         deadline,
@@ -524,13 +589,13 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const bondUnitLotSettle = useCallback(
     async (values) => {
+      const currentUserAddress = getCurrentUserAddress();
       const {
         bondID,
         deadline,
@@ -572,7 +637,7 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress, transactionCallback],
+    [api, injector, transactionCallback],
   );
 
   const bondUnitPackageLot = useCallback(
@@ -603,22 +668,6 @@ export default () => {
     [api],
   );
 
-  const bondUnitPackageRegistry = useCallback(
-    async (bondID) => {
-      if (!currentUserAddress) {
-        return [];
-      }
-
-      const result = await api
-        .query
-        .evercity
-        .bondUnitPackageRegistry(bondID, currentUserAddress);
-
-      return result?.toJSON();
-    },
-    [api, currentUserAddress],
-  );
-
   const prepareBond = useCallback(
     async (values) => {
       const bondStruct = {
@@ -638,19 +687,21 @@ export default () => {
         interest_pay_period: toBondDays(values.interest_pay_period, timeStep),
         bond_finishing_period: toBondDays(values.bond_finishing_period, timeStep),
         impact_data_send_period: toBondDays(values.impact_data_send_period, timeStep),
-        start_period: toBondDays(parseInt(values.start_period, 10), timeStep),
+        start_period: toBondDays(values.start_period, timeStep),
         payment_period: toBondDays(values.payment_period, timeStep),
 
         impact_data_type: values.impact_data_type,
         impact_data_max_deviation_cap: values.impact_data_max_deviation_cap,
         impact_data_max_deviation_floor: values.impact_data_max_deviation_floor,
         bond_duration: values.bond_duration,
-        mincap_deadline: values.mincap_deadline.unix() * 1000,
+        mincap_deadline: dayjs(values.mincap_deadline).unix() * 1000,
         bond_units_mincap_amount: values.bond_units_mincap_amount,
         bond_units_maxcap_amount: values.bond_units_maxcap_amount,
         bond_units_base_price: values.bond_units_base_price * 10 ** 9,
         impact_data_baseline: [...Array(values.bond_duration).keys()].map((item) => values[`impact_baseline_${item}`]),
       };
+
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
@@ -677,12 +728,13 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress, transactionCallback],
+    [api, injector, transactionCallback],
   );
 
   const releaseBond = useCallback(
     async (bondId) => {
       const bond = await api.query.evercity.bondRegistry(bondId);
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
@@ -709,19 +761,20 @@ export default () => {
         });
       }
     },
-    [api, injector, currentUserAddress, transactionCallback],
+    [api, injector, transactionCallback],
   );
 
   const activateBond = useCallback(
     async (bondId) => {
       const bond = await api.query.evercity.bondRegistry(bondId);
+      const currentUserAddress = getCurrentUserAddress();
 
       try {
         await api
           .tx
           .evercity
           .bondSetAuditor(bondId, DEFAULT_AUDITOR_ADDRESS)
-          .signAndSend(currentUserAddress, { signer: injector.signer, nonce: -1 });
+          .signAndSend(currentUserAddress, { signer: injector.signer });
 
         await api
           .tx
@@ -750,13 +803,14 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const bondImpactReportSend = useCallback(
     async (bondID, period, impactValue) => {
+      const currentUserAddress = getCurrentUserAddress();
+
       try {
         await api
           .tx
@@ -785,13 +839,14 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
 
   const bondDepositEverusd = useCallback(
     async (bondID, amount) => {
+      const currentUserAddress = getCurrentUserAddress();
+
       try {
         await api
           .tx
@@ -820,7 +875,6 @@ export default () => {
     [
       api,
       injector,
-      currentUserAddress,
       transactionCallback,
     ],
   );
@@ -830,13 +884,157 @@ export default () => {
       const result = await api.consts.evercity.timeStep;
       return result?.toJSON();
     },
-    [api, currentUserAddress],
+    [api],
+  );
+
+  const bondImpactReportApprove = useCallback(
+    async (bondID, period, impactData) => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      try {
+        await api
+          .tx
+          .evercity
+          .bondImpactReportApprove(bondID, period, impactData)
+          .signAndSend(
+            currentUserAddress,
+            {
+              signer: injector.signer,
+              nonce: -1,
+            },
+            transactionCallback('Report approve'),
+          );
+
+        notification.success({
+          message: 'Report approve',
+          description: 'Transaction has been sent to blockchain',
+        });
+      } catch (error) {
+        notification.error({
+          message: 'Signing/sending transaction process failed',
+          description: error,
+        });
+      }
+    },
+    [
+      api,
+      injector,
+      transactionCallback,
+    ],
+  );
+
+  const bondAccrueCouponYield = useCallback(
+    async (bondID) => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      try {
+        await api
+          .tx
+          .evercity
+          .bondAccrueCouponYield(bondID)
+          .signAndSend(
+            currentUserAddress,
+            {
+              signer: injector.signer,
+              nonce: -1,
+            },
+            transactionCallback('Bond accrue'),
+          );
+
+        notification.success({
+          message: 'Bond accrue',
+          description: 'Transaction has been sent to blockchain',
+        });
+      } catch (error) {
+        notification.error({
+          message: 'Signing/sending transaction process failed',
+          description: error,
+        });
+      }
+    },
+    [
+      api,
+      injector,
+      transactionCallback,
+    ],
+  );
+
+  const bondWithdrawEverusd = useCallback(
+    async (bondID) => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      try {
+        await api
+          .tx
+          .evercity
+          .bondWithdrawEverusd(bondID)
+          .signAndSend(
+            currentUserAddress,
+            {
+              signer: injector.signer,
+              nonce: -1,
+            },
+            transactionCallback('Bond withdraw'),
+          );
+
+        notification.success({
+          message: 'Bond withdraw',
+          description: 'Transaction has been sent to blockchain',
+        });
+      } catch (error) {
+        notification.error({
+          message: 'Signing/sending transaction process failed',
+          description: error,
+        });
+      }
+    },
+    [
+      api,
+      injector,
+      transactionCallback,
+    ],
+  );
+
+  const redeemBond = useCallback(
+    async (bondID) => {
+      const currentUserAddress = getCurrentUserAddress();
+
+      try {
+        await api
+          .tx
+          .evercity
+          .bondRedeem(bondID)
+          .signAndSend(
+            currentUserAddress,
+            {
+              signer: injector.signer,
+              nonce: -1,
+            },
+            transactionCallback('Bond redeem'),
+          );
+
+        notification.success({
+          message: 'Bond redeem',
+          description: 'Transaction has been sent to blockchain',
+        });
+      } catch (error) {
+        notification.error({
+          message: 'Signing/sending transaction process failed',
+          description: error,
+        });
+      }
+    },
+    [
+      api,
+      injector,
+      transactionCallback,
+    ],
   );
 
   return {
     accountRegistry,
     fetchBonds,
-    balanceEverUSD,
+    fetchBalance,
     requestMintTokens,
     revokeMintTokens,
     requestBurnTokens,
@@ -860,5 +1058,10 @@ export default () => {
     bondDepositEverusd,
     bondCouponYield,
     dayDuration,
+    bondRegistry,
+    bondImpactReportApprove,
+    bondAccrueCouponYield,
+    bondWithdrawEverusd,
+    redeemBond,
   };
 };

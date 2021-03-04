@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Tag, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
+import { IMPACT_DATA_TYPES, BOND_STATES } from '../utils/env';
 import { toPercent, fromEverUSD } from '../utils/converters';
 
 import TableList from './TableList';
@@ -25,7 +25,7 @@ const BondsTable = ({ dataSource, onClick }) => {
       key: 'bond.state',
       render: (_, bond) => (
         <div className={styles.bondState}>
-          <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
+          <Tag color={BOND_STATES[bond?.state].color}>{BOND_STATES[bond?.state].title}</Tag>
         </div>
       ),
     },
@@ -63,7 +63,7 @@ const BondsTable = ({ dataSource, onClick }) => {
     {
       title: t('Interest'),
       key: 'interest',
-      render: (_, bond) => `${toPercent(bond.currentInterestRate)}%`,
+      render: (_, bond) => `${bond.currentInterestRate}%`,
     },
     {
       title: t('Actions'),

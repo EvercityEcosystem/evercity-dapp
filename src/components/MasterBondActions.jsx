@@ -57,7 +57,7 @@ const MasterBondActions = ({ bond, mode }) => {
               )}
               {['BOOKING', 'ACTIVE'].includes(bond.state) && (
                 <Menu.Item key="3" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
-                  Check Documents
+                  Check documents
                 </Menu.Item>
               )}
             </Menu>

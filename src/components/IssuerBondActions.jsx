@@ -23,7 +23,12 @@ const IssuerBondActions = ({ bond, mode }) => {
     visibleImpactModal: false,
     visibleDepositModal: false,
   });
-  const { bondImpactReportSend, bondDepositEverusd } = usePolkadot();
+  const {
+    bondImpactReportSend,
+    bondDepositEverusd,
+    bondAccrueCouponYield,
+    redeemBond
+  } = usePolkadot();
 
   const depositFormConfig = {
     amount: {
@@ -65,6 +70,10 @@ const IssuerBondActions = ({ bond, mode }) => {
     updateState({ visibleDepositModal: false });
   };
 
+  if (!['ACTIVE', 'FINISHED'].includes(bond.state)) {
+    return null;
+  }
+
   return (
     <>
       <ModalView
@@ -97,28 +106,36 @@ const IssuerBondActions = ({ bond, mode }) => {
           />
         )}
       />
-      {['BOOKING', 'ACTIVE'].includes(bond?.state) && (
-        <Dropdown
-          overlay={(
-            <Menu>
-              <Menu.Item key="1" onClick={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: true }))}>
-                Deposit
-              </Menu.Item>
-              <Menu.Item key="2" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
+      <Dropdown
+        overlay={(
+          <Menu>
+            <Menu.Item key="deposit" onClick={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: true }))}>
+              Deposit
+            </Menu.Item>
+            {bond.state === 'ACTIVE' && [
+              <Menu.Item key="accrue" onClick={(e) => stopPropagation(e, () => bondAccrueCouponYield(bond.id))}>
+                Calculate interest
+              </Menu.Item>,
+              <Menu.Item key="redeem" onClick={(e) => stopPropagation(e, () => redeemBond(bond.id))}>
+                Redeem
+              </Menu.Item>,
+              <Menu.Item key="impact" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
                 Send impact data
               </Menu.Item>
-            </Menu>
-          )}
+            ]}
+          </Menu>
+        )}
+      >
+        <Button
+          size={mode === 'table' ? 'small' : 'middle'}
+          onClick={(e) => stopPropagation(e)}
+          type="primary"
+          className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
         >
-          <Button
-            className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
-            size={mode === 'table' ? 'small' : 'middle'}
-          >
-            Actions
-            <DownOutlined />
-          </Button>
-        </Dropdown>
-      )}
+          Actions
+          <DownOutlined />
+        </Button>
+      </Dropdown>
     </>
   );
 };

@@ -191,7 +191,7 @@ const MainLayout = ({ children }) => {
         </Content>
       </Layout>
       <Footer style={{ fontWeight: 600, textAlign: 'center' }}>
-        © 2020 Evercity PTE LTD
+        © 2021 Evercity PTE LTD
       </Footer>
     </Layout>
   );

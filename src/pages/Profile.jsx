@@ -14,12 +14,12 @@ const Roles = () => {
   const { t } = useTranslation();
   const { address, role } = getCurrentUser();
   const [balance, setBalance] = useState();
-  const { balanceEverUSD } = usePolkadot();
+  const { fetchBalance } = usePolkadot();
 
   useEffect(
     () => {
       const getBalance = async () => {
-        const res = await balanceEverUSD(address);
+        const res = await fetchBalance(address);
         setBalance(res.toFixed(2));
       };
 

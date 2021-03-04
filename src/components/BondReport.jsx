@@ -53,6 +53,17 @@ const BondReport = ({ bond }) => {
     bondUnitLotSettle,
   } = usePolkadot();
 
+  let bondBalance = 0;
+  let bondInterestToPay = 0;
+
+  if (['ACTIVE', 'BOOKING', 'BANKRUPT'].includes(bond.state)) {
+    const debitCredit = fromEverUSD(bond.bond_debit - bond.bond_credit);
+    const creditYield = fromEverUSD(bond.bond_credit - bond.coupon_yield);
+
+    bondBalance = Number((debitCredit).toFixed(1)).toLocaleString('en-US');
+    bondInterestToPay = Number((creditYield).toFixed(1)).toLocaleString('en-US');
+  };
+
   useEffect(
     () => {
       const getImpactData = async () => {
@@ -62,8 +73,6 @@ const BondReport = ({ bond }) => {
           period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
           impactData: item.impact_data,
         }));
-
-        console.log(result);
 
         updateState({ impactData });
       };
@@ -187,7 +196,7 @@ const BondReport = ({ bond }) => {
             <Statistic className={styles.bondData} suffix="years" title="Time to maturity" value={bond.inner.bond_duration} />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="$" title="Bond price" value={fromEverUSD(bond.inner.bond_units_base_price)} />
+            <Statistic className={styles.bondData} prefix="$" title="Bond price" value={fromEverUSD(bond.inner.bond_units_base_price)} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} title="Number of bonds purchased" value={bond.issued_amount} />
@@ -202,6 +211,14 @@ const BondReport = ({ bond }) => {
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} title="Issuance date" value={dayjs(bond.inner.mincap_deadline).format('DD-MM-YYYY')} />
+          </Col>
+        </Row>
+        <Row className={styles.row}>
+          <Col span={8}>
+            <Statistic className={styles.bondData} prefix="$" title="Bond balance" value={bondBalance} />
+          </Col>
+          <Col span={8}>
+            <Statistic className={styles.bondData} prefix="$" title="Bond interest to pay" value={bondInterestToPay} />
           </Col>
         </Row>
       </TabPane>

@@ -45,7 +45,6 @@ const CustodianRequests = () => {
   const handleSubmit = async (values) => {
     const { action, address } = values;
     const { amount, deadline } = action === 'mintRequestEverUSD' ? await checkMintRequest(address) : await checkBurnRequest(address);
-    console.log(amount, deadline);
 
     if (!amount && !deadline) {
       message.warning('No requests from this address');

@@ -9,7 +9,7 @@ import {
 
 import BondActions from './BondActions';
 
-import { IMPACT_DATA_TYPES, BOND_STATE_COLORS } from '../utils/env';
+import { IMPACT_DATA_TYPES, BOND_STATES } from '../utils/env';
 import { toPercent, fromEverUSD } from '../utils/converters';
 
 import styles from './BondCard.module.less';
@@ -30,7 +30,7 @@ const BondCard = ({ bond, onClick }) => {
         className={styles.bondCard}
       >
         <div className={styles.bondState}>
-          <Tag color={BOND_STATE_COLORS[bond?.state]}>{bond?.state}</Tag>
+          <Tag color={BOND_STATES[bond?.state].color}>{BOND_STATES[bond?.state].title}</Tag>
         </div>
         <div className={styles.content}>
           <div className={styles.title}>
@@ -51,7 +51,7 @@ const BondCard = ({ bond, onClick }) => {
             {bond?.state === 'BOOKING' && (
               <Countdown className={styles.bondData} title="Mincap Days Left" format="D" value={bond?.inner?.mincap_deadline} />
             )}
-            <Statistic className={styles.bondData} suffix="%" title="Interest" value={toPercent(bond?.currentInterestRate)} />
+            <Statistic className={styles.bondData} suffix="%" title="Interest" value={bond?.currentInterestRate} />
             <Statistic className={styles.bondData} suffix="years" title="Maturity" value={bond?.inner?.bond_duration} />
           </div>
           <div className={styles.bookingProgress}>

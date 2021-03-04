@@ -28,3 +28,5 @@ export const setViewParams = (params) => {
 
   localStorage.setItem('listView', listView);
 }
+
+export const getCurrentUserAddress = () => localStorage.getItem('userAddress');
