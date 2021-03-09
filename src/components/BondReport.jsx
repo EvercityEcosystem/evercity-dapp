@@ -193,7 +193,7 @@ const BondReport = ({ bond }) => {
       <TabPane tab="General" key="general">
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="years" title="Time to maturity" value={bond.inner.bond_duration} />
+            <Statistic className={styles.bondData} suffix="periods" title="Time to maturity" value={bond.inner.bond_duration} />
           </Col>
           <Col span={8}>
             <Statistic className={styles.bondData} prefix="$" title="Bond price" value={fromEverUSD(bond.inner.bond_units_base_price)} />

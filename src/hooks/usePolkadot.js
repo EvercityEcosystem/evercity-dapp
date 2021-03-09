@@ -419,7 +419,7 @@ export default () => {
 
   const confirmEverusdRequest = useCallback(
     async (action, amount, address) => {
-      const command = action === 'mint' ? 'tokenMintRequestConfirmEverusd' : 'tokenBurnRequestConfirmEverusd';
+      const command = action.toLowerCase() === 'mint' ? 'tokenMintRequestConfirmEverusd' : 'tokenBurnRequestConfirmEverusd';
       const currentUserAddress = getCurrentUserAddress();
 
       try {
@@ -454,7 +454,7 @@ export default () => {
 
   const declineEverusdRequest = useCallback(
     async (action, address) => {
-      const command = action === 'mint' ? 'tokenMintRequestDeclineEverusd' : 'tokenBurnRequestDeclineEverusd';
+      const command = action.toLowerCase() === 'mint' ? 'tokenMintRequestDeclineEverusd' : 'tokenBurnRequestDeclineEverusd';
       const currentUserAddress = getCurrentUserAddress();
 
       try {

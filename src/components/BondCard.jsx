@@ -52,7 +52,7 @@ const BondCard = ({ bond, onClick }) => {
               <Countdown className={styles.bondData} title="Mincap Days Left" format="D" value={bond?.inner?.mincap_deadline} />
             )}
             <Statistic className={styles.bondData} suffix="%" title="Interest" value={bond?.currentInterestRate} />
-            <Statistic className={styles.bondData} suffix="years" title="Maturity" value={bond?.inner?.bond_duration} />
+            <Statistic className={styles.bondData} suffix="periods" title="Maturity" value={bond?.inner?.bond_duration} />
           </div>
           <div className={styles.bookingProgress}>
             <div className={styles.bookingProgressLabel}>
