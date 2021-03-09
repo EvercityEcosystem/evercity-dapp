@@ -23,32 +23,32 @@ import styles from './BondConfig.module.less';
 const U64MAX = 18446744073709551615n;
 const MIN_PAYMENT_PERIOD = 1;
 const MIN_BOND_DURATION = 1;
-const DEFAULT_IMPACT_BASELINE = 4000;
+const DEFAULT_IMPACT_BASELINE = 800;
 const BOND_TICKER_LIMIT = 8;
 
 const DEFAULT_BOND_PARAMS = {
-  bond_duration: 12,
+  bond_duration: 4,
   interest_rate_start_period_value: 1,
   interest_rate_base_value: 3,
   interest_rate_margin_floor: 1,
   interest_rate_margin_cap: 5,
   interest_rate_penalty_for_missed_report: 2,
   impact_data_type: 'POWER_GENERATED',
-  bond_units_mincap_amount: 100,
-  bond_units_maxcap_amount: 600,
-  payment_period: 365,
-  interest_pay_period: 60,
+  bond_units_mincap_amount: 10,
+  bond_units_maxcap_amount: 60,
+  payment_period: 5,
+  interest_pay_period: 4,
   bond_finishing_period: 1,
   mincap_deadline: dayjs().add(30, 'day'),
-  impact_data_send_period: 60,
-  impact_data_max_deviation_floor: 4000,
-  impact_data_max_deviation_cap: 16000,
+  impact_data_send_period: 3,
+  impact_data_max_deviation_floor: 400,
+  impact_data_max_deviation_cap: 1600,
   bond_units_base_price: 100,
-  start_period: 365,
+  start_period: 5,
 }
 
 const BondConfig = () => {
-  const randomTicker = Math.random().toString(36).substring(5).toUpperCase();
+  const randomTicker = Math.random().toString(36).substring(2, 10).toUpperCase();
 
   const [state, updateState] = useXState({
     ...DEFAULT_BOND_PARAMS,
@@ -113,12 +113,6 @@ const BondConfig = () => {
           }
         }
       ]
-    },
-    isin: {
-      label: 'ISIN number',
-      suffix: '12-digit International Securities Identification Number',
-      required: true,
-      span: 12,
     },
     mincap_deadline: {
       label: 'Issuance date',

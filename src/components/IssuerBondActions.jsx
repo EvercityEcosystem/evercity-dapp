@@ -15,6 +15,12 @@ import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
 import stopPropagation from '../utils/bubbling';
+import {
+  isTimeToSendImpact,
+  isAfterMaturityDate,
+  currentPeriodName,
+  bondCurrentPeriod
+} from '../utils/period';
 
 import styles from './BondActions.module.less';
 
@@ -29,6 +35,8 @@ const IssuerBondActions = ({ bond, mode }) => {
     bondAccrueCouponYield,
     redeemBond
   } = usePolkadot();
+
+  const period = bondCurrentPeriod(bond);
 
   const depositFormConfig = {
     amount: {
@@ -45,12 +53,13 @@ const IssuerBondActions = ({ bond, mode }) => {
     period: {
       label: 'Period',
       required: true,
+      disabled: true,
       type: 'number',
       display: 'text',
       span: 24,
       default: 0,
     },
-    impactValue: {
+    impactData: {
       label: 'Impact value',
       required: true,
       type: 'number',
@@ -70,9 +79,12 @@ const IssuerBondActions = ({ bond, mode }) => {
     updateState({ visibleDepositModal: false });
   };
 
-  if (!['ACTIVE', 'FINISHED'].includes(bond.state)) {
+  if (!['ACTIVE', 'BANKRUPT'].includes(bond.state)) {
     return null;
   }
+
+  const [isImpactSendTime] = isTimeToSendImpact(bond);
+  const timeToRedeem = isAfterMaturityDate(bond);
 
   return (
     <>
@@ -95,7 +107,7 @@ const IssuerBondActions = ({ bond, mode }) => {
         visible={state.visibleImpactModal}
         onCancel={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: false }))}
         width={400}
-        title="Send impact data"
+        title={`Send impact data for ${currentPeriodName(bond)}`}
         content={(
           <SimpleForm
             style={{ width: '100%' }}
@@ -103,6 +115,9 @@ const IssuerBondActions = ({ bond, mode }) => {
             layout="vertical"
             submitText="Send"
             onSubmit={sendImpactData}
+            initialValues={{
+              period
+            }}
           />
         )}
       />
@@ -116,12 +131,16 @@ const IssuerBondActions = ({ bond, mode }) => {
               <Menu.Item key="accrue" onClick={(e) => stopPropagation(e, () => bondAccrueCouponYield(bond.id))}>
                 Calculate interest
               </Menu.Item>,
-              <Menu.Item key="redeem" onClick={(e) => stopPropagation(e, () => redeemBond(bond.id))}>
-                Redeem
-              </Menu.Item>,
-              <Menu.Item key="impact" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
-                Send impact data
-              </Menu.Item>
+              (bond.state === 'ACTIVE' && timeToRedeem && (
+                <Menu.Item key="redeem" onClick={(e) => stopPropagation(e, () => redeemBond(bond.id))}>
+                  Redeem
+                </Menu.Item>
+              )),
+              (isImpactSendTime && (
+                <Menu.Item key="impact" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
+                  Send impact data
+                </Menu.Item>
+              ))
             ]}
           </Menu>
         )}

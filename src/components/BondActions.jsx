@@ -9,6 +9,7 @@ import ComponentSwitcher from './ComponentSwitcher';
 import InvestorBondActions from './InvestorBondActions';
 import MasterBondActions from './MasterBondActions';
 import IssuerBondActions from './IssuerBondActions';
+import AuditorBondActions from './AuditorBondActions';
 
 import { getCurrentUser } from '../utils/storage';
 
@@ -29,11 +30,12 @@ const BondActions = ({ bond, mode, onClick }) => {
           View bond
         </Button>
         <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer'].indexOf(role)}
+          activeItemIndex={['investor', 'master', 'issuer', 'auditor'].indexOf(role)}
           items={[
             <InvestorBondActions bond={bond} mode={mode} />,
             <MasterBondActions bond={bond} mode={mode} />,
             <IssuerBondActions bond={bond} mode={mode} />,
+            <AuditorBondActions bond={bond} mode={mode} />,
           ]}
           defaultItem={
             null

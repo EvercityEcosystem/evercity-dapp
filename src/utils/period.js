@@ -144,3 +144,17 @@ export const isTimeToPayMaturity = (bond) => {
 
   return dayjs().isBetween(maturityPayStartDate, maturityPayFinishDate);
 };
+
+export const currentPeriodName = (bond, targetPeriod) => {
+  if (!bond) {
+    return ''
+  }
+
+  let period = targetPeriod;
+
+  if (period === null || period === undefined){
+    period = bondCurrentPeriod(bond);
+  }
+
+  return period === 0 ? 'grace period' : `period ${period}`;
+};

@@ -179,9 +179,12 @@ export default () => {
         message,
         description: 'Transaction is in block',
       });
-    }
+    }    
 
     if (status.isFinalized) {
+      const { Finalized } = status.toJSON();
+      console.info(message, Finalized);
+
       notification.success({
         message,
         description: 'Block finalized',
@@ -851,7 +854,7 @@ export default () => {
         await api
           .tx
           .evercity
-          .bondDepositEverusd(bondID, amount)
+          .bondDepositEverusd(bondID, toEverUSD(amount))
           .signAndSend(
             currentUserAddress,
             {
@@ -890,6 +893,7 @@ export default () => {
   const bondImpactReportApprove = useCallback(
     async (bondID, period, impactData) => {
       const currentUserAddress = getCurrentUserAddress();
+      console.log(bondID, period, impactData);
 
       try {
         await api

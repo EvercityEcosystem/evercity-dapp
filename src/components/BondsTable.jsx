@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Tag, Progress } from 'antd';
+import { Tag, Progress, Tooltip } from 'antd';
+import { ClockCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { IMPACT_DATA_TYPES, BOND_STATES } from '../utils/env';
-import { toPercent, fromEverUSD } from '../utils/converters';
+import { fromEverUSD } from '../utils/converters';
+import { getCurrentUser } from '../utils/storage';
+import {
+  isTimeToPayMaturity,
+  isTimeToPayInterest,
+  isTimeToSendImpact,
+  bondCurrentPeriod,
+  currentPeriodName
+} from '../utils/period';
 
 import TableList from './TableList';
 import BondActions from './BondActions';
@@ -12,9 +21,56 @@ import BondActions from './BondActions';
 import styles from './BondsTable.module.less';
 
 const BondsTable = ({ dataSource, onClick }) => {
-  const { t } = useTranslation();
+  const [time, setTime] = useState(Date.now());
 
-  const columns = [
+  useEffect(() => {
+    const interval = setInterval(() => setTime(Date.now()), 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const { t } = useTranslation();
+  const { role } = getCurrentUser();
+
+  let columns = [];
+
+  if (role === 'issuer') {
+    columns = [
+      {
+        render: (_, record) => {
+          const periodNumber = bondCurrentPeriod(record);
+
+          const [isImpactSendTime] = isTimeToSendImpact(record);
+          const isPayInterestTime = isTimeToPayInterest(record);
+          const isPayMaturityTime = isTimeToPayMaturity(record);
+  
+          return (
+            <>
+              {isImpactSendTime && (
+                <Tooltip title={`Time to send impact for ${currentPeriodName(record, periodNumber)}`}>
+                  <ClockCircleFilled style={{ color: '#F5222D' }} />
+                </Tooltip>
+              )}
+              {isPayMaturityTime && (
+                <Tooltip title={'Time to pay maturity'}>
+                  <ClockCircleFilled style={{ color: '#FFE800' }} />
+                </Tooltip>
+              )}
+              {isPayInterestTime && (
+                <Tooltip title={`Time to pay interest for ${currentPeriodName(record, periodNumber - 1)}`}>
+                  <ClockCircleFilled style={{ color: '#FFC800' }} />
+                </Tooltip>
+              )}
+            </>
+          );
+        }
+      },
+    ];
+  }
+
+  columns = [
+    ...columns,
     {
       title: t('ID'),
       dataIndex: 'id',
