@@ -118,13 +118,13 @@ const BondReport = ({ bond }) => {
   const packageRegistryColumns = [
     {
       title: 'Number of bonds',
-      dataIndex: 'bond_units',
-      key: 'bond_units',
+      dataIndex: 'bondUnits',
+      key: 'bondUnits',
     },
     {
       title: 'Coupon yield',
-      dataIndex: 'coupon_yield',
-      key: 'coupon_yield',
+      key: 'couponYield',
+      render: (_, row) => (`$${row.couponYield}`),
     },
     {
       title: '',

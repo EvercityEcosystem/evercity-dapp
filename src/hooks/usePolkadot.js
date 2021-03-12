@@ -64,7 +64,16 @@ export default () => {
         .evercity
         .bondUnitPackageRegistry(bondID, currentUserAddress);
 
-      return result?.toJSON();
+      const jsonResult = result?.toJSON()?.map(res => {
+        const { bond_units: bondUnits, coupon_yield: couponYield } = res;
+
+        return {
+          bondUnits,
+          couponYield: fromEverUSD(couponYield).toFixed(2)
+        }
+      });
+
+      return jsonResult;
     },
     [api],
   );
@@ -168,7 +177,7 @@ export default () => {
 
       const balance = parseInt(data?.toBigInt());
 
-      return Math.floor(fromEverUSD(balance));
+      return fromEverUSD(balance);
     },
     [api],
   );

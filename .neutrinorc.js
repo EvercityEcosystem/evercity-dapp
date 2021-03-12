@@ -55,5 +55,14 @@ module.exports = {
     defineEnv,
     neutrino => neutrino.config.node.set('Buffer', true),
     neutrino => neutrino.config.plugin('antddayjs').use(antdDayjsWebpackPlugin),
+    neutrino => neutrino.config.module
+      .rule('mjs')
+      .test(/\.mjs$/)
+      .type('javascript/auto')
+      .use('babel')
+      .loader('babel-loader')
+      .options({
+        include: /node_modules/
+      })
   ],
 };
