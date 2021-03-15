@@ -1,4 +1,4 @@
-export const { WS_PROVIDER_URL } = process.env;
+export const { WS_PROVIDER_URL, IPCI = false } = process.env;
 export const HOME_BASE_PATH = '/';
 
 export const EXTENSION_NAME = 'polkadot-js';

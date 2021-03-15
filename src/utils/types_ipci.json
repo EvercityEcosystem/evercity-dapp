@@ -1,6 +1,11 @@
 {
-  "Address": "AccountId", 
-  "LookupSource": "AccountId",
+  "Address": "MultiAddress", 
+  "LookupSource": "MultiAddress",
+  "Record": "Vec<u8>",
+  "RingBufferIndex": {
+      "start": "u64",
+      "end": "u64"
+   },
   "EverUSDBalance": "u64",
    "Moment": "u64",
    "BondId": "[u8;16]",
@@ -99,7 +104,8 @@
      "amount": "Compact<EverUSDBalance>"
    },
    "PeriodYield": {
-     "total_yield": "Compact<EverUSDBalance>",
-     "interest_rate": "Compact<BondInterest>"
+     "total_yield": "EverUSDBalance",
+     "coupon_yield_before": "EverUSDBalance",
+     "interest_rate": "BondInterest"
    }
  }

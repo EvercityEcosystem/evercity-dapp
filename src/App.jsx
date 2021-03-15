@@ -35,6 +35,10 @@ const App = () => {
 
   const connectAPI = async () => {
     const api = await connect();
+    api.on('error', (error) => {
+      console.error('API error: ', error);
+    });
+
     dispatch({
       type: 'setAPI',
       payload: api,

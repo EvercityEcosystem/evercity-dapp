@@ -9,6 +9,7 @@ const webpack = require('webpack');
 
 const __DEV__ = process.env.NODE_ENV !== 'production';
 const WS_PROVIDER_URL = process.env.WS_PROVIDER_URL || 'ws://node.tryevercity.com';
+const IPCI = true;
 
 const defineEnv = neutrino => {
   return neutrino.config.plugin('env').use(
@@ -17,6 +18,7 @@ const defineEnv = neutrino => {
         'process.env': {
           WS_PROVIDER_URL: JSON.stringify(WS_PROVIDER_URL),
           __DEV__: JSON.stringify(__DEV__),
+          IPCI
         }
     }]
   );
