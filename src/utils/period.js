@@ -58,11 +58,17 @@ export const isTimeToSendImpact = (bond) => {
     start_period: startPeriodDuration,
     impact_data_send_period: impactSendPeriodDuration,
     payment_period: paymentPeriod,
+    bond_duration: bondDuration
   } = inner;
 
   const activationDate = dayjs.unix(activeStartDate / 1000);
   const gracePeriodFinishDate = activationDate.add(startPeriodDuration, 'seconds');
   const gracePeriodImpactStartDate = gracePeriodFinishDate.subtract(impactSendPeriodDuration, 'seconds');
+
+  // we don't need to send impact for last period according to flow logic
+  if (periodNumber === bondDuration) {
+    return [false];
+  }
 
   if (dayjs().isBetween(gracePeriodImpactStartDate, gracePeriodFinishDate) && periodNumber === 0) {
     return [true, gracePeriodFinishDate];
@@ -126,6 +132,7 @@ export const isAfterMaturityDate = (bond) => {
 export const isTimeToPayMaturity = (bond) => {
   const {
     active_start_date: activeStartDate,
+    state,
     inner
   } = bond;
   const {
@@ -134,6 +141,10 @@ export const isTimeToPayMaturity = (bond) => {
     bond_duration: bondDuration,
     bond_finishing_period: maturityPayPeriod
   } = inner;
+
+  if (state === 'FINISHED') {
+    return false;
+  }
 
   const activationDate = dayjs.unix(activeStartDate / 1000);
   const gracePeriodFinishDate = activationDate.add(startPeriodDuration, 'seconds');

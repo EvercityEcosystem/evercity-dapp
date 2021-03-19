@@ -7,6 +7,7 @@ import { notification } from 'antd';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { u8aToString } from '@polkadot/util';
+import useLocation from 'wouter/use-location';
 
 import { store } from '../components/PolkadotProvider';
 
@@ -18,6 +19,7 @@ import { calculateInterestRate } from '../utils/interestRate';
 import { bondCurrentPeriod } from '../utils/period';
 
 export default () => {
+  const [, setLocation] = useLocation();
   const { polkadotState, dispatch } = useContext(store);
   const { api, injector, timeStep } = polkadotState;
 
@@ -733,6 +735,8 @@ export default () => {
           message: 'Bond prepare',
           description: 'Transaction has been sent to blockchain',
         });
+
+        setLocation('/');
       } catch (error) {
         notification.error({
           message: 'Signing/sending transaction process failed',

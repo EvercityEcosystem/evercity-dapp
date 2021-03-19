@@ -49,17 +49,17 @@ const BondsTable = ({ dataSource, onClick }) => {
             <>
               {isImpactSendTime && (
                 <Tooltip title={`Time to send impact for ${currentPeriodName(record, periodNumber)}`}>
-                  <ClockCircleFilled style={{ color: '#F5222D' }} />
+                  <ClockCircleFilled style={{ margin: '0 1px', color: '#F5222D' }} />
                 </Tooltip>
               )}
               {isPayMaturityTime && (
                 <Tooltip title={'Time to pay maturity'}>
-                  <ClockCircleFilled style={{ color: '#FFE800' }} />
+                  <ClockCircleFilled style={{ margin: '0 1px', color: '#FFE800' }} />
                 </Tooltip>
               )}
               {isPayInterestTime && (
                 <Tooltip title={`Time to pay interest for ${currentPeriodName(record, periodNumber - 1)}`}>
-                  <ClockCircleFilled style={{ color: '#FFC800' }} />
+                  <ClockCircleFilled style={{ margin: '0 1px', color: '#FFC800' }} />
                 </Tooltip>
               )}
             </>
