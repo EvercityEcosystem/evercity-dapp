@@ -2,10 +2,9 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { web3FromSource, web3Enable } from '@polkadot/extension-dapp';
 
-import { EXTENSION_NAME, WS_PROVIDER_URL, IPCI } from './env';
+import { EXTENSION_NAME, WS_PROVIDER_URL } from './env';
 
 import types from './types.json';
-import typesIPCI from './types_ipci.json';
 
 const wsProvider = new WsProvider(WS_PROVIDER_URL);
 
@@ -19,7 +18,7 @@ wsProvider.on('error', (error) => {
 
 const connect = async () => ApiPromise.create({
   provider: wsProvider,
-  types: IPCI ? typesIPCI : types,
+  types,
 });
 
 const getInjector = async () => {
