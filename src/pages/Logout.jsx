@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
-import useLocation from 'wouter/use-location';
+import { useNavigate } from 'react-router-dom';
 
 import { forgetCurrentUser } from '../utils/storage';
 
 const Logout = () => {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     forgetCurrentUser();
-    setLocation('/login');
-  }, [setLocation]);
+    navigate('/login');
+  }, [navigate]);
 
   return null;
 };

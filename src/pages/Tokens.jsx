@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useParams } from "react-router-dom";
 
 import SimpleForm from '../components/SimpleForm';
 
@@ -11,7 +11,8 @@ import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './Tokens.module.less';
 
-const Tokens = ({ params }) => {
+const Tokens = () => {
+  const params = useParams();
   const { action } = params;
   const { t } = useTranslation();
   const {
@@ -56,9 +57,6 @@ const Tokens = ({ params }) => {
   );
 };
 
-Tokens.propTypes = {
-  params: PropTypes.shape({ action: PropTypes.string.isRequired }).isRequired,
-};
 
 Tokens.defaultProps = {};
 

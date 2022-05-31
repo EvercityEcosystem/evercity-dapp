@@ -7,7 +7,7 @@ import { notification } from 'antd';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { u8aToString } from '@polkadot/util';
-import useLocation from 'wouter/use-location';
+import { useNavigate } from 'react-router-dom';
 
 import { store } from '../components/PolkadotProvider';
 
@@ -19,7 +19,7 @@ import { calculateInterestRate } from '../utils/interestRate';
 import { bondCurrentPeriod } from '../utils/period';
 
 export default () => {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { polkadotState, dispatch } = useContext(store);
   const { api, injector, timeStep } = polkadotState;
 
@@ -190,7 +190,7 @@ export default () => {
         message,
         description: 'Transaction is in block',
       });
-    }    
+    }
 
     if (status.isFinalized) {
       const { Finalized } = status.toJSON();
@@ -697,7 +697,7 @@ export default () => {
         interest_rate_base_value: values.interest_rate_base_value * 1000,
         interest_rate_margin_cap: values.interest_rate_margin_cap * 1000,
         interest_rate_margin_floor: values.interest_rate_margin_floor * 1000,
-        
+
         interest_pay_period: toBondDays(values.interest_pay_period, timeStep),
         bond_finishing_period: toBondDays(values.bond_finishing_period, timeStep),
         impact_data_send_period: toBondDays(values.impact_data_send_period, timeStep),
@@ -736,7 +736,7 @@ export default () => {
           description: 'Transaction has been sent to blockchain',
         });
 
-        setLocation('/');
+        navigate('/');
       } catch (error) {
         notification.error({
           message: 'Signing/sending transaction process failed',

@@ -3,20 +3,20 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import PropTypes from 'prop-types';
-import useLocation from 'wouter/use-location';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Breadcrumb,
 } from 'antd';
 
 const Breadcrumbs = ({ data, style }) => {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
 
   return (
     <Breadcrumb separator=">" style={style}>
       {data.map((bc) => (
         <Breadcrumb.Item key={bc.path}>
-          <a style={{ cursor: 'pointer' }} onClick={() => setLocation(bc.path)}>
+          <a style={{ cursor: 'pointer' }} onClick={() => navigate(bc.path)}>
             {bc.title}
           </a>
         </Breadcrumb.Item>

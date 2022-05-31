@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
@@ -9,8 +8,10 @@ import SimpleForm from '../components/SimpleForm';
 import usePolkadot from '../hooks/usePolkadot';
 
 import styles from './CustodianTokens.module.less';
+import { useParams } from "react-router-dom";
 
-const CustodianTokens = ({ params }) => {
+const CustodianTokens = () => {
+  const params = useParams();
   const { actionType = 'confirm' } = params;
   const { t } = useTranslation();
   const { confirmEverusdRequest, declineEverusdRequest } = usePolkadot();
@@ -91,12 +92,6 @@ const CustodianTokens = ({ params }) => {
       />
     </div>
   );
-};
-
-CustodianTokens.propTypes = {
-  params: PropTypes.shape({
-    actionType: PropTypes.string,
-  }).isRequired,
 };
 
 CustodianTokens.defaultProps = {};
