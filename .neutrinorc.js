@@ -8,7 +8,7 @@ const antdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 const webpack = require('webpack');
 
 const __DEV__ = process.env.NODE_ENV !== 'production';
-const WS_PROVIDER_URL = process.env.WS_PROVIDER_URL || 'ws://35.234.127.55:9944';
+const WS_PROVIDER_URL = process.env.WS_PROVIDER_URL || 'wss://node.evercity.dev/';
 const IPCI = true;
 
 const defineEnv = neutrino => {
