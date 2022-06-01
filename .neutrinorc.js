@@ -55,6 +55,8 @@ module.exports = {
     }),
     jest(),
     defineEnv,
+    neutrino => neutrino.config.resolve.alias
+      .set('react-dom', '@hot-loader/react-dom'),
     neutrino => neutrino.config.node.set('Buffer', true),
     neutrino => neutrino.config.plugin('antddayjs').use(antdDayjsWebpackPlugin),
     neutrino => neutrino.config.module

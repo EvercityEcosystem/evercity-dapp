@@ -4,8 +4,8 @@ import React, { useEffect, useContext, useMemo } from 'react';
 import 'antd/dist/antd.css';
 
 import {
-  Router, Route, Switch, Redirect,
-} from 'wouter';
+  Route, Routes
+} from 'react-router-dom';
 
 import './App.less';
 
@@ -25,9 +25,10 @@ import CustodianReporting from './pages/CustodianReporting';
 import Profile from './pages/Profile';
 import BondConfig from './pages/BondConfig';
 
-import { checkAuth, checkRole } from './utils/checks';
 import { connect, getInjector } from './utils/polkadot';
 import usePolkadot from './hooks/usePolkadot';
+import ProtectedRouter from "./components/ProtectedRouter";
+import RoleRouter from "./components/RoleRouter";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -84,57 +85,34 @@ const App = () => {
     [isAPIReady],
   );
 
-  return (
-    <Router>
-      <Loader spinning={!isAPIReady} tip="Connecting to blockchain node">
-        <Layout>
-          <Switch>
-            <Route path="/" component={Bonds} />
-            <Route path="/login" component={Login} />
-
-            <Route path="/dapp/:rest*">
-              <Router hook={checkAuth}>
-                <Switch>
-                  <Route path="/dapp/profile" component={Profile} />
-                  <Route path="/dapp/logout" component={Logout} />
-
-                  <Route path="/dapp/master/:rest*">
-                    <Router hook={() => checkRole('master')}>
-                      <Route path="/dapp/master/roles" component={Roles} />
-                    </Router>
-                  </Route>
-
-                  <Route path="/dapp/issuer/:rest*">
-                    <Router hook={() => checkRole('issuer')}>
-                      <Route path="/dapp/issuer/tokens/:action?" component={Tokens} />
-                      <Route path="/dapp/issuer/bond" component={BondConfig} />
-                    </Router>
-                  </Route>
-
-                  <Route path="/dapp/investor/:rest*">
-                    <Router hook={() => checkRole('investor')}>
-                      <Route path="/dapp/investor/tokens/:action?" component={Tokens} />
-                    </Router>
-                  </Route>
-
-                  <Route path="/dapp/custodian/:rest*">
-                    <Router hook={() => checkRole('custodian')}>
-                      <Route path="/dapp/custodian/requests" component={CustodianRequests} />
-                      <Route path="/dapp/custodian/tokens/:actionType?" component={CustodianTokens} />
-                      <Route path="/dapp/custodian/reporting" component={CustodianReporting} />
-                    </Router>
-                  </Route>
-                </Switch>
-              </Router>
+  return (<Loader spinning={!isAPIReady} tip="Connecting to blockchain node">
+    <Layout>
+      <Routes>
+        <Route path="/" index element={<Bonds />} />
+        <Route path="login" element={<Login />} />
+        <Route path="dapp" element={<ProtectedRouter />}>
+          <Route path="profile" element={<Profile />} />
+          <Route path="logout" element={<Logout />} />
+          <Route path="master" element={<RoleRouter roles={["master"]} />}>
+              <Route path="roles" element={<Roles />} />
             </Route>
-
-            <Route path="/404" component={ErrorFound} />
-            <Route path="/:rest*"><Redirect to="/" /></Route>
-          </Switch>
-        </Layout>
-      </Loader>
-    </Router>
-  );
+            <Route path="issuer" element={<RoleRouter roles={["issuer"]} />}>
+              <Route path="tokens/:action" element={<Tokens />} />
+              <Route path="bond" element={<BondConfig />} />
+            </Route>
+            <Route path="investor" element={<RoleRouter roles={["investor"]} />}>
+              <Route path="tokens/:action" element={<Tokens />} />
+            </Route>
+          <Route path="custodian" element={<RoleRouter roles={["custodian"]} />}>
+            <Route path="requests" element={<CustodianRequests />} />
+            <Route path="tokens/:actionType" element={<CustodianTokens />} />
+            <Route path="reporting" element={<CustodianReporting />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<ErrorFound status={404}/>} />
+      </Routes>
+    </Layout>
+  </Loader>);
 };
 
 App.propTypes = {};

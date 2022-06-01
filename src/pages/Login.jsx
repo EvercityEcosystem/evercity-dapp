@@ -1,8 +1,7 @@
 import React, { useEffect, useCallback, useContext } from 'react';
-import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
-import useLocation from 'wouter/use-location';
+import { useNavigate} from 'react-router-dom';
 import { web3Accounts } from '@polkadot/extension-dapp';
 
 import SimpleForm from '../components/SimpleForm';
@@ -19,7 +18,7 @@ import styles from './Login.module.less';
 
 const Login = () => {
   const { t } = useTranslation();
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { accountRegistry } = usePolkadot();
   const { polkadotState } = useContext(store);
 
@@ -70,7 +69,7 @@ const Login = () => {
 
     if (roles.length === 1) {
       saveCurrentUser(address, roles[0]);
-      setLocation('/dapp/profile');
+      navigate('/dapp/profile');
       return null;
     }
 
@@ -82,7 +81,7 @@ const Login = () => {
     const { address } = accountsState;
 
     saveCurrentUser(address, role);
-    setLocation('/dapp/profile');
+    navigate('/dapp/profile');
   };
 
   useEffect(() => {

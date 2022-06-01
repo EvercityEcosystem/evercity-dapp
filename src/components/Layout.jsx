@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import useLocation from 'wouter/use-location';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'wouter';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Layout, Button } from 'antd';
 
@@ -106,7 +105,7 @@ const getRoutesByRole = (role, { t }) => {
 };
 
 const MainLayout = ({ children }) => {
-  const [path] = useLocation();
+  const location = useNavigate();
   const { t } = useTranslation();
 
   let routes = [];
@@ -131,7 +130,7 @@ const MainLayout = ({ children }) => {
   ];
 
   routes = routes.map((item) => {
-    if (item.path === path) {
+    if (item.path === location) {
       return { ...item, active: true };
     }
 
@@ -139,7 +138,7 @@ const MainLayout = ({ children }) => {
   });
 
   siderRoutes = siderRoutes.map((item) => {
-    if (item.path === path) {
+    if (item.path === location) {
       return { ...item, active: true };
     }
 
@@ -151,7 +150,7 @@ const MainLayout = ({ children }) => {
       <Header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.logoWrapper}>
-            <Link href="/">
+            <Link to="/">
               <img src={logoUrl} className={styles.logo} alt="" />
             </Link>
           </div>
