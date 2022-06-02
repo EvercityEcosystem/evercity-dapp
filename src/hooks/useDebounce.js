@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from "react";
 
 const useDebounce = (callback, delay) => {
   const functionTimeoutHandler = useRef(null);
@@ -13,7 +13,9 @@ const useDebounce = (callback, delay) => {
   }, []);
 
   useEffect(
-    () => () => { isComponentUnmounted.current = true; },
+    () => () => {
+      isComponentUnmounted.current = true;
+    },
     [],
   );
 

@@ -1,50 +1,54 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 
-import {
-  Modal, PageHeader,
-} from 'antd';
+import { Modal, PageHeader } from "antd";
 
-import pickKeys from '../utils/pickKeys';
+import pickKeys from "../utils/pickKeys";
 
-import Message from './Message';
-import Loader from './Loader';
-import Breadcrumbs from './Breadcrumbs';
+import Message from "./Message";
+import Loader from "./Loader";
+import Breadcrumbs from "./Breadcrumbs";
 
-import s from './ModalView.module.css';
+import s from "./ModalView.module.css";
 
-const ModalView = (props) => {
+const ModalView = props => {
   const {
-    breadcrumbs, loading, visible, onVisibleChange,
-    title, tags, content, extraContent, style, headerStyle,
-    info, error, width,
+    breadcrumbs,
+    loading,
+    visible,
+    onVisibleChange,
+    title,
+    tags,
+    content,
+    extraContent,
+    style,
+    headerStyle,
+    info,
+    error,
+    width,
   } = props;
 
-  useEffect(
-    () => {
-      onVisibleChange(visible);
-    },
-    [onVisibleChange, visible],
-  );
+  useEffect(() => {
+    onVisibleChange(visible);
+  }, [onVisibleChange, visible]);
 
   return (
     <Modal
       width={width}
       className={s.modalContainer}
       destroyOnClose
-      title={(
+      title={
         <PageHeader
           className={s.pageHeader}
           style={headerStyle}
           title={title}
           tags={tags}
         />
-      )}
+      }
       visible={visible}
-      {...pickKeys(['onCancel', 'footer'], props)}
-      style={{ padding: 0, ...style }}
-    >
+      {...pickKeys(["onCancel", "footer"], props)}
+      style={{ padding: 0, ...style }}>
       <Loader spinning={loading}>
         <div className={s.container}>
           <Message type="info" text={info} />
@@ -82,9 +86,9 @@ ModalView.propTypes = {
 };
 
 ModalView.defaultProps = {
-  title: '',
-  info: '',
-  error: '',
+  title: "",
+  info: "",
+  error: "",
   tags: [],
   breadcrumbs: [],
   onCancel: () => {},

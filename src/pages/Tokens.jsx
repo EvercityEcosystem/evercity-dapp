@@ -1,14 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
-import React from 'react';
-import { Button } from 'antd';
+import React from "react";
+import { Button } from "antd";
 import { useParams } from "react-router-dom";
 
-import SimpleForm from '../components/SimpleForm';
+import SimpleForm from "../components/SimpleForm";
 
-import usePolkadot from '../hooks/usePolkadot';
+import usePolkadot from "../hooks/usePolkadot";
 
-import styles from './Tokens.module.less';
+import styles from "./Tokens.module.less";
 
 const Tokens = () => {
   const params = useParams();
@@ -22,9 +22,9 @@ const Tokens = () => {
 
   const formConfig = {
     amount: {
-      label: 'Amount',
+      label: "Amount",
       required: true,
-      type: 'number',
+      type: "number",
       span: 24,
     },
   };
@@ -34,8 +34,9 @@ const Tokens = () => {
     wrapperCol: { span: 16 },
   };
 
-  const requestAction = action === 'mint' ? requestMintTokens : requestBurnTokens;
-  const revokeAction = action === 'mint' ? revokeMintTokens : revokeBurnTokens;
+  const requestAction =
+    action === "mint" ? requestMintTokens : requestBurnTokens;
+  const revokeAction = action === "mint" ? revokeMintTokens : revokeBurnTokens;
 
   return (
     <div className={styles.container}>
@@ -54,7 +55,6 @@ const Tokens = () => {
     </div>
   );
 };
-
 
 Tokens.defaultProps = {};
 

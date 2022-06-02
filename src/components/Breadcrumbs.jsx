@@ -1,22 +1,17 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
-import {
-  Breadcrumb,
-} from 'antd';
+import { Breadcrumb } from "antd";
 
 const Breadcrumbs = ({ data, style }) => {
   const navigate = useNavigate();
 
   return (
     <Breadcrumb separator=">" style={style}>
-      {data.map((bc) => (
+      {data.map(bc => (
         <Breadcrumb.Item key={bc.path}>
-          <a style={{ cursor: 'pointer' }} onClick={() => navigate(bc.path)}>
+          <a style={{ cursor: "pointer" }} onClick={() => navigate(bc.path)}>
             {bc.title}
           </a>
         </Breadcrumb.Item>
@@ -26,10 +21,12 @@ const Breadcrumbs = ({ data, style }) => {
 };
 
 Breadcrumbs.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({
-    path: PropTypes.string,
-    title: PropTypes.string,
-  })).isRequired,
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      path: PropTypes.string,
+      title: PropTypes.string,
+    }),
+  ).isRequired,
   style: PropTypes.shape(),
 };
 

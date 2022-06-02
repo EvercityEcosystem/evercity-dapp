@@ -1,44 +1,46 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React from "react";
 
-import SimpleForm from '../components/SimpleForm';
+import SimpleForm from "../components/SimpleForm";
 
-import { SUBSTRATE_ROLES } from '../utils/roles';
+import { SUBSTRATE_ROLES } from "../utils/roles";
 
-import usePolkadot from '../hooks/usePolkadot';
+import usePolkadot from "../hooks/usePolkadot";
 
-import styles from './Roles.module.less';
+import styles from "./Roles.module.less";
 
 const Roles = () => {
   const { createOrAssignRole } = usePolkadot();
 
   const formConfig = {
     action: {
-      label: 'Action',
+      label: "Action",
       required: true,
-      display: 'select',
+      display: "select",
       span: 24,
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Add new account': 'accountAddWithRoleAndData' },
-        { 'Change role for existing account': 'accountSetWithRoleAndData' },
+        { "Add new account": "accountAddWithRoleAndData" },
+        { "Change role for existing account": "accountSetWithRoleAndData" },
       ],
     },
     address: {
-      label: 'Address',
+      label: "Address",
       required: true,
-      type: 'string',
+      type: "string",
       span: 24,
     },
     role: {
-      label: 'Role',
+      label: "Role",
       required: true,
-      display: 'select',
+      display: "select",
       span: 24,
       allowClear: false,
       showSearch: true,
-      values: Object.entries(SUBSTRATE_ROLES).map(([key, value]) => ({ [value]: key })),
+      values: Object.entries(SUBSTRATE_ROLES).map(([key, value]) => ({
+        [value]: key,
+      })),
     },
   };
 
@@ -51,7 +53,7 @@ const Roles = () => {
     <div className={styles.container}>
       <SimpleForm
         config={formConfig}
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         onSubmit={createOrAssignRole}
         submitText="Submit"
         labelAlign="left"
@@ -61,8 +63,7 @@ const Roles = () => {
   );
 };
 
-Roles.propTypes = {
-};
+Roles.propTypes = {};
 
 Roles.defaultProps = {};
 

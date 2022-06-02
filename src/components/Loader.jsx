@@ -1,16 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import { Spin } from 'antd';
+import { Spin } from "antd";
 
-const Loader = ({
-  spinning, tip, children, style,
-}) => (
-  <Spin
-    spinning={spinning}
-    tip={tip}
-    style={style}
-  >
+const Loader = ({ spinning, tip, children, style }) => (
+  <Spin spinning={spinning} tip={tip} style={style}>
     {children}
   </Spin>
 );

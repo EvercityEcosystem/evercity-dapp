@@ -1,27 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import { Result } from 'antd';
+import { Result } from "antd";
 
 const ErrorFound = ({ status }) => {
   if (status === 500) {
     return (
-      <Result
-        status="500"
-        title="500"
-        subTitle="Sorry, something went wrong"
-      />
+      <Result status="500" title="500" subTitle="Sorry, something went wrong" />
     );
   }
 
   if (status === 403) {
-    return (
-      <Result
-        status="403"
-        title="403"
-        subTitle="You have no access"
-      />
-    );
+    return <Result status="403" title="403" subTitle="You have no access" />;
   }
 
   return (

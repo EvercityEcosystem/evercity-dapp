@@ -4,7 +4,7 @@ import { getCurrentUser } from "../utils/storage";
 
 const ProtectedRouter = () => {
   const { role } = getCurrentUser();
-  return role ? <Outlet /> : <Navigate to="/login"/>;
+  return role ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default ProtectedRouter;

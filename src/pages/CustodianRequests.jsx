@@ -1,50 +1,53 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
-import React from 'react';
-import { message, Statistic } from 'antd';
+import React from "react";
+import { message, Statistic } from "antd";
 
-import SimpleForm from '../components/SimpleForm';
+import SimpleForm from "../components/SimpleForm";
 
-import useXState from '../hooks/useXState';
-import usePolkadot from '../hooks/usePolkadot';
+import useXState from "../hooks/useXState";
+import usePolkadot from "../hooks/usePolkadot";
 
-import styles from './CustodianRequests.module.less';
+import styles from "./CustodianRequests.module.less";
 
 const CustodianRequests = () => {
   const [state, updateState] = useXState({
-    amount: '0',
-    deadline: '0',
+    amount: "0",
+    deadline: "0",
     show: false,
   });
   const { checkMintRequest, checkBurnRequest } = usePolkadot();
 
   const formConfig = {
     action: {
-      label: 'Action',
+      label: "Action",
       required: true,
-      display: 'select',
+      display: "select",
       span: 24,
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Check Mint Request': 'mintRequestEverUSD' },
-        { 'Check Burn Request': 'burnRequestEverUSD' },
+        { "Check Mint Request": "mintRequestEverUSD" },
+        { "Check Burn Request": "burnRequestEverUSD" },
       ],
     },
     address: {
-      label: 'Address',
+      label: "Address",
       required: true,
-      type: 'string',
+      type: "string",
       span: 24,
     },
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { action, address } = values;
-    const { amount, deadline } = action === 'mintRequestEverUSD' ? await checkMintRequest(address) : await checkBurnRequest(address);
+    const { amount, deadline } =
+      action === "mintRequestEverUSD"
+        ? await checkMintRequest(address)
+        : await checkBurnRequest(address);
 
     if (!amount && !deadline) {
-      message.warning('No requests from this address');
+      message.warning("No requests from this address");
       updateState({ show: false });
     } else {
       updateState({ amount, deadline, show: true });
@@ -80,8 +83,7 @@ const CustodianRequests = () => {
   );
 };
 
-CustodianRequests.propTypes = {
-};
+CustodianRequests.propTypes = {};
 
 CustodianRequests.defaultProps = {};
 

@@ -1,47 +1,41 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {
-  Button,
-  Dropdown,
-  Menu,
-} from 'antd';
-import cx from 'classnames';
-import { DownOutlined } from '@ant-design/icons';
+import React from "react";
+import PropTypes from "prop-types";
+import { Button, Dropdown, Menu } from "antd";
+import cx from "classnames";
+import { DownOutlined } from "@ant-design/icons";
 
-import ModalView from './ModalView';
-import SimpleForm from './SimpleForm';
+import ModalView from "./ModalView";
+import SimpleForm from "./SimpleForm";
 
-import useXState from '../hooks/useXState';
-import usePolkadot from '../hooks/usePolkadot';
+import useXState from "../hooks/useXState";
+import usePolkadot from "../hooks/usePolkadot";
 
-import stopPropagation from '../utils/bubbling';
-import { bondCurrentPeriod } from '../utils/period';
+import stopPropagation from "../utils/bubbling";
+import { bondCurrentPeriod } from "../utils/period";
 
-import styles from './BondActions.module.less';
+import styles from "./BondActions.module.less";
 
 const AuditorBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
-    visibleCheckModal: false
+    visibleCheckModal: false,
   });
 
-  const {
-    bondImpactReportApprove
-  } = usePolkadot();
+  const { bondImpactReportApprove } = usePolkadot();
 
   const period = bondCurrentPeriod(bond);
 
   const approveImpactFormConfig = {
     period: {
-      label: 'Period',
+      label: "Period",
       required: true,
       disabled: true,
-      type: 'number',
+      type: "number",
       span: 24,
     },
     impactData: {
-      label: 'Impact data',
+      label: "Impact data",
       required: true,
-      type: 'number',
+      type: "number",
       span: 24,
     },
   };
@@ -54,36 +48,44 @@ const AuditorBondActions = ({ bond, mode }) => {
     <>
       <ModalView
         visible={state.visibleCheckModal}
-        onCancel={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: false }))}
+        onCancel={e =>
+          stopPropagation(e, () => updateState({ visibleCheckModal: false }))
+        }
         width={400}
         title="Approve impact"
-        content={(
+        content={
           <SimpleForm
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             config={approveImpactFormConfig}
             layout="vertical"
             submitText="Approve"
             onSubmit={handleSubmit}
             initialValues={{
-              period
+              period,
             }}
           />
-        )}
+        }
       />
-      {['ACTIVE'].includes(bond?.state) && period !== null && (
+      {["ACTIVE"].includes(bond?.state) && period !== null && (
         <Dropdown
-          overlay={(
+          overlay={
             <Menu>
-              <Menu.Item key="check" onClick={(e) => stopPropagation(e, () => updateState({ visibleCheckModal: true }))}>
+              <Menu.Item
+                key="check"
+                onClick={e =>
+                  stopPropagation(e, () =>
+                    updateState({ visibleCheckModal: true }),
+                  )
+                }>
                 Approve impact
               </Menu.Item>
             </Menu>
-          )}
-        >
+          }>
           <Button
-            className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
-            size={mode === 'table' ? 'small' : 'middle'}
-          >
+            className={cx(styles.button, {
+              [styles.tableButton]: mode === "table",
+            })}
+            size={mode === "table" ? "small" : "middle"}>
             Actions
             <DownOutlined />
           </Button>
@@ -99,7 +101,7 @@ AuditorBondActions.propTypes = {
 };
 
 AuditorBondActions.defaultProps = {
-  mode: 'table',
+  mode: "table",
 };
 
 export default AuditorBondActions;

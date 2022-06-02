@@ -23,17 +23,17 @@ const calculateEffectiveInterestRate = (bond, impactData, period) => {
   }
 
   if (impactValue > impactBaseline) {
-    return baseInterest - (
-      (impactValue - impactBaseline) *
-      (baseInterest - interestMarginFloor) /
-      (impactMaxDeviationCap - impactBaseline)
+    return (
+      baseInterest -
+      ((impactValue - impactBaseline) * (baseInterest - interestMarginFloor)) /
+        (impactMaxDeviationCap - impactBaseline)
     );
   }
 
-  return baseInterest + (
-    (impactBaseline - impactValue) *
-    (interestMarginCap - baseInterest) /
-    (impactBaseline - impactMaxDeviationFloor)
+  return (
+    baseInterest +
+    ((impactBaseline - impactValue) * (interestMarginCap - baseInterest)) /
+      (impactBaseline - impactMaxDeviationFloor)
   );
 };
 
@@ -65,7 +65,11 @@ const calculateInterestRate = (bond, impactData, period) => {
     return calculateEffectiveInterestRate(bond, impactData, lastPeriod);
   }
 
-  const previousInterestRate = calculateInterestRate(bond, impactData, lastPeriod);
+  const previousInterestRate = calculateInterestRate(
+    bond,
+    impactData,
+    lastPeriod,
+  );
   // rate with penalty if impact for previous period wasn't sent or signed
   return Math.min(previousInterestRate + penalty, interestMarginCap);
 };
