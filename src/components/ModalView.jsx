@@ -8,7 +8,7 @@ import {
 
 import pickKeys from '../utils/pickKeys';
 
-import ErrorMessage from './ErrorMessage';
+import Message from './Message';
 import Loader from './Loader';
 import Breadcrumbs from './Breadcrumbs';
 
@@ -47,8 +47,8 @@ const ModalView = (props) => {
     >
       <Loader spinning={loading}>
         <div className={s.container}>
-          <ErrorMessage type="info" text={info} />
-          <ErrorMessage text={error} />
+          <Message type="info" text={info} />
+          <Message text={error} />
 
           <Breadcrumbs data={breadcrumbs} />
           {content}

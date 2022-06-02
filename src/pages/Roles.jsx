@@ -1,8 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Divider } from 'antd';
-import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
 
@@ -13,12 +10,11 @@ import usePolkadot from '../hooks/usePolkadot';
 import styles from './Roles.module.less';
 
 const Roles = () => {
-  const { t } = useTranslation();
   const { createOrAssignRole } = usePolkadot();
 
   const formConfig = {
     action: {
-      label: t('Action'),
+      label: 'Action',
       required: true,
       display: 'select',
       span: 24,
@@ -30,13 +26,13 @@ const Roles = () => {
       ],
     },
     address: {
-      label: t('Address'),
+      label: 'Address',
       required: true,
       type: 'string',
       span: 24,
     },
     role: {
-      label: t('Role'),
+      label: 'Role',
       required: true,
       display: 'select',
       span: 24,
@@ -57,7 +53,7 @@ const Roles = () => {
         config={formConfig}
         style={{ width: '100%' }}
         onSubmit={createOrAssignRole}
-        submitText={t('Submit')}
+        submitText="Submit"
         labelAlign="left"
         {...layout}
       />

@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { Button } from 'antd';
-import { useTranslation } from 'react-i18next';
 import { useParams } from "react-router-dom";
 
 import SimpleForm from '../components/SimpleForm';
@@ -14,7 +13,6 @@ import styles from './Tokens.module.less';
 const Tokens = () => {
   const params = useParams();
   const { action } = params;
-  const { t } = useTranslation();
   const {
     requestMintTokens,
     revokeMintTokens,
@@ -24,7 +22,7 @@ const Tokens = () => {
 
   const formConfig = {
     amount: {
-      label: t('Amount'),
+      label: 'Amount',
       required: true,
       type: 'number',
       span: 24,
@@ -44,14 +42,14 @@ const Tokens = () => {
       <SimpleForm
         config={formConfig}
         onSubmit={requestAction}
-        submitText={t(`Request ${action}`)}
+        submitText={`Request ${action}`}
         labelAlign="left"
         className={styles.form}
         initialValues={{ amount: null }}
         {...layout}
       />
       <Button className={styles.revokeButton} onClick={revokeAction}>
-        {t(`Revoke ${action}`)}
+        {`Revoke ${action}`}
       </Button>
     </div>
   );

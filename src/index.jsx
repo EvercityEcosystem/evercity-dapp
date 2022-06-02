@@ -1,15 +1,17 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import App from './App';
 import { PolkadotProvider } from './components/PolkadotProvider';
 import { BrowserRouter } from "react-router-dom";
 
-render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(
   <PolkadotProvider>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </PolkadotProvider>,
-  document.getElementById('root'),
+  </PolkadotProvider>
 );

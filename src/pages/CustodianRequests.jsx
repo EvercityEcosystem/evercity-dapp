@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { message, Statistic } from 'antd';
-import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
 
@@ -13,7 +11,6 @@ import usePolkadot from '../hooks/usePolkadot';
 import styles from './CustodianRequests.module.less';
 
 const CustodianRequests = () => {
-  const { t } = useTranslation();
   const [state, updateState] = useXState({
     amount: '0',
     deadline: '0',
@@ -23,7 +20,7 @@ const CustodianRequests = () => {
 
   const formConfig = {
     action: {
-      label: t('Action'),
+      label: 'Action',
       required: true,
       display: 'select',
       span: 24,
@@ -35,7 +32,7 @@ const CustodianRequests = () => {
       ],
     },
     address: {
-      label: t('Address'),
+      label: 'Address',
       required: true,
       type: 'string',
       span: 24,
@@ -63,9 +60,9 @@ const CustodianRequests = () => {
     <div className={styles.container}>
       {state.show && (
         <div className={styles.results}>
-          <Statistic title={t('Amount')} value={state.amount} />
+          <Statistic title="Amount" value={state.amount} />
           <Statistic.Countdown
-            title={t('Deadline')}
+            title="Deadline"
             value={state?.deadline}
             format="DD HH:mm:ss"
           />
@@ -74,7 +71,7 @@ const CustodianRequests = () => {
       <SimpleForm
         config={formConfig}
         onSubmit={handleSubmit}
-        submitText={t('Submit')}
+        submitText="Submit"
         className={styles.form}
         labelAlign="left"
         {...layout}

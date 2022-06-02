@@ -28,6 +28,7 @@ const MenuView = (props) => {
 
   const renderNode = (node) => {
     const children = getOr([], 'children', node);
+    console.log(node, children);
 
     if (children.length) {
       return (

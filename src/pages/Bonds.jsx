@@ -8,8 +8,6 @@ import {
   Radio,
 } from 'antd';
 
-import { useTranslation } from 'react-i18next';
-
 import useXState from '../hooks/useXState';
 import usePolkadot from '../hooks/usePolkadot';
 
@@ -26,7 +24,6 @@ import styles from './Bonds.module.less';
 
 const Bonds = () => {
   const { polkadotState } = useContext(store);
-  const { t } = useTranslation();
   const { fetchBonds } = usePolkadot();
 
   const { listView: defaultListView } = getViewParams();
@@ -58,7 +55,7 @@ const Bonds = () => {
     data = (
       <Row gutter={26}>
         {polkadotState.bonds.map((bond) => (
-          <Col span={8}>
+          <Col span={8} key={bond.id}>
             <BondCard bond={bond} onClick={updateState} />
           </Col>
         ))}
@@ -77,16 +74,16 @@ const Bonds = () => {
         onCancel={() => updateState({ currentBond: null })}
         width={900}
         title={state.currentBond?.id}
-        content={(
+        content={state.currentBond ? (
           <BondReport bond={state.currentBond} />
-        )}
+        ) : (<></>)}
       />
       <PageHeader
         ghost={false}
         className={styles.pageHeader}
         title={(
           <span className={styles.pageHeaderTitle}>
-            {t('Bond explorer')}
+            Bond explorer
           </span>
         )}
         extra={(

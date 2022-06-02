@@ -1,7 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
 import { message, Statistic } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 
@@ -11,7 +9,6 @@ import usePolkadot from '../hooks/usePolkadot';
 import styles from './Profile.module.less';
 
 const Roles = () => {
-  const { t } = useTranslation();
   const { address, role } = getCurrentUser();
   const [balance, setBalance] = useState();
   const { fetchBalance } = usePolkadot();
@@ -31,7 +28,7 @@ const Roles = () => {
     <div className={styles.container}>
       <div>
         <div className={styles.address}>
-          <Statistic className={styles.statistic} title={t('Address')} value={address} />
+          <Statistic className={styles.statistic} title="Address" value={address} />
           <CopyOutlined
             className={styles.copyIcon}
             onClick={() => {
@@ -40,8 +37,8 @@ const Roles = () => {
             }}
           />
         </div>
-        <Statistic className={styles.statistic} title={t('Role')} value={role} />
-        <Statistic className={styles.statistic} suffix="$" title={t('Account Balance (EVERUSD)')} value={balance} />
+        <Statistic className={styles.statistic} title="Role" value={role} />
+        <Statistic className={styles.statistic} suffix="$" title="Account Balance (EVERUSD)" value={balance} />
       </div>
     </div>
   );

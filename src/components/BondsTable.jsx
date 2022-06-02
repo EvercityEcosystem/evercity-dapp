@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Tag, Progress, Tooltip } from 'antd';
 import { ClockCircleFilled } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 
 import { IMPACT_DATA_TYPES, BOND_STATES } from '../utils/env';
 import { fromEverUSD } from '../utils/converters';
@@ -30,7 +29,6 @@ const BondsTable = ({ dataSource, onClick }) => {
     };
   }, []);
 
-  const { t } = useTranslation();
   const { role } = getCurrentUser();
 
   let columns = [];
@@ -72,12 +70,12 @@ const BondsTable = ({ dataSource, onClick }) => {
   columns = [
     ...columns,
     {
-      title: t('ID'),
+      title: 'ID',
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: t('State'),
+      title: 'State',
       key: 'bond.state',
       render: (_, bond) => (
         <div className={styles.bondState}>
@@ -86,7 +84,7 @@ const BondsTable = ({ dataSource, onClick }) => {
       ),
     },
     {
-      title: t('Impact indicator'),
+      title: 'Impact indicator',
       key: 'bond_type',
       render: (_, record) => (
         <Tag color={IMPACT_DATA_TYPES[record?.inner?.impact_data_type]?.color}>
@@ -95,12 +93,12 @@ const BondsTable = ({ dataSource, onClick }) => {
       ),
     },
     {
-      title: t('Bond price'),
+      title: 'Bond price',
       key: 'bond_type',
       render: (_, bond) => `$ ${fromEverUSD(bond?.inner?.bond_units_base_price)}`,
     },
     {
-      title: t('Booked'),
+      title: 'Booked',
       key: 'issued',
       render: (_, bond) => {
         const percentage = Math.floor(
@@ -117,12 +115,12 @@ const BondsTable = ({ dataSource, onClick }) => {
       },
     },
     {
-      title: t('Interest'),
+      title: 'Interest',
       key: 'interest',
       render: (_, bond) => `${bond.currentInterestRate}%`,
     },
     {
-      title: t('Actions'),
+      title: 'Actions',
       key: 'actions',
       render: (_, bond) => (
         <BondActions onClick={() => onClick({ currentBond: bond })} bond={bond} mode="table" />

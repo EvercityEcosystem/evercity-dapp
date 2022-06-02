@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useContext } from 'react';
 import { Button } from 'antd';
-import { useTranslation } from 'react-i18next';
 import { useNavigate} from 'react-router-dom';
 import { web3Accounts } from '@polkadot/extension-dapp';
 
@@ -17,7 +16,6 @@ import { EXTENSION_URL } from '../utils/env';
 import styles from './Login.module.less';
 
 const Login = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { accountRegistry } = usePolkadot();
   const { polkadotState } = useContext(store);
@@ -30,7 +28,7 @@ const Login = () => {
 
   const accountsFormConfig = {
     address: {
-      label: t('Choose polkadot account'),
+      label: 'Choose polkadot account',
       required: true,
       display: 'select',
       span: 24,
@@ -44,7 +42,7 @@ const Login = () => {
 
   const rolesFormConfig = {
     role: {
-      label: t('Choose role'),
+      label: 'Choose role',
       required: true,
       display: 'select',
       span: 24,
@@ -93,31 +91,31 @@ const Login = () => {
   let block = (
     <div className={styles.formFooter}>
       <Button onClick={() => window.location.reload()} type="primary" block size="large">
-        {t('Reload Page to Apply the Extension')}
+        Reload Page to Apply the Extension
       </Button>
       <a href={EXTENSION_URL} target="_blank" style={{ width: '100%' }}>
         <Button type="default" block size="large">
-          {t('Install Extension')}
+          Install Extension
         </Button>
       </a>
     </div>
   );
 
   if (polkadotState.injector) {
-    let submitText = t('Refresh Accounts');
+    let submitText = 'Refresh Accounts';
     let submitFunc = checkExtension;
     let config = {};
 
     if (accountsState?.accounts?.length) {
       config = accountsFormConfig;
       submitFunc = handleAccountSubmit;
-      submitText = t('Log in');
+      submitText = 'Log in';
     }
 
     if (accountsState?.roles?.length) {
       config = rolesFormConfig;
       submitFunc = handleRoleSubmit;
-      submitText = t('Select Role');
+      submitText = 'Select Role';
     }
 
     block = (

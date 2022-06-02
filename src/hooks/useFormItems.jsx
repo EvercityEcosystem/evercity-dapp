@@ -25,7 +25,7 @@ import {
 import useXState from './useXState';
 import Slider from '../components/Slider';
 import InputNumber from '../components/InputNumber';
-import ErrorMessage from '../components/ErrorMessage';
+import Message from '../components/Message';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -207,7 +207,7 @@ export default ({
 
     if (value.display === 'message') {
       return (
-        <ErrorMessage
+        <Message
           type={value.type}
           style={value.style || {}}
           text={value.text}

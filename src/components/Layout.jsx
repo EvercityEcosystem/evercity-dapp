@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Layout, Button } from 'antd';
@@ -10,7 +9,7 @@ import MenuView from './MenuView';
 import { getCurrentUser } from '../utils/storage';
 
 import styles from './Layout.module.less';
-import logoUrl from '../assets/logos/logo-header.svg';
+import logoUrl from '/logos/logo-header.svg';
 
 const {
   Sider,
@@ -19,58 +18,51 @@ const {
   Footer,
 } = Layout;
 
-const getLoggedRoutes = (t) => [
-  {
-    path: '/dapp/profile',
-    title: t('Profile'),
-  },
-];
-
-const getRoutesByRole = (role, { t }) => {
+const getRoutesByRole = (role) => {
   switch (role) {
     case 'master':
       return [
         {
           path: '/dapp/master/roles',
-          title: t('Roles'),
+          title: 'Roles',
         },
       ];
     case 'issuer':
       return [
         {
-          title: t('Wallet'),
+          title: 'Wallet',
           children: [
             {
               path: '/dapp/issuer/tokens/mint',
-              title: t('Mint EVERUSD'),
+              title: 'Mint EVERUSD',
             },
             {
               path: '/dapp/issuer/tokens/burn',
-              title: t('Burn EVERUSD'),
+              title: 'Burn EVERUSD',
             },
           ],
         },
         {
           path: '/dapp/issuer/bond',
-          title: t('New Bond'),
+          title: 'New Bond',
         },
         // {
         //   path: '/dapp/issuer/impact',
-        //   title: t('Impact'),
+        //   title: 'Impact',
         // },
       ];
     case 'investor':
       return [
         {
-          title: t('Wallet'),
+          title: 'Wallet',
           children: [
             {
               path: '/dapp/investor/tokens/mint',
-              title: t('Mint EVERUSD'),
+              title: 'Mint EVERUSD',
             },
             {
               path: '/dapp/investor/tokens/burn',
-              title: t('Burn EVERUSD'),
+              title: 'Burn EVERUSD',
             },
           ],
         },
@@ -79,24 +71,24 @@ const getRoutesByRole = (role, { t }) => {
       return [
         {
           path: '/dapp/custodian/requests',
-          title: t('Requests'),
+          title: 'Requests',
         },
         {
-          title: t('Finance'),
+          title: 'Finance',
           children: [
             {
               path: '/dapp/custodian/tokens/confirm',
-              title: t('Confirm Mint/Burn'),
+              title: 'Confirm Mint/Burn',
             },
             {
               path: '/dapp/custodian/tokens/decline',
-              title: t('Decline Mint/Burn'),
+              title: 'Decline Mint/Burn',
             },
           ],
         },
         {
           path: '/dapp/custodian/reporting',
-          title: t('Reporting'),
+          title: 'Reporting',
         },
       ];
     default:
@@ -106,17 +98,21 @@ const getRoutesByRole = (role, { t }) => {
 
 const MainLayout = ({ children }) => {
   const location = useNavigate();
-  const { t } = useTranslation();
 
   let routes = [];
 
   const { role } = getCurrentUser();
   if (role) {
     routes = [
-      ...getLoggedRoutes(t),
       {
+        key: 'profile',
+        path: '/dapp/profile',
+        title: 'Profile',
+      },
+      {
+        key: 'logout',
         path: '/dapp/logout',
-        title: t('Logout'),
+        title: 'Logout',
       },
     ];
   }
@@ -124,9 +120,9 @@ const MainLayout = ({ children }) => {
   let siderRoutes = [
     {
       path: '/',
-      title: t('Home'),
+      title: 'Home',
     },
-    ...getRoutesByRole(role, { t }),
+    ...getRoutesByRole(role),
   ];
 
   routes = routes.map((item) => {
@@ -190,7 +186,7 @@ const MainLayout = ({ children }) => {
         </Content>
       </Layout>
       <Footer style={{ fontWeight: 600, textAlign: 'center' }}>
-        © 2021 Evercity PTE LTD
+        © 2022 Evercity PTE LTD
       </Footer>
     </Layout>
   );

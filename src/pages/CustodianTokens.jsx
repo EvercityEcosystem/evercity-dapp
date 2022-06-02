@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import SimpleForm from '../components/SimpleForm';
 
@@ -13,12 +12,11 @@ import { useParams } from "react-router-dom";
 const CustodianTokens = () => {
   const params = useParams();
   const { actionType = 'confirm' } = params;
-  const { t } = useTranslation();
   const { confirmEverusdRequest, declineEverusdRequest } = usePolkadot();
 
   const confirmFormConfig = {
     action: {
-      label: t('Action'),
+      label: 'Action',
       required: true,
       display: 'select',
       span: 24,
@@ -30,13 +28,13 @@ const CustodianTokens = () => {
       ],
     },
     address: {
-      label: t('Address'),
+      label: 'Address',
       required: true,
       type: 'string',
       span: 24,
     },
     amount: {
-      label: t('Amount'),
+      label: 'Amount',
       required: true,
       type: 'number',
       span: 24,
@@ -45,7 +43,7 @@ const CustodianTokens = () => {
 
   const declineFormConfig = {
     action: {
-      label: t('Action'),
+      label: 'Action',
       required: true,
       display: 'select',
       span: 24,
@@ -57,7 +55,7 @@ const CustodianTokens = () => {
       ],
     },
     address: {
-      label: t('Address'),
+      label: 'Address',
       required: true,
       type: 'string',
       span: 24,
@@ -84,7 +82,7 @@ const CustodianTokens = () => {
       <SimpleForm
         config={actionType === 'confirm' ? confirmFormConfig : declineFormConfig}
         onSubmit={handleSubmit}
-        submitText={t('Submit')}
+        submitText="Submit"
         className={styles.form}
         labelAlign="left"
         initialValues={{ action: null, address: null, amount: null }}

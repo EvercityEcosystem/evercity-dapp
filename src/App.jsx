@@ -1,7 +1,4 @@
-import { hot } from 'react-hot-loader';
-
 import React, { useEffect, useContext, useMemo } from 'react';
-import 'antd/dist/antd.css';
 
 import {
   Route, Routes
@@ -117,4 +114,4 @@ const App = () => {
 
 App.propTypes = {};
 
-export default hot(module)(App);
+export default App;

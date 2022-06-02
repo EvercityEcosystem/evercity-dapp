@@ -95,14 +95,14 @@ export default () => {
           .query
           .evercity
           .bondRegistry
-          .entriesPaged({ pageSize: BONDS_PAGE_SIZE });
+          .entriesPaged({ args: [], pageSize: BONDS_PAGE_SIZE });
       } catch (error) {
         console.error('bond fetching error: ', error.message);
         return payload;
       }
 
-      const promises = result.map(async ([{ args }, value]) => {
-        const id = u8aToString(args[0])?.replace(/\u0000/g, '');
+      const promises = result.map(async ([{ args: [ticker] }, value]) => {
+        const id = u8aToString(ticker);
         const couponYield = await bondCouponYield(id);
         const bondData = value.toJSON();
 

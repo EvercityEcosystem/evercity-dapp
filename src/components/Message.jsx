@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Alert } from 'antd';
 
-const ErrorMessage = ({ style, type, text }) => {
+const Message = ({ style, type, text }) => {
   let message = text;
 
   if (typeof text === 'string') {
@@ -23,16 +23,16 @@ const ErrorMessage = ({ style, type, text }) => {
   );
 };
 
-ErrorMessage.propTypes = {
+Message.propTypes = {
   style: PropTypes.shape(),
   type: PropTypes.string,
-  text: PropTypes.oneOf([PropTypes.string, PropTypes.shape()]),
+  text: PropTypes.string,
 };
 
-ErrorMessage.defaultProps = {
+Message.defaultProps = {
   style: {},
   type: 'error',
   text: '',
 };
 
-export default ErrorMessage;
+export default Message;
