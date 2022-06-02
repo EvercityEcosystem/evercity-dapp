@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer } from "react";
 
 const initialState = {
   bonds: [],
@@ -10,36 +10,32 @@ const { Provider } = store;
 const PolkadotProvider = ({ children }) => {
   const [polkadotState, dispatch] = useReducer((state, action) => {
     switch (action.type) {
-      case 'setAPI':
+      case "setAPI":
         return {
           ...state,
           api: action?.payload,
         };
-      case 'setInjector':
+      case "setInjector":
         return {
           ...state,
           injector: action?.payload,
         };
-      case 'setBonds':
+      case "setBonds":
         return {
           ...state,
           bonds: action?.payload,
         };
-      case 'setTimeStep':
+      case "setTimeStep":
         return {
           ...state,
           timeStep: action?.payload,
         };
       default:
-        throw new Error('Action not found');
+        throw new Error("Action not found");
     }
   }, initialState);
 
-  return (
-    <Provider value={{ polkadotState, dispatch }}>
-      {children}
-    </Provider>
-  );
+  return <Provider value={{ polkadotState, dispatch }}>{children}</Provider>;
 };
 
 export { store, PolkadotProvider };

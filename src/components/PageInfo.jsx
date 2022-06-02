@@ -1,15 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import {
-  Row, Col, PageHeader, Avatar,
-} from 'antd';
+import { Row, Col, PageHeader, Avatar } from "antd";
 
-import s from './PageInfo.module.css';
+import s from "./PageInfo.module.css";
 
-const PageInfo = ({
-  imgSrc, imgStyle, title, description, justify,
-}) => (
+const PageInfo = ({ imgSrc, imgStyle, title, description, justify }) => (
   <Row className={s.root} type="flex" justify={justify} align="middle">
     {imgSrc && (
       <Col>
@@ -17,7 +13,7 @@ const PageInfo = ({
       </Col>
     )}
     <Col>
-      <PageHeader style={{ textTransform: 'uppercase' }} title={title}>
+      <PageHeader style={{ textTransform: "uppercase" }} title={title}>
         {description}
       </PageHeader>
     </Col>
@@ -36,7 +32,7 @@ PageInfo.defaultProps = {
   imgSrc: null,
   imgStyle: {},
   description: null,
-  justify: 'start',
+  justify: "start",
 };
 
 export default PageInfo;

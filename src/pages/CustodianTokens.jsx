@@ -1,71 +1,71 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
-import React from 'react';
+import React from "react";
 
-import SimpleForm from '../components/SimpleForm';
+import SimpleForm from "../components/SimpleForm";
 
-import usePolkadot from '../hooks/usePolkadot';
+import usePolkadot from "../hooks/usePolkadot";
 
-import styles from './CustodianTokens.module.less';
+import styles from "./CustodianTokens.module.less";
 import { useParams } from "react-router-dom";
 
 const CustodianTokens = () => {
   const params = useParams();
-  const { actionType = 'confirm' } = params;
+  const { actionType = "confirm" } = params;
   const { confirmEverusdRequest, declineEverusdRequest } = usePolkadot();
 
   const confirmFormConfig = {
     action: {
-      label: 'Action',
+      label: "Action",
       required: true,
-      display: 'select',
+      display: "select",
       span: 24,
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Confirm Mint EverUSD': 'Mint' },
-        { 'Confirm Burn EverUSD': 'Burn' },
+        { "Confirm Mint EverUSD": "Mint" },
+        { "Confirm Burn EverUSD": "Burn" },
       ],
     },
     address: {
-      label: 'Address',
+      label: "Address",
       required: true,
-      type: 'string',
+      type: "string",
       span: 24,
     },
     amount: {
-      label: 'Amount',
+      label: "Amount",
       required: true,
-      type: 'number',
+      type: "number",
       span: 24,
     },
   };
 
   const declineFormConfig = {
     action: {
-      label: 'Action',
+      label: "Action",
       required: true,
-      display: 'select',
+      display: "select",
       span: 24,
       allowClear: false,
       showSearch: true,
       values: [
-        { 'Decline Mint EverUSD': 'Mint' },
-        { 'Decline Burn EverUSD': 'Burn' },
+        { "Decline Mint EverUSD": "Mint" },
+        { "Decline Burn EverUSD": "Burn" },
       ],
     },
     address: {
-      label: 'Address',
+      label: "Address",
       required: true,
-      type: 'string',
+      type: "string",
       span: 24,
     },
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { action, amount, address } = values;
 
-    if (actionType === 'confirm') {
+    if (actionType === "confirm") {
       confirmEverusdRequest(action, amount, address);
     } else {
       declineEverusdRequest(action, address);
@@ -80,7 +80,9 @@ const CustodianTokens = () => {
   return (
     <div className={styles.container}>
       <SimpleForm
-        config={actionType === 'confirm' ? confirmFormConfig : declineFormConfig}
+        config={
+          actionType === "confirm" ? confirmFormConfig : declineFormConfig
+        }
         onSubmit={handleSubmit}
         submitText="Submit"
         className={styles.form}

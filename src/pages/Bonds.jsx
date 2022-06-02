@@ -1,26 +1,19 @@
-import React, { useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
-import {
-  Row,
-  Col,
-  PageHeader,
-  Empty,
-  Radio,
-} from 'antd';
+import React, { useEffect, useContext } from "react";
+import { Row, Col, PageHeader, Empty, Radio } from "antd";
 
-import useXState from '../hooks/useXState';
-import usePolkadot from '../hooks/usePolkadot';
+import useXState from "../hooks/useXState";
+import usePolkadot from "../hooks/usePolkadot";
 
-import BondCard from '../components/BondCard';
-import BondsTable from '../components/BondsTable';
-import Loader from '../components/Loader';
-import { store } from '../components/PolkadotProvider';
-import BondReport from '../components/BondReport';
-import ModalView from '../components/ModalView';
+import BondCard from "../components/BondCard";
+import BondsTable from "../components/BondsTable";
+import Loader from "../components/Loader";
+import { store } from "../components/PolkadotProvider";
+import BondReport from "../components/BondReport";
+import ModalView from "../components/ModalView";
 
-import { setViewParams, getViewParams } from '../utils/storage';
+import { setViewParams, getViewParams } from "../utils/storage";
 
-import styles from './Bonds.module.less';
+import styles from "./Bonds.module.less";
 
 const Bonds = () => {
   const { polkadotState } = useContext(store);
@@ -34,16 +27,13 @@ const Bonds = () => {
     bondsLoading: false,
   });
 
-  useEffect(
-    () => {
-      (async () => {
-        updateState({ bondsLoading: true });
-        await fetchBonds();
-        updateState({ bondsLoading: false });
-      })();
-    },
-    [fetchBonds, updateState],
-  );
+  useEffect(() => {
+    (async () => {
+      updateState({ bondsLoading: true });
+      await fetchBonds();
+      updateState({ bondsLoading: false });
+    })();
+  }, [fetchBonds, updateState]);
 
   let data = (
     <div className={styles.container}>
@@ -54,7 +44,7 @@ const Bonds = () => {
   if (polkadotState.bonds.length) {
     data = (
       <Row gutter={26}>
-        {polkadotState.bonds.map((bond) => (
+        {polkadotState.bonds.map(bond => (
           <Col span={8} key={bond.id}>
             <BondCard bond={bond} onClick={updateState} />
           </Col>
@@ -63,8 +53,10 @@ const Bonds = () => {
     );
   }
 
-  if (state.listView === 'table') {
-    data = (<BondsTable dataSource={polkadotState.bonds} onClick={updateState} />);
+  if (state.listView === "table") {
+    data = (
+      <BondsTable dataSource={polkadotState.bonds} onClick={updateState} />
+    );
   }
 
   return (
@@ -74,40 +66,37 @@ const Bonds = () => {
         onCancel={() => updateState({ currentBond: null })}
         width={900}
         title={state.currentBond?.id}
-        content={state.currentBond ? (
-          <BondReport bond={state.currentBond} />
-        ) : (<></>)}
+        content={
+          state.currentBond ? <BondReport bond={state.currentBond} /> : <></>
+        }
       />
       <PageHeader
         ghost={false}
         className={styles.pageHeader}
-        title={(
-          <span className={styles.pageHeaderTitle}>
-            Bond explorer
-          </span>
-        )}
-        extra={(
+        title={<span className={styles.pageHeaderTitle}>Bond explorer</span>}
+        extra={
           <div className={styles.viewSettings}>
             <Radio.Group
               buttonStyle="solid"
               value={state.listView}
-              onChange={(e) => {
+              onChange={e => {
                 const listView = e?.target?.value;
 
                 updateState({ listView });
                 setViewParams({ listView });
-              }}
-            >
-              <Radio.Button className={styles.selectorButton} value="cards">Cards</Radio.Button>
-              <Radio.Button className={styles.selectorButton} value="table">Table</Radio.Button>
+              }}>
+              <Radio.Button className={styles.selectorButton} value="cards">
+                Cards
+              </Radio.Button>
+              <Radio.Button className={styles.selectorButton} value="table">
+                Table
+              </Radio.Button>
             </Radio.Group>
           </div>
-        )}
+        }
       />
       <div className={styles.projectsContainer}>
-        <Loader spinning={state.bondsLoading}>
-          {data}
-        </Loader>
+        <Loader spinning={state.bondsLoading}>{data}</Loader>
       </div>
     </div>
   );

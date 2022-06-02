@@ -1,37 +1,32 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-import { Slider as AntdSlider } from 'antd';
-import useDebounce from '../hooks/useDebounce';
+import { Slider as AntdSlider } from "antd";
+import useDebounce from "../hooks/useDebounce";
 
-const Slider = React.forwardRef(({ value: defaultValue, onChange, ...restProps }, ref) => {
-  const [state, setState] = useState(defaultValue);
+const Slider = React.forwardRef(
+  ({ value: defaultValue, onChange, ...restProps }, ref) => {
+    const [state, setState] = useState(defaultValue);
 
-  useEffect(
-    () => setState(defaultValue),
-    [defaultValue],
-  );
+    useEffect(() => setState(defaultValue), [defaultValue]);
 
-  const [debouncedUpdate] = useDebounce(
-    (value) => onChange(value),
-    500,
-  );
+    const [debouncedUpdate] = useDebounce(value => onChange(value), 500);
 
-  return (
-    <AntdSlider
-      {...restProps}
-      ref={ref}
-      value={Number(state)}
-      onChange={(val) => {
-        const value = parseInt(val, 10);
+    return (
+      <AntdSlider
+        {...restProps}
+        ref={ref}
+        value={Number(state)}
+        onChange={val => {
+          const value = parseInt(val, 10);
 
-        setState(value);
-        debouncedUpdate(value);
-      }}
-    />
-  );
-});
+          setState(value);
+          debouncedUpdate(value);
+        }}
+      />
+    );
+  },
+);
 
 Slider.propTypes = {
   // eslint-disable-next-line

@@ -1,28 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {
-  Button,
-  Dropdown,
-  Menu,
-} from 'antd';
-import cx from 'classnames';
-import { DownOutlined } from '@ant-design/icons';
+import React from "react";
+import PropTypes from "prop-types";
+import { Button, Dropdown, Menu } from "antd";
+import cx from "classnames";
+import { DownOutlined } from "@ant-design/icons";
 
-import ModalView from './ModalView';
-import SimpleForm from './SimpleForm';
+import ModalView from "./ModalView";
+import SimpleForm from "./SimpleForm";
 
-import useXState from '../hooks/useXState';
-import usePolkadot from '../hooks/usePolkadot';
+import useXState from "../hooks/useXState";
+import usePolkadot from "../hooks/usePolkadot";
 
-import stopPropagation from '../utils/bubbling';
+import stopPropagation from "../utils/bubbling";
 import {
   isTimeToSendImpact,
   isAfterMaturityDate,
   currentPeriodName,
-  bondCurrentPeriod
-} from '../utils/period';
+  bondCurrentPeriod,
+} from "../utils/period";
 
-import styles from './BondActions.module.less';
+import styles from "./BondActions.module.less";
 
 const IssuerBondActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
@@ -33,17 +29,17 @@ const IssuerBondActions = ({ bond, mode }) => {
     bondImpactReportSend,
     bondDepositEverusd,
     bondAccrueCouponYield,
-    redeemBond
+    redeemBond,
   } = usePolkadot();
 
   const period = bondCurrentPeriod(bond);
 
   const depositFormConfig = {
     amount: {
-      label: 'Amount',
+      label: "Amount",
       required: true,
-      type: 'number',
-      display: 'text',
+      type: "number",
+      display: "text",
       span: 24,
       default: 0,
     },
@@ -51,19 +47,19 @@ const IssuerBondActions = ({ bond, mode }) => {
 
   const impactFormConfig = {
     period: {
-      label: 'Period',
+      label: "Period",
       required: true,
       disabled: true,
-      type: 'number',
-      display: 'text',
+      type: "number",
+      display: "text",
       span: 24,
       default: 0,
     },
     impactData: {
-      label: 'Impact value',
+      label: "Impact value",
       required: true,
-      type: 'number',
-      display: 'text',
+      type: "number",
+      display: "text",
       span: 24,
       default: 0,
     },
@@ -79,7 +75,7 @@ const IssuerBondActions = ({ bond, mode }) => {
     updateState({ visibleDepositModal: false });
   };
 
-  if (!['ACTIVE', 'BANKRUPT'].includes(bond.state)) {
+  if (!["ACTIVE", "BANKRUPT"].includes(bond.state)) {
     return null;
   }
 
@@ -90,67 +86,89 @@ const IssuerBondActions = ({ bond, mode }) => {
     <>
       <ModalView
         visible={state.visibleDepositModal}
-        onCancel={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: false }))}
+        onCancel={e =>
+          stopPropagation(e, () => updateState({ visibleDepositModal: false }))
+        }
         width={400}
         title="Bond deposit"
-        content={(
+        content={
           <SimpleForm
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             config={depositFormConfig}
             layout="vertical"
             submitText="Send"
             onSubmit={deposit}
           />
-        )}
+        }
       />
       <ModalView
         visible={state.visibleImpactModal}
-        onCancel={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: false }))}
+        onCancel={e =>
+          stopPropagation(e, () => updateState({ visibleImpactModal: false }))
+        }
         width={400}
         title={`Send impact data for ${currentPeriodName(bond)}`}
-        content={(
+        content={
           <SimpleForm
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             config={impactFormConfig}
             layout="vertical"
             submitText="Send"
             onSubmit={sendImpactData}
             initialValues={{
-              period
+              period,
             }}
           />
-        )}
+        }
       />
       <Dropdown
-        overlay={(
+        overlay={
           <Menu>
-            <Menu.Item key="deposit" onClick={(e) => stopPropagation(e, () => updateState({ visibleDepositModal: true }))}>
+            <Menu.Item
+              key="deposit"
+              onClick={e =>
+                stopPropagation(e, () =>
+                  updateState({ visibleDepositModal: true }),
+                )
+              }>
               Deposit
             </Menu.Item>
-            {bond.state === 'ACTIVE' && [
-              <Menu.Item key="accrue" onClick={(e) => stopPropagation(e, () => bondAccrueCouponYield(bond.id))}>
+            {bond.state === "ACTIVE" && [
+              <Menu.Item
+                key="accrue"
+                onClick={e =>
+                  stopPropagation(e, () => bondAccrueCouponYield(bond.id))
+                }>
                 Calculate interest
               </Menu.Item>,
-              (bond.state === 'ACTIVE' && timeToRedeem && (
-                <Menu.Item key="redeem" onClick={(e) => stopPropagation(e, () => redeemBond(bond.id))}>
+              bond.state === "ACTIVE" && timeToRedeem && (
+                <Menu.Item
+                  key="redeem"
+                  onClick={e => stopPropagation(e, () => redeemBond(bond.id))}>
                   Redeem
                 </Menu.Item>
-              )),
-              (isImpactSendTime && (
-                <Menu.Item key="impact" onClick={(e) => stopPropagation(e, () => updateState({ visibleImpactModal: true }))}>
+              ),
+              isImpactSendTime && (
+                <Menu.Item
+                  key="impact"
+                  onClick={e =>
+                    stopPropagation(e, () =>
+                      updateState({ visibleImpactModal: true }),
+                    )
+                  }>
                   Send impact data
                 </Menu.Item>
-              ))
+              ),
             ]}
           </Menu>
-        )}
-      >
+        }>
         <Button
-          size={mode === 'table' ? 'small' : 'middle'}
-          onClick={(e) => stopPropagation(e)}
+          size={mode === "table" ? "small" : "middle"}
+          onClick={e => stopPropagation(e)}
           type="primary"
-          className={cx(styles.button, { [styles.tableButton]: mode === 'table' })}
-        >
+          className={cx(styles.button, {
+            [styles.tableButton]: mode === "table",
+          })}>
           Actions
           <DownOutlined />
         </Button>
@@ -165,7 +183,7 @@ IssuerBondActions.propTypes = {
 };
 
 IssuerBondActions.defaultProps = {
-  mode: 'card',
+  mode: "card",
 };
 
 export default IssuerBondActions;

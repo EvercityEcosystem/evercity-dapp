@@ -1,29 +1,26 @@
-import { useEffect, useCallback } from 'react';
-import { add, remove } from 'unchanged';
+import { useEffect, useCallback } from "react";
+import { add, remove } from "unchanged";
 
-import useXState from './useXState';
+import useXState from "./useXState";
 
 export default (activePanelKey = []) => {
   const [state, updateState, setState] = useXState({
     activePanelKey,
   });
 
-  useEffect(
-    () => {
-      if (activePanelKey.length) {
-        updateState({ activePanelKey });
-      }
-    },
-    [activePanelKey, updateState],
-  );
+  useEffect(() => {
+    if (activePanelKey.length) {
+      updateState({ activePanelKey });
+    }
+  }, [activePanelKey, updateState]);
 
   const getSectionIndex = useCallback(
-    (key) => state.activePanelKey.indexOf(key),
+    key => state.activePanelKey.indexOf(key),
     [state.activePanelKey],
   );
 
   const setActiveKeys = useCallback(
-    (keys) => {
+    keys => {
       const uniqKeys = [...new Set(keys)];
       updateState({ activePanelKey: uniqKeys });
     },
@@ -31,7 +28,7 @@ export default (activePanelKey = []) => {
   );
 
   const onToggleSection = useCallback(
-    (key) => {
+    key => {
       let keys = [];
 
       const strKey = key.toString();

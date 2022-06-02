@@ -1,13 +1,6 @@
-import React, { useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
-import {
-  Row,
-  Col,
-  Statistic,
-  Divider,
-  Tabs,
-  Button,
-} from 'antd';
+import React, { useEffect, useContext } from "react";
+import PropTypes from "prop-types";
+import { Row, Col, Statistic, Divider, Tabs, Button } from "antd";
 
 import {
   LineChart,
@@ -16,21 +9,21 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-} from 'recharts';
-import dayjs from 'dayjs';
+} from "recharts";
+import dayjs from "dayjs";
 
-import { DEFAULT_ADDRESS, IMPACT_DATA_TYPES } from '../utils/env';
-import { toPercent, fromEverUSD, fromBondDays } from '../utils/converters';
-import { getCurrentUser } from '../utils/storage';
+import { DEFAULT_ADDRESS, IMPACT_DATA_TYPES } from "../utils/env";
+import { toPercent, fromEverUSD, fromBondDays } from "../utils/converters";
+import { getCurrentUser } from "../utils/storage";
 
-import usePolkadot from '../hooks/usePolkadot';
-import useXState from '../hooks/useXState';
+import usePolkadot from "../hooks/usePolkadot";
+import useXState from "../hooks/useXState";
 
-import { store } from './PolkadotProvider';
-import TableList from './TableList';
-import BondUnitsSellForm from './BondUnitsSellForm';
+import { store } from "./PolkadotProvider";
+import TableList from "./TableList";
+import BondUnitsSellForm from "./BondUnitsSellForm";
 
-import styles from './BondReport.module.less';
+import styles from "./BondReport.module.less";
 
 const { TabPane } = Tabs;
 
@@ -56,135 +49,124 @@ const BondReport = ({ bond }) => {
   let bondBalance = 0;
   let bondInterestToPay = 0;
 
-  if (['ACTIVE', 'BOOKING', 'BANKRUPT'].includes(bond.state)) {
+  if (["ACTIVE", "BOOKING", "BANKRUPT"].includes(bond.state)) {
     const debitCredit = fromEverUSD(bond.bond_debit - bond.bond_credit);
     const creditYield = fromEverUSD(bond.bond_credit - bond.coupon_yield);
 
-    bondBalance = Number((debitCredit).toFixed(1)).toLocaleString('en-US');
-    bondInterestToPay = Number((creditYield).toFixed(1)).toLocaleString('en-US');
-  };
+    bondBalance = Number(debitCredit.toFixed(1)).toLocaleString("en-US");
+    bondInterestToPay = Number(creditYield.toFixed(1)).toLocaleString("en-US");
+  }
 
-  useEffect(
-    () => {
-      const getImpactData = async () => {
-        const result = await bondImpactReport(bond.id);
+  useEffect(() => {
+    const getImpactData = async () => {
+      const result = await bondImpactReport(bond.id);
 
-        const impactData = result.map((item, index) => ({
-          period: dayjs(bond.creation_date).add(index, 'year').format('YYYY'),
-          impactData: item.impact_data,
-        }));
+      const impactData = result.map((item, index) => ({
+        period: dayjs(bond.creation_date).add(index, "year").format("YYYY"),
+        impactData: item.impact_data,
+      }));
 
-        updateState({ impactData });
-      };
+      updateState({ impactData });
+    };
 
-      getImpactData();
-    },
-    [bond, bondImpactReport, updateState],
-  );
+    getImpactData();
+  }, [bond, bondImpactReport, updateState]);
 
-  useEffect(
-    () => {
-      const get = async () => {
-        const packageLot = await bondUnitPackageLot(bond.id);
+  useEffect(() => {
+    const get = async () => {
+      const packageLot = await bondUnitPackageLot(bond.id);
 
-        updateState({ packageLot });
-      };
+      updateState({ packageLot });
+    };
 
-      get();
-    },
-    [bond.id, bondUnitPackageLot, updateState],
-  );
+    get();
+  }, [bond.id, bondUnitPackageLot, updateState]);
 
-  useEffect(
-    () => {
-      const get = async () => {
-        const packageRegistry = await bondUnitPackageRegistry(bond.id);
+  useEffect(() => {
+    const get = async () => {
+      const packageRegistry = await bondUnitPackageRegistry(bond.id);
 
-        updateState({ packageRegistry });
-      };
+      updateState({ packageRegistry });
+    };
 
-      get();
-    },
-    [bond, bondUnitPackageRegistry, updateState],
-  );
+    get();
+  }, [bond, bondUnitPackageRegistry, updateState]);
 
   const impactMeasure = IMPACT_DATA_TYPES[bond.inner.impact_data_type].measure;
-  const impactBaselineData = bond.inner.impact_data_baseline.map((item, index) => ({
-    period: dayjs(bond.creation_date).add(fromBondDays(bond.inner.payment_period, timeStep), 'day').format('DD-MM-YYYY'),
+  const impactBaselineData = bond.inner.impact_data_baseline.map(item => ({
+    period: dayjs(bond.creation_date)
+      .add(fromBondDays(bond.inner.payment_period, timeStep), "day")
+      .format("DD-MM-YYYY"),
     value: item,
   }));
 
-
   const packageRegistryColumns = [
     {
-      title: 'Number of bonds',
-      dataIndex: 'bondUnits',
-      key: 'bondUnits',
+      title: "Number of bonds",
+      dataIndex: "bondUnits",
+      key: "bondUnits",
     },
     {
-      title: 'Coupon yield',
-      key: 'couponYield',
-      render: (_, row) => (`$${row.couponYield}`),
+      title: "Coupon yield",
+      key: "couponYield",
+      render: (_, row) => `$${row.couponYield}`,
     },
     {
-      title: '',
-      key: 'actions',
-      render: (_, row) => (
+      title: "",
+      key: "actions",
+      render: (_, row) =>
         !!currentUserAddress && (
           <Button
             size="small"
             type="primary"
-            onClick={() => updateState({
-              sellFormShown: true,
-              maxSell: row.bond_units,
-            })}
-          >
+            onClick={() =>
+              updateState({
+                sellFormShown: true,
+                maxSell: row.bond_units,
+              })
+            }>
             Sell
           </Button>
-        )
-      ),
+        ),
     },
   ];
 
   const packageLotColumns = [
     {
-      title: 'Bondholder',
-      dataIndex: 'bondholder',
-      key: 'bondholder',
+      title: "Bondholder",
+      dataIndex: "bondholder",
+      key: "bondholder",
     },
     {
-      title: 'Number of bonds',
-      dataIndex: 'bond_units',
-      key: 'bond_units',
+      title: "Number of bonds",
+      dataIndex: "bond_units",
+      key: "bond_units",
     },
     {
-      title: 'Total price',
-      dataIndex: 'amount',
-      key: 'amount',
+      title: "Total price",
+      dataIndex: "amount",
+      key: "amount",
     },
     {
-      title: 'Deadline',
-      dataIndex: 'deadline',
-      key: 'deadline',
-      render: (_, row) => dayjs(row.deadline).format('DD-MM-YYYY HH:mm'),
+      title: "Deadline",
+      dataIndex: "deadline",
+      key: "deadline",
+      render: (_, row) => dayjs(row.deadline).format("DD-MM-YYYY HH:mm"),
     },
     {
-      title: '',
-      key: 'actions',
-      render: (_, row) => (
-        [DEFAULT_ADDRESS, currentUserAddress].includes(row.new_bondholder)
-          && currentUserAddress !== row.bondholder
-          && role === 'investor'
-          && (
-            <Button
-              size="small"
-              type="primary"
-              onClick={() => bondUnitLotSettle(row)}
-            >
-              Buy
-            </Button>
-          )
-      ),
+      title: "",
+      key: "actions",
+      render: (_, row) =>
+        [DEFAULT_ADDRESS, currentUserAddress].includes(row.new_bondholder) &&
+        currentUserAddress !== row.bondholder &&
+        role === "investor" && (
+          <Button
+            size="small"
+            type="primary"
+            onClick={() => bondUnitLotSettle(row)}>
+            Buy
+          </Button>
+        ),
     },
   ];
 
@@ -193,48 +175,96 @@ const BondReport = ({ bond }) => {
       <TabPane tab="General" key="general">
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="periods" title="Time to maturity" value={bond.inner.bond_duration} />
+            <Statistic
+              className={styles.bondData}
+              suffix="periods"
+              title="Time to maturity"
+              value={bond.inner.bond_duration}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} prefix="$" title="Bond price" value={fromEverUSD(bond.inner.bond_units_base_price)} />
+            <Statistic
+              className={styles.bondData}
+              prefix="$"
+              title="Bond price"
+              value={fromEverUSD(bond.inner.bond_units_base_price)}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Number of bonds purchased" value={bond.issued_amount} />
+            <Statistic
+              className={styles.bondData}
+              title="Number of bonds purchased"
+              value={bond.issued_amount}
+            />
           </Col>
         </Row>
         <Row className={styles.row}>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Minimum amount of bond sale" value={bond.inner.bond_units_mincap_amount} />
+            <Statistic
+              className={styles.bondData}
+              title="Minimum amount of bond sale"
+              value={bond.inner.bond_units_mincap_amount}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Number of bonds in issue" value={bond.inner.bond_units_maxcap_amount} />
+            <Statistic
+              className={styles.bondData}
+              title="Number of bonds in issue"
+              value={bond.inner.bond_units_maxcap_amount}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Issuance date" value={dayjs(bond.inner.mincap_deadline).format('DD-MM-YYYY')} />
+            <Statistic
+              className={styles.bondData}
+              title="Issuance date"
+              value={dayjs(bond.inner.mincap_deadline).format("DD-MM-YYYY")}
+            />
           </Col>
         </Row>
         <Row className={styles.row}>
           <Col span={8}>
-            <Statistic className={styles.bondData} prefix="$" title="Bond balance" value={bondBalance} />
+            <Statistic
+              className={styles.bondData}
+              prefix="$"
+              title="Bond balance"
+              value={bondBalance}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} prefix="$" title="Bond interest to pay" value={bondInterestToPay} />
+            <Statistic
+              className={styles.bondData}
+              prefix="$"
+              title="Bond interest to pay"
+              value={bondInterestToPay}
+            />
           </Col>
         </Row>
       </TabPane>
       <TabPane tab="Lifecycle" key="lifecycle">
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Bond created" value={dayjs(bond.creation_date).format('DD-MM-YYYY')} />
+            <Statistic
+              className={styles.bondData}
+              title="Bond created"
+              value={dayjs(bond.creation_date).format("DD-MM-YYYY")}
+            />
           </Col>
           {!!bond.booking_start_date && (
             <Col span={8}>
-              <Statistic className={styles.bondData} title="Booking opened" value={dayjs(bond.booking_start_date).format('DD-MM-YYYY')} />
+              <Statistic
+                className={styles.bondData}
+                title="Booking opened"
+                value={dayjs(bond.booking_start_date).format("DD-MM-YYYY")}
+              />
             </Col>
           )}
           {!!bond.active_start_date && (
             <Col span={8}>
-              <Statistic className={styles.bondData} title="Bond issued" value={dayjs(bond.active_start_date).format('DD-MM-YYYY')} />
+              <Statistic
+                className={styles.bondData}
+                title="Bond issued"
+                value={dayjs(bond.active_start_date).format("DD-MM-YYYY")}
+              />
             </Col>
           )}
         </Row>
@@ -242,47 +272,97 @@ const BondReport = ({ bond }) => {
       <TabPane tab="Interest" key="interest">
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="%" title="Minimum interest rate" value={toPercent(bond.inner.interest_rate_margin_floor)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="%"
+              title="Minimum interest rate"
+              value={toPercent(bond.inner.interest_rate_margin_floor)}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="%" title="Basic interest rate" value={toPercent(bond.inner.interest_rate_base_value)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="%"
+              title="Basic interest rate"
+              value={toPercent(bond.inner.interest_rate_base_value)}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="%" title="Maximum interest rate" value={toPercent(bond.inner.interest_rate_margin_cap)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="%"
+              title="Maximum interest rate"
+              value={toPercent(bond.inner.interest_rate_margin_cap)}
+            />
           </Col>
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="days" title="Interest rate payment period" value={fromBondDays(bond.inner.interest_pay_period || 0, timeStep)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="days"
+              title="Interest rate payment period"
+              value={fromBondDays(
+                bond.inner.interest_pay_period || 0,
+                timeStep,
+              )}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="%" title="Interest rate penalty" value={toPercent(bond.inner.interest_rate_penalty_for_missed_report)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="%"
+              title="Interest rate penalty"
+              value={toPercent(
+                bond.inner.interest_rate_penalty_for_missed_report,
+              )}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="%" title="Grace period interest rate" value={toPercent(bond.inner.interest_rate_start_period_value)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="%"
+              title="Grace period interest rate"
+              value={toPercent(bond.inner.interest_rate_start_period_value)}
+            />
           </Col>
         </Row>
       </TabPane>
       <TabPane tab="Impact" key="impact">
         <Row>
           <Col span={24}>
-            <Statistic className={styles.bondData} title="Impact indicator for reporting" value={IMPACT_DATA_TYPES[bond.inner.impact_data_type].title} />
+            <Statistic
+              className={styles.bondData}
+              title="Impact indicator for reporting"
+              value={IMPACT_DATA_TYPES[bond.inner.impact_data_type].title}
+            />
           </Col>
         </Row>
         <Row>
           <Col span={8}>
-            <Statistic className={styles.bondData} suffix="days" title="Time window to submit impact data" value={fromBondDays(bond.inner.impact_data_send_period, timeStep)} />
+            <Statistic
+              className={styles.bondData}
+              suffix="days"
+              title="Time window to submit impact data"
+              value={fromBondDays(bond.inner.impact_data_send_period, timeStep)}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Impact value leading to maximum interest rate" value={bond.inner.impact_data_max_deviation_floor || 0} />
+            <Statistic
+              className={styles.bondData}
+              title="Impact value leading to maximum interest rate"
+              value={bond.inner.impact_data_max_deviation_floor || 0}
+            />
           </Col>
           <Col span={8}>
-            <Statistic className={styles.bondData} title="Impact value leading to minimum interest rate" value={bond.inner.impact_data_max_deviation_cap || 0} />
+            <Statistic
+              className={styles.bondData}
+              title="Impact value leading to minimum interest rate"
+              value={bond.inner.impact_data_max_deviation_cap || 0}
+            />
           </Col>
         </Row>
-        <Divider orientation="left">
-          Impact baseline by period
-        </Divider>
+        <Divider orientation="left">Impact baseline by period</Divider>
         <div className={styles.chartContainer}>
           <LineChart
             width={700}
@@ -292,8 +372,7 @@ const BondReport = ({ bond }) => {
               top: 26,
               bottom: 15,
               right: 60,
-            }}
-          >
+            }}>
             <Line
               type="monotone"
               strokeWidth={2}
@@ -302,16 +381,28 @@ const BondReport = ({ bond }) => {
               dot={false}
             />
             <CartesianGrid stroke="#DDD" strokeDasharray="7 7" />
-            <XAxis dataKey="period" label={{ value: 'Periods', offset: -10, position: 'insideBottom' }} />
-            <YAxis dataKey="value" label={{ value: impactMeasure, angle: -90, position: 'insideLeft' }} />
+            <XAxis
+              dataKey="period"
+              label={{
+                value: "Periods",
+                offset: -10,
+                position: "insideBottom",
+              }}
+            />
+            <YAxis
+              dataKey="value"
+              label={{
+                value: impactMeasure,
+                angle: -90,
+                position: "insideLeft",
+              }}
+            />
             <Tooltip />
           </LineChart>
         </div>
-        {['ACTIVE', 'FINISHED'].includes(bond.state) && (
+        {["ACTIVE", "FINISHED"].includes(bond.state) && (
           <div className={styles.chartContainer}>
-            <Divider orientation="left">
-              Impact report by period
-            </Divider>
+            <Divider orientation="left">Impact report by period</Divider>
             <LineChart
               width={700}
               height={300}
@@ -320,8 +411,7 @@ const BondReport = ({ bond }) => {
                 top: 5,
                 right: 60,
                 bottom: 15,
-              }}
-            >
+              }}>
               <Line
                 strokeWidth={2}
                 name="Impact report"
@@ -330,8 +420,22 @@ const BondReport = ({ bond }) => {
                 dot={false}
               />
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-              <XAxis dataKey="period" label={{ value: 'Periods', offset: -10, position: 'insideBottom' }} />
-              <YAxis dataKey="impactData" label={{ value: impactMeasure, angle: -90, position: 'insideLeft' }} />
+              <XAxis
+                dataKey="period"
+                label={{
+                  value: "Periods",
+                  offset: -10,
+                  position: "insideBottom",
+                }}
+              />
+              <YAxis
+                dataKey="impactData"
+                label={{
+                  value: impactMeasure,
+                  angle: -90,
+                  position: "insideLeft",
+                }}
+              />
               <Tooltip />
             </LineChart>
           </div>
@@ -352,7 +456,7 @@ const BondReport = ({ bond }) => {
             <TableList
               pagination={false}
               className={styles.table}
-              rowKey={(row) => row.id}
+              rowKey={row => row.id}
               columns={packageRegistryColumns}
               dataSource={state.packageRegistry}
               size="middle"
@@ -373,7 +477,6 @@ BondReport.propTypes = {
   bond: PropTypes.shape().isRequired,
 };
 
-BondReport.defaultProps = {
-};
+BondReport.defaultProps = {};
 
 export default BondReport;

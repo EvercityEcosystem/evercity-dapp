@@ -1,28 +1,22 @@
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Statistic } from 'antd';
+import React, { useEffect, useState } from "react";
+import { Statistic } from "antd";
 
-import usePolkadot from '../hooks/usePolkadot';
+import usePolkadot from "../hooks/usePolkadot";
 
-import styles from './CustodianReporting.module.less';
+import styles from "./CustodianReporting.module.less";
 
 const CustodianReporting = () => {
   const [totalSupply, setTotalSupply] = useState(0);
   const { totalSupplyEverUSD } = usePolkadot();
 
-  useEffect(
-    () => {
-      const getTotalSupply = async () => {
-        const result = await totalSupplyEverUSD();
-        setTotalSupply(result.toFixed(2));
-      };
+  useEffect(() => {
+    const getTotalSupply = async () => {
+      const result = await totalSupplyEverUSD();
+      setTotalSupply(result.toFixed(2));
+    };
 
-      getTotalSupply();
-    },
-    [totalSupplyEverUSD],
-  );
+    getTotalSupply();
+  }, [totalSupplyEverUSD]);
 
   return (
     <div className={styles.container}>
@@ -31,8 +25,7 @@ const CustodianReporting = () => {
   );
 };
 
-CustodianReporting.propTypes = {
-};
+CustodianReporting.propTypes = {};
 
 CustodianReporting.defaultProps = {};
 

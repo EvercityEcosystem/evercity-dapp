@@ -1,45 +1,63 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {
-  Button,
-} from 'antd';
-import cx from 'classnames';
+import React from "react";
+import PropTypes from "prop-types";
+import { Button } from "antd";
+import cx from "classnames";
 
-import ComponentSwitcher from './ComponentSwitcher';
-import InvestorBondActions from './InvestorBondActions';
-import MasterBondActions from './MasterBondActions';
-import IssuerBondActions from './IssuerBondActions';
-import AuditorBondActions from './AuditorBondActions';
+import ComponentSwitcher from "./ComponentSwitcher";
+import InvestorBondActions from "./InvestorBondActions";
+import MasterBondActions from "./MasterBondActions";
+import IssuerBondActions from "./IssuerBondActions";
+import AuditorBondActions from "./AuditorBondActions";
 
-import { getCurrentUser } from '../utils/storage';
+import { getCurrentUser } from "../utils/storage";
 
-import styles from './BondActions.module.less';
+import styles from "./BondActions.module.less";
 
 const BondActions = ({ bond, mode, onClick }) => {
   const { role } = getCurrentUser();
 
   return (
     <>
-      <div className={cx(styles.actions, { [styles.tableActions]: mode === 'table' })}>
+      <div
+        className={cx(styles.actions, {
+          [styles.tableActions]: mode === "table",
+        })}>
         <Button
-          size={mode === 'table' ? 'small' : 'middle'}
+          size={mode === "table" ? "small" : "middle"}
           type="primary"
-          className={cx(styles.actionButton, { [styles.tableButton]: mode === 'table' })}
-          onClick={onClick}
-        >
+          className={cx(styles.actionButton, {
+            [styles.tableButton]: mode === "table",
+          })}
+          onClick={onClick}>
           View bond
         </Button>
         <ComponentSwitcher
-          activeItemIndex={['investor', 'master', 'issuer', 'auditor'].indexOf(role)}
+          activeItemIndex={["investor", "master", "issuer", "auditor"].indexOf(
+            role,
+          )}
           items={[
-            <InvestorBondActions bond={bond} mode={mode} />,
-            <MasterBondActions bond={bond} mode={mode} />,
-            <IssuerBondActions bond={bond} mode={mode} />,
-            <AuditorBondActions bond={bond} mode={mode} />,
+            <InvestorBondActions
+              bond={bond}
+              mode={mode}
+              key="InvestorBondActions"
+            />,
+            <MasterBondActions
+              bond={bond}
+              mode={mode}
+              key="MasterBondActions"
+            />,
+            <IssuerBondActions
+              bond={bond}
+              mode={mode}
+              key="IssuerBondActions"
+            />,
+            <AuditorBondActions
+              bond={bond}
+              mode={mode}
+              key="AuditorBondActions"
+            />,
           ]}
-          defaultItem={
-            null
-          }
+          defaultItem={null}
         />
       </div>
     </>
@@ -53,7 +71,7 @@ BondActions.propTypes = {
 };
 
 BondActions.defaultProps = {
-  mode: 'card',
+  mode: "card",
 };
 
 export default BondActions;
