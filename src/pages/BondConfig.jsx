@@ -14,7 +14,7 @@ import SimpleForm from "../components/SimpleForm";
 import useXState from "../hooks/useXState";
 import usePolkadot from "../hooks/usePolkadot";
 
-import { IMPACT_DATA_TYPES } from "../utils/env";
+import { IMPACT_DATA_TYPES, BOND_TICKER_LIMIT } from "../utils/env";
 import { toEverUSD } from "../utils/converters";
 
 import styles from "./BondConfig.module.less";
