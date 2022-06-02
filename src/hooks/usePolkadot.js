@@ -8,10 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { store } from "../components/PolkadotProvider";
 
 import { getAvailableRoles } from "../utils/roles";
-import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE, BOND_TICKER_LIMIT } from "../utils/env";
+import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from "../utils/env";
 import { getCurrentUserAddress } from "../utils/storage";
 import { calculateInterestRate } from "../utils/interestRate";
 import { bondCurrentPeriod } from "../utils/period";
+import formatTicker from "../utils/tickerFormatter";
 import {
   fromEverUSD,
   toBondDays,
@@ -102,7 +103,7 @@ export default () => {
         value,
       ]) => {
         const id = u8aToString(ticker);
-        const couponYield = await bondCouponYield(id);
+        const couponYield = await bondCouponYield(`${id.replace('\u0000', '0')}`);
         const bondData = value.toJSON();
 
         const packageRegistry = await bondUnitPackageRegistry(id);
@@ -640,9 +641,7 @@ export default () => {
 
       const currentUserAddress = getCurrentUserAddress();
 
-      const postfixLength = BOND_TICKER_LIMIT - values.bond_id.length;
-      const postfix = postfixLength !== 0 ? `\u0000`.repeat(postfixLength) : '';
-      const bondId = `${values.bond_id}${postfix}`;
+      const bondId = formatTicker(values.bond_id);
 
       try {
         await api.tx.evercity
