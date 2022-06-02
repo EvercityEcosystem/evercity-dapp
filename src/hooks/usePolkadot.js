@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { store } from "../components/PolkadotProvider";
 
 import { getAvailableRoles } from "../utils/roles";
-import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from "../utils/env";
+import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE, BOND_TICKER_LIMIT } from "../utils/env";
 import { getCurrentUserAddress } from "../utils/storage";
 import { calculateInterestRate } from "../utils/interestRate";
 import { bondCurrentPeriod } from "../utils/period";
