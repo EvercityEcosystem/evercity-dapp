@@ -10,14 +10,14 @@ import { store } from "../components/PolkadotProvider";
 import { getAvailableRoles } from "../utils/roles";
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from "../utils/env";
 import { getCurrentUserAddress } from "../utils/storage";
+import { calculateInterestRate } from "../utils/interestRate";
+import { bondCurrentPeriod } from "../utils/period";
 import {
   fromEverUSD,
   toBondDays,
   toEverUSD,
   toPercent,
 } from "../utils/converters";
-import { calculateInterestRate } from "../utils/interestRate";
-import { bondCurrentPeriod } from "../utils/period";
 
 export default () => {
   const navigate = useNavigate();
@@ -223,7 +223,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -250,7 +250,7 @@ export default () => {
     } catch (error) {
       notification.error({
         message: "Signing/sending transaction process failed",
-        description: error,
+        description: `${error}`,
       });
     }
   }, [api, injector, transactionCallback]);
@@ -283,7 +283,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -310,7 +310,7 @@ export default () => {
     } catch (error) {
       notification.error({
         message: "Signing/sending transaction process failed",
-        description: error,
+        description: `${error}`,
       });
     }
   }, [api, injector, transactionCallback]);
@@ -338,7 +338,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -398,7 +398,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -430,7 +430,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -476,7 +476,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -512,7 +512,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -557,7 +557,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -598,10 +598,10 @@ export default () => {
   const prepareBond = useCallback(
     async values => {
       const bondStruct = {
-        docs_pack_root_hash_main: [0],
-        docs_pack_root_hash_legal: [0],
-        docs_pack_root_hash_finance: [0],
-        docs_pack_root_hash_tech: [0],
+        docs_pack_root_hash_main: [],
+        docs_pack_root_hash_legal: [],
+        docs_pack_root_hash_finance: [],
+        docs_pack_root_hash_tech: [],
 
         // from 0,001% to 1%
         // eslint-disable-next-line max-len
@@ -640,9 +640,13 @@ export default () => {
 
       const currentUserAddress = getCurrentUserAddress();
 
+      const postfixLength = BOND_TICKER_LIMIT - values.bond_id.length;
+      const postfix = postfixLength !== 0 ? `\u0000`.repeat(postfixLength) : '';
+      const bondId = `${values.bond_id}${postfix}`;
+
       try {
         await api.tx.evercity
-          .bondAddNew(values.bond_id, bondStruct)
+          .bondAddNew(bondId, bondStruct)
           .signAndSend(
             currentUserAddress,
             {
@@ -661,7 +665,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -692,7 +696,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -727,7 +731,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -757,7 +761,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -787,7 +791,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -802,7 +806,6 @@ export default () => {
   const bondImpactReportApprove = useCallback(
     async (bondID, period, impactData) => {
       const currentUserAddress = getCurrentUserAddress();
-      console.log(bondID, period, impactData);
 
       try {
         await api.tx.evercity
@@ -823,7 +826,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -851,7 +854,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -879,7 +882,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -907,7 +910,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },

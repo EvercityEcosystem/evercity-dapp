@@ -12,6 +12,8 @@ export const DEFAULT_ADDRESS =
 export const BONDS_PAGE_SIZE = 100;
 export const LIST_VIEW_DEFAULT_MODE = "cards";
 
+export const BOND_TICKER_LIMIT = 16;
+
 export const IMPACT_DATA_TYPES = {
   POWER_GENERATED: {
     title: "Renewable energy generation (MWh)",

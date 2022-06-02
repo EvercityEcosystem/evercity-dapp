@@ -23,7 +23,6 @@ const U64MAX = 18446744073709551615n;
 const MIN_PAYMENT_PERIOD = 1;
 const MIN_BOND_DURATION = 1;
 const DEFAULT_IMPACT_BASELINE = 800;
-const BOND_TICKER_LIMIT = 8;
 
 const DEFAULT_BOND_PARAMS = {
   bond_duration: 4,
@@ -108,7 +107,7 @@ const BondConfig = () => {
     },
     bond_id: {
       label: "Ticker name",
-      suffix: "Short bond ID, 8 characters",
+      suffix: "Short bond ID, up to 16 characters",
       required: true,
       span: 12,
       default: randomTicker,
@@ -118,9 +117,13 @@ const BondConfig = () => {
             if (value?.length > BOND_TICKER_LIMIT) {
               throw new Error(`Must be less than ${BOND_TICKER_LIMIT} symbols`);
             }
-          },
-        },
-      ],
+
+            if (!/^[a-zA-Z0-9]*$/.test(value)) {
+              throw new Error(`Should contain only letters and numbers`);
+            }
+          }
+        }
+      ]
     },
     mincap_deadline: {
       label: "Issuance date",
