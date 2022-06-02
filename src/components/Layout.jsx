@@ -158,12 +158,14 @@ const MainLayout = ({ children }) => {
                 </Link>
               </div>
             )}
-            <MenuView
-              theme="dark"
-              mode="horizontal"
-              className={styles.navigation}
-              nodes={routes.filter(Boolean)}
-            />
+            {!!routes.filter(Boolean).length && (
+              <MenuView
+                theme="dark"
+                mode="horizontal"
+                className={styles.navigation}
+                nodes={routes.filter(Boolean)}
+              />
+            )}
           </div>
         </div>
       </Header>
