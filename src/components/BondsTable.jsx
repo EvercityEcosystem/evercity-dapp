@@ -14,7 +14,7 @@ import {
   currentPeriodName,
 } from "../utils/period";
 
-import TableList from "./TableList";
+import TableList from "../ui/TableList/TableList";
 import BondActions from "./BondActions";
 
 import styles from "./BondsTable.module.less";

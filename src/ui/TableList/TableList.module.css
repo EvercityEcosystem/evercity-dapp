@@ -14,7 +14,7 @@
   border: 0 !important;
 }
 
-.small :global(.ant-table-thead>tr>th) {
+.small :global(.ant-table-thead > tr > th) {
   /* background-color: #fafafa !important; */
   padding: 8px !important;
   background-color: white;

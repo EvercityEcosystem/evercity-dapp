@@ -20,7 +20,7 @@ import usePolkadot from "../hooks/usePolkadot";
 import useXState from "../hooks/useXState";
 
 import { store } from "./PolkadotProvider";
-import TableList from "./TableList";
+import TableList from "../ui/TableList/TableList";
 import BondUnitsSellForm from "./BondUnitsSellForm";
 
 import styles from "./BondReport.module.less";

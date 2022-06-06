@@ -26,7 +26,7 @@ import ProtectedRouter from "./components/ProtectedRouter";
 import RoleRouter from "./components/RoleRouter";
 import Assets from "./pages/Assets/Assets";
 import AssetsTable from "./pages/Assets/AssetsTable";
-import CreateProject from "./pages/CreateProject";
+import CreateProject from "./pages/Assets/CreateProject";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
