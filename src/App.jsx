@@ -24,6 +24,9 @@ import { connect, getInjector } from "./utils/polkadot";
 import usePolkadot from "./hooks/usePolkadot";
 import ProtectedRouter from "./components/ProtectedRouter";
 import RoleRouter from "./components/RoleRouter";
+import Assets from "./pages/Assets/Assets";
+import AssetsTable from "./pages/Assets/AssetsTable";
+import CreateProject from "./pages/CreateProject";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -94,6 +97,24 @@ const App = () => {
               path="investor"
               element={<RoleRouter roles={["investor"]} />}>
               <Route path="tokens/:action" element={<Tokens />} />
+            </Route>
+            <Route path="assets" element={<Assets />}>
+              <Route index element={<AssetsTable />} />
+              <Route path="projects">
+                <Route index element={<CreateProject />} />
+                <Route path=":id">
+                  <Route path="assign" />
+                  <Route path="sign" />
+                  <Route path="reports">
+                    <Route path="create" />
+                    <Route path=":id">
+                      <Route path="assign" />
+                      <Route path="sign" />
+                      <Route path="issue" />
+                    </Route>
+                  </Route>
+                </Route>
+              </Route>
             </Route>
             <Route
               path="custodian"

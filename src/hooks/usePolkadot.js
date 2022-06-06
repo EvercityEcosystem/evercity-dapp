@@ -148,8 +148,7 @@ export default () => {
 
   const accountRegistry = useCallback(
     async address => {
-      const data = await api.query.evercity.accountRegistry(address);
-
+      const data = await api.query.evercityAccounts.accountRegistry(address);
       const { roles: roleMask, identity } = data.toJSON();
       const roles = getAvailableRoles(roleMask);
 
@@ -322,7 +321,11 @@ export default () => {
       const currentUserAddress = getCurrentUserAddress();
 
       try {
-        await api.tx.evercity[action](address, role, identity).signAndSend(
+        await api.tx.evercityAccounts[action](
+          address,
+          role,
+          identity,
+        ).signAndSend(
           currentUserAddress,
           {
             signer: injector.signer,

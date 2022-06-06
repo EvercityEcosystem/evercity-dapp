@@ -1,10 +1,16 @@
 export const SUBSTRATE_ROLES = {
-  1: "master",
-  2: "custodian",
-  4: "issuer",
-  8: "investor",
-  16: "auditor",
-  32: "manager",
+  1: "Master",
+  2: "Custodian",
+  4: "Issuer",
+  8: "Investor",
+  16: "Auditor",
+  32: "Manager",
+  128: "Bond Emitter",
+  256: "Project Owner",
+  512: "Auditor Carbon Credit",
+  1024: "Standard Carbon Credit",
+  2048: "Investor Carbon Credit",
+  4096: "Registry Carbon Credit",
 };
 
 export const getAvailableRoles = mask => {
