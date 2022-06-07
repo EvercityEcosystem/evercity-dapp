@@ -1,0 +1,23 @@
+@import "../../theme";
+
+.link {
+  &--button {
+    color: @white;
+    background-color: @primary-color;
+    border-color: @primary-color;
+    line-height: 1.5715;
+    height: 32px;
+    display: inline-block;
+    border-radius: 2px;
+    padding: 4px 15px;
+    text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
+    box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
+
+    &:hover,
+    &:focus {
+      color: @white;
+      border-color: @primary-color-hover;
+      background-color: @primary-color-hover;
+    }
+  }
+}

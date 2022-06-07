@@ -14,9 +14,9 @@ const useAssets = () => {
     }
     api.query.evercityCarbonCredits.carbonCreditPassportRegistry
       .entries()
-      .then(assets => {
+      .then(async assets => {
         api.query.evercityCarbonCredits.projectById.entries().then(projects => {
-          console.log(projects);
+          console.log(projects[0][1].toJSON());
         });
         dispatch({
           type: "setAssets",
@@ -26,7 +26,7 @@ const useAssets = () => {
   }, [api, dispatch]);
 
   const createFile = useCallback(
-    (filehash, tag = "PDD") => {
+    async (filehash, tag) => {
       if (!api || !injector) {
         return;
       }
@@ -34,7 +34,7 @@ const useAssets = () => {
       const ttag = api.createType("Vec<u8>", tag);
       const tfilehash = api.createType("H256", filehash);
       const fileId = api.createType("Option<FileId>", getRandom16Id());
-      api.tx.evercityFilesign
+      await api.tx.evercityFilesign
         .createNewFile(ttag, tfilehash, fileId)
         .signAndSend(
           currentUserAddress,
@@ -44,14 +44,39 @@ const useAssets = () => {
           },
           transactionCallback(() => {}),
         );
+
+      return fileId;
     },
-    [api],
+    [api, transactionCallback, injector],
+  );
+
+  const createProject = useCallback(
+    async (standard, fileId) => {
+      if (!api) {
+        return;
+      }
+      const tfileId = api.createType("Option<FileId>", fileId);
+      const tstandard = api.createType("Standard", standard);
+      const currentUserAddress = getCurrentUserAddress();
+      api.tx.evercityCarbonCredits
+        .createProject(tstandard, tfileId)
+        .signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback(),
+        );
+    },
+    [api, transactionCallback],
   );
 
   return {
     assets: polkadotState.assets || [],
     fetchAssets,
     createFile,
+    createProject,
   };
 };
 

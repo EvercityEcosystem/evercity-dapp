@@ -5,7 +5,6 @@ const getHash = data => blake2AsHex(data);
 
 const useHashFiles = ({ maxCount }) => {
   const _ref = useRef(null);
-  const [hashs, setHashs] = useState([]);
   const [files, setFiles] = useState([]);
 
   const ref = useCallback(input => {
@@ -13,14 +12,16 @@ const useHashFiles = ({ maxCount }) => {
       const isMaxFilex = maxCount > files.length;
       input.addEventListener("change", () => {
         const inputFiles = _ref.current.files;
-        setFiles(oldFiles => [...(isMaxFilex ? [] : oldFiles), ...inputFiles]);
         for (let i = 0; i < inputFiles.length; i++) {
           const file = inputFiles.item(i);
           const fileReader = new FileReader();
           fileReader.readAsText(file);
           fileReader.addEventListener("loadend", async () => {
             const hash = await getHash(fileReader.result);
-            setHashs(hashs => [...(isMaxFilex ? [] : hashs), hash]);
+            setFiles(oldFiles => [
+              ...(isMaxFilex ? [] : oldFiles),
+              { file, hash },
+            ]);
           });
         }
       });
@@ -31,7 +32,6 @@ const useHashFiles = ({ maxCount }) => {
 
   return {
     ref,
-    hashs,
     files,
   };
 };

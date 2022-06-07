@@ -1,9 +1,15 @@
 .upload {
-  border: 1px dashed rgb(180, 178, 178);
   width: 100%;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
+
+  &--empty {
+    border: 1px dashed rgb(180, 178, 178);
+    display: flex;
+    justify-content: center;
+  }
+
+  &--notEmpty {
+  }
 
   &__input {
     visibility: hidden;

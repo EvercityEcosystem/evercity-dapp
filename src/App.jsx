@@ -25,8 +25,9 @@ import usePolkadot from "./hooks/usePolkadot";
 import ProtectedRouter from "./components/ProtectedRouter";
 import RoleRouter from "./components/RoleRouter";
 import Assets from "./pages/Assets/Assets";
-import AssetsTable from "./pages/Assets/AssetsTable";
-import CreateProject from "./pages/Assets/CreateProject";
+import AssetsTable from "./pages/AssetsTable/AssetsTable";
+import CreateProject from "./pages/CreateProject/CreateProject";
+import SignProject from "./pages/SignProject/SignProject";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -103,8 +104,7 @@ const App = () => {
               <Route path="projects">
                 <Route index element={<CreateProject />} />
                 <Route path=":id">
-                  <Route path="assign" />
-                  <Route path="sign" />
+                  <Route path="sign" element={<SignProject />} />
                   <Route path="reports">
                     <Route path="create" />
                     <Route path=":id">
