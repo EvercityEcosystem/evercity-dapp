@@ -16,15 +16,15 @@ export const SUBSTRATE_ROLES = {
 export const getAvailableRoles = mask => {
   const masks = Object.keys(SUBSTRATE_ROLES).map(key => parseInt(key, 10));
 
-  if (SUBSTRATE_ROLES[mask]) {
-    return [SUBSTRATE_ROLES[mask]];
+  if (Object.keys(SUBSTRATE_ROLES).includes(mask)) {
+    return mask;
   }
 
   const roles = [];
   let maskValue = mask;
   masks.reverse().forEach(m => {
     if (m <= maskValue) {
-      roles.push(SUBSTRATE_ROLES[m]);
+      roles.push(m);
       maskValue -= m;
     }
   });

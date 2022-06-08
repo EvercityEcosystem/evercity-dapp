@@ -33,6 +33,11 @@ const reducer = (state, action) => {
         ...state,
         assets: action?.payload,
       };
+    case "setProject":
+      return {
+        ...state,
+        project: action?.payload,
+      };
     default:
       throw new Error("Action not found");
   }

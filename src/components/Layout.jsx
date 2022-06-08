@@ -14,15 +14,15 @@ import logoUrl from "/logos/logo-header.svg";
 const { Sider, Header, Content, Footer } = Layout;
 
 const getRoutesByRole = role => {
-  switch (role) {
-    case "master":
+  switch (Number(role)) {
+    case 1:
       return [
         {
           path: "/dapp/master/roles",
           title: "Roles",
         },
       ];
-    case "issuer":
+    case 4:
       return [
         {
           title: "Wallet",
@@ -46,7 +46,7 @@ const getRoutesByRole = role => {
         //   title: 'Impact',
         // },
       ];
-    case "investor":
+    case 8:
       return [
         {
           title: "Wallet",
@@ -62,7 +62,7 @@ const getRoutesByRole = role => {
           ],
         },
       ];
-    case "custodian":
+    case 2:
       return [
         {
           path: "/dapp/custodian/requests",
@@ -84,6 +84,35 @@ const getRoutesByRole = role => {
         {
           path: "/dapp/custodian/reporting",
           title: "Reporting",
+        },
+      ];
+
+    case 256:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/project_owner/assets",
+              title: "My Assets",
+            },
+            {
+              path: "/dapp/auditor_cc/assets/sign",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+    case 512:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/auditor_cc/assets/sign",
+              title: "Sign",
+            },
+          ],
         },
       ];
     default:
@@ -116,10 +145,6 @@ const MainLayout = ({ children }) => {
     {
       path: "/",
       title: "Home",
-    },
-    {
-      path: "dapp/assets",
-      title: "Assets",
     },
     ...getRoutesByRole(role),
   ];

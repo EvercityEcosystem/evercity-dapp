@@ -14,13 +14,14 @@ const useAssets = () => {
     }
     api.query.evercityCarbonCredits.carbonCreditPassportRegistry
       .entries()
-      .then(async assets => {
-        api.query.evercityCarbonCredits.projectById.entries().then(projects => {
-          console.log(projects[0][1].toJSON());
-        });
+      .then(async () => {
+        const projects = await api.query.evercityCarbonCredits.projectById
+          .entries()
+          .then(projects => projects.map(([, value]) => value.toJSON()));
+        console.log(projects);
         dispatch({
           type: "setAssets",
-          payload: assets,
+          payload: projects,
         });
       });
   }, [api, dispatch]);
@@ -72,11 +73,72 @@ const useAssets = () => {
     [api, transactionCallback],
   );
 
+  const assignRoleInProject = useCallback(
+    async ({ projectId, signer, role }) => {
+      if (!api) {
+        return;
+      }
+      const currentUserAddress = getCurrentUserAddress();
+      const tsigner = api.createType("AccountId", signer);
+      await api.tx.evercityCarbonCredits
+        .assignProjectSigner(tsigner, role, projectId)
+        .signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback(() => {
+            fetchProject(projectId);
+          }),
+        );
+    },
+    [api],
+  );
+
+  const fetchProject = useCallback(
+    projectId => {
+      if (!api) {
+        return;
+      }
+
+      api.query.evercityCarbonCredits.projectById(projectId).then(project => {
+        dispatch({
+          payload: project.toJSON(),
+          type: "setProject",
+        });
+      });
+    },
+    [api],
+  );
+
+  const signProject = useCallback(
+    projectId => {
+      if (!api) {
+        return;
+      }
+      const currentUserAddress = getCurrentUserAddress();
+
+      api.tx.evercityCarbonCredits.signProject(projectId).signAndSend(
+        currentUserAddress,
+        {
+          signer: injector.signer,
+          nonce: -1,
+        },
+        transactionCallback(() => {}),
+      );
+    },
+    [api, transactionCallback],
+  );
   return {
+    project: polkadotState.project,
     assets: polkadotState.assets || [],
     fetchAssets,
     createFile,
     createProject,
+    assignRoleInProject,
+    fetchProject,
+    signProject,
   };
 };
 

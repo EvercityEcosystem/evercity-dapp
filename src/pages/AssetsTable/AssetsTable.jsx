@@ -7,31 +7,35 @@ import { Link } from "@ui";
 const columns = [
   {
     title: "Project ID",
+    dataIndex: "id",
   },
   {
     title: "ID",
   },
   {
     title: "Status",
+    dataIndex: "status",
   },
   {
-    title: "Owner",
-  },
-  {
-    title: "Report ID",
+    title: "Actions",
   },
 ];
 
 const AssetsTable = () => {
   const { assets } = useOutletContext();
+
+  const expandedRowRender = () => {
+    return <div>11</div>;
+  };
   return (
     <div className={styles.container}>
       <TableList
+        expandable={{ expandedRowRender }}
         columns={columns}
         dataSource={assets}
         className={styles.container__table}
       />
-      <Link to="/dapp/assets/projects" type="button">
+      <Link to="/dapp/project_owner/assets/create" type="button">
         Create a new project
       </Link>
     </div>

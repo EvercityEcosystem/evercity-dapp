@@ -16,7 +16,7 @@ export const forgetCurrentUser = () => {
 
 export const getCurrentUser = () => ({
   address: localStorage.getItem("userAddress"),
-  role: localStorage.getItem("userRole"),
+  role: Number(localStorage.getItem("userRole")),
 });
 
 export const getViewParams = () => ({

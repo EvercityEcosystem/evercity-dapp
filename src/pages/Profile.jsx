@@ -6,6 +6,7 @@ import { getCurrentUser } from "../utils/storage";
 import usePolkadot from "../hooks/usePolkadot";
 
 import styles from "./Profile.module.less";
+import { SUBSTRATE_ROLES } from "../utils/roles";
 
 const Roles = () => {
   const { address, role } = getCurrentUser();
@@ -38,7 +39,11 @@ const Roles = () => {
             }}
           />
         </div>
-        <Statistic className={styles.statistic} title="Role" value={role} />
+        <Statistic
+          className={styles.statistic}
+          title="Role"
+          value={SUBSTRATE_ROLES[role]}
+        />
         <Statistic
           className={styles.statistic}
           suffix="$"

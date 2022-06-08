@@ -5,7 +5,7 @@ import ErrorFound from "./ErrorFound";
 
 const RoleRouter = ({ roles, children }) => {
   const { role } = getCurrentUser();
-  return roles.includes(role.toLowerCase()) ? (
+  return roles.includes(role) ? (
     children || <Outlet />
   ) : (
     <ErrorFound status={403} />
