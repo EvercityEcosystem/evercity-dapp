@@ -5,22 +5,43 @@ import { getCurrentUser } from "../../utils/storage";
 import { Button } from "antd";
 
 const SignAssets = () => {
-  const { assets, fetchAssets, signProject } = useAssets();
+  const { assets, fetchAssets, signProject, signLastReport } = useAssets();
   const { role, address } = getCurrentUser();
 
-  const onSign = id => {
-    signProject(id);
+  const onSign = record => {
+    console.log(record);
+    if (record.typeSignature === "Project") {
+      signProject(record.id);
+    }
+    if (record.typeSignature === "Report") {
+      signLastReport(record.projectId);
+    }
   };
 
   const dataSource = useMemo(
     () =>
       assets.reduce((accum, asset) => {
-        const foundDemands = asset.required_signers.filter(
+        const foundDemandsInProject = asset.required_signers.filter(
           signer => signer[0] === address && signer[1] === role,
         );
-        if (foundDemands.length > 0) {
-          accum.push(asset);
+        if (foundDemandsInProject.length > 0) {
+          accum.push({ ...asset, typeSignature: "Project" });
         }
+
+        asset.annual_reports.forEach(report => {
+          const foundDemandsInReport = report.required_signers?.filter(
+            signer => signer[0] === address && signer[1] === role,
+          );
+
+          if (foundDemandsInReport.length > 0) {
+            accum.push({
+              ...report,
+              typeSignature: "Report",
+              projectId: asset.id,
+            });
+          }
+        });
+
         return accum;
       }, []),
     [role, address, assets],
@@ -29,11 +50,11 @@ const SignAssets = () => {
   const columns = [
     {
       title: "Type",
+      dataIndex: "typeSignature",
     },
     {
       title: "Action",
-      dataIndex: "id",
-      render: id => <Button onClick={() => onSign(id)}>Sign</Button>,
+      render: record => <Button onClick={() => onSign(record)}>Sign</Button>,
     },
   ];
   useEffect(() => {

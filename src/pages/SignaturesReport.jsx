@@ -5,15 +5,15 @@ import {
   FileProtectOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import Signatures from "../components/Signature/Signatures";
 import { useOutletContext, useParams } from "react-router-dom";
-import useAssets from "../../hooks/useAssets";
-import Signatures from "../../components/Signature/Signatures";
+import useAssets from "../hooks/useAssets";
 
-const SignaturesProject = () => {
+const SignaturesReport = () => {
+  const { report } = useOutletContext();
   const params = useParams();
-  const { project } = useOutletContext();
-  const { assignRoleInProject } = useAssets();
-
+  console.log(report);
+  const { assignLastReportSigner } = useAssets();
   const signatures = useMemo(() => {
     const requirements = [
       {
@@ -35,10 +35,10 @@ const SignaturesProject = () => {
     ];
 
     return requirements;
-  }, [project]);
+  }, []);
 
   const handleAssign = async (address, role) => {
-    await assignRoleInProject({
+    await assignLastReportSigner({
       projectId: params.projectId,
       signer: address,
       role,
@@ -47,11 +47,12 @@ const SignaturesProject = () => {
 
   return (
     <Signatures
+      title="Report signers"
       list={signatures}
+      requiredSigners={report.required_signers}
       handleAssign={handleAssign}
-      requiredSigners={project.required_signers}
     />
   );
 };
 
-export default SignaturesProject;
+export default SignaturesReport;

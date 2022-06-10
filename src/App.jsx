@@ -29,6 +29,12 @@ import AssetsTable from "./pages/AssetsTable/AssetsTable";
 import CreateProject from "./pages/CreateProject/CreateProject";
 import SignaturesProject from "./pages/SignaturesProject/SignaturesProject";
 import SignAssets from "./pages/SignAssets/SignAssets";
+import ReportsProject from "./pages/ReportsProject/ReportsProject";
+import CreateReport from "./pages/CreateReport/CreateReport";
+import Project from "./pages/Project";
+import SignaturesReport from "./pages/SignaturesReport";
+import Report from "./pages/Report";
+import ReleaseCC from "./pages/ReleaseCC/ReleaseCC";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -108,12 +114,25 @@ const App = () => {
                 <Route path="sign" element={<SignAssets />} />
               </Route>
             </Route>
+            <Route path="standard_cc">
+              <Route path="assets" element={<Assets />}>
+                <Route path="sign" element={<SignAssets />} />
+              </Route>
+            </Route>
             <Route path="project_owner" element={<RoleRouter roles={[256]} />}>
               <Route path="assets" element={<Assets />}>
                 <Route index element={<AssetsTable />} />
                 <Route path="create" element={<CreateProject />} />
-                <Route path=":projectId">
+                <Route path=":projectId" element={<Project />}>
                   <Route path="signatures" element={<SignaturesProject />} />
+                  <Route path="reports">
+                    <Route index element={<ReportsProject />} />
+                    <Route path=":reportId" element={<Report />}>
+                      <Route path="signatures" element={<SignaturesReport />} />
+                      <Route path="release" element={<ReleaseCC />} />
+                    </Route>
+                    <Route path="create" element={<CreateReport />} />
+                  </Route>
                 </Route>
                 <Route path="sign" element={<SignAssets />} />
               </Route>

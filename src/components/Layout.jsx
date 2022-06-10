@@ -14,7 +14,7 @@ import logoUrl from "/logos/logo-header.svg";
 const { Sider, Header, Content, Footer } = Layout;
 
 const getRoutesByRole = role => {
-  switch (Number(role)) {
+  switch (role) {
     case 1:
       return [
         {
@@ -110,6 +110,32 @@ const getRoutesByRole = role => {
           children: [
             {
               path: "/dapp/auditor_cc/assets/sign",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+
+    case 1024:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/standard_cc/assets/sign",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+
+    case 4096:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/registry_cc/assets/sign",
               title: "Sign",
             },
           ],
