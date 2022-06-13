@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "../../ui";
 import { useOutletContext } from "react-router-dom";
 import { Tag, Timeline } from "antd";
@@ -34,6 +34,12 @@ const reportStates = {
 
 const ReportsProject = () => {
   const { project } = useOutletContext();
+  const isAvailableCreate = useMemo(
+    () =>
+      project?.annual_reports?.[project?.annual_reports?.length - 1]?.state ===
+        32 || project?.annual_reports.length === 0,
+    [project],
+  );
   return (
     <div>
       <Timeline mode="alternate" className={styles.reports}>
@@ -49,8 +55,7 @@ const ReportsProject = () => {
             </p>
           </Timeline.Item>
         ))}
-        {project?.annual_reports?.[project?.annual_reports?.length - 1]
-          ?.state === 32 && (
+        {isAvailableCreate && (
           <Timeline.Item dot={<PlusCircleOutlined />}>
             <Link to="create">New Report</Link>
           </Timeline.Item>
