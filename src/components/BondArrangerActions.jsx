@@ -15,7 +15,7 @@ import stopPropagation from "../utils/bubbling";
 
 import styles from "./BondActions.module.less";
 
-const MasterBondActions = ({ bond, mode }) => {
+const BondArrangerActions = ({ bond, mode }) => {
   const [state, updateState] = useXState({
     visibleCheckModal: false,
   });
@@ -90,13 +90,13 @@ const MasterBondActions = ({ bond, mode }) => {
   );
 };
 
-MasterBondActions.propTypes = {
+BondArrangerActions.propTypes = {
   bond: PropTypes.shape().isRequired,
   mode: PropTypes.string,
 };
 
-MasterBondActions.defaultProps = {
+BondArrangerActions.defaultProps = {
   mode: "column",
 };
 
-export default MasterBondActions;
+export default BondArrangerActions;

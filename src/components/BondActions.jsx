@@ -5,7 +5,7 @@ import cx from "classnames";
 
 import ComponentSwitcher from "./ComponentSwitcher";
 import InvestorBondActions from "./InvestorBondActions";
-import MasterBondActions from "./MasterBondActions";
+import BondArrangerActions from "./BondArrangerActions";
 import IssuerBondActions from "./IssuerBondActions";
 import AuditorBondActions from "./AuditorBondActions";
 
@@ -41,10 +41,10 @@ const BondActions = ({ bond, mode, onClick }) => {
               mode={mode}
               key="InvestorBondActions"
             />,
-            <MasterBondActions
+            <BondArrangerActions
               bond={bond}
               mode={mode}
-              key="MasterBondActions"
+              key="BondArrangerActions"
             />,
             <IssuerBondActions
               bond={bond}
