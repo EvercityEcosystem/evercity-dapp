@@ -15,14 +15,47 @@ const useAssets = () => {
     api.query.evercityCarbonCredits.carbonCreditPassportRegistry
       .entries()
       .then(credits => credits.map(([, value]) => value.toJSON()))
-      .then(async () => {
+      .then(async credits => {
+        const evercityAssets = await api.query.evercityAssets.asset
+          .entries()
+          .then(projects =>
+            projects.map(([key, value]) => {
+              const asset = value.toHuman();
+              return {
+                asset_id: Number(key.toHuman()[0]),
+                ...asset,
+              };
+            }),
+          );
         const projects = await api.query.evercityCarbonCredits.projectById
           .entries()
           .then(projects => projects.map(([, value]) => value.toJSON()));
 
+        const assets = projects.map(project => {
+          const foundCarbonCredits = credits.filter(
+            credit => credit.project_id.carbonProject === project.id,
+          );
+
+          const filledCarbonCredits = foundCarbonCredits.map(
+            ({ annual_report_index, asset_id }) => {
+              const foundEvercityAsset = evercityAssets.find(
+                asset => asset.asset_id === asset_id,
+              );
+              return {
+                asset_id,
+                annual_report_index,
+                supply: foundEvercityAsset.supply,
+              };
+            },
+          );
+          return {
+            ...project,
+            carbon_credits: filledCarbonCredits,
+          };
+        });
         dispatch({
           type: "setAssets",
-          payload: projects,
+          payload: assets,
         });
       });
   }, [api, dispatch]);
@@ -217,12 +250,13 @@ const useAssets = () => {
   );
 
   const releaseCarbonCredits = useCallback(
-    async (projectId, assetId = 1, minBalance = 1) => {
+    async ({ projectId, minBalance }) => {
       if (!api) {
         return;
       }
       const currentUserAddress = getCurrentUserAddress();
-
+      const lastId = await api.query.evercityCarbonCredits.lastID();
+      const assetId = lastId + 1;
       const tassetId = api.createType("AssetId", assetId);
       const tnewCarbonCreditsHolder = api.createType(
         "AccountId",
@@ -248,16 +282,16 @@ const useAssets = () => {
     [api, injector],
   );
 
-  const burnСarbonСredits = useCallback(
-    async (assetId, amount) => {
+  const burnCarbonCredits = useCallback(
+    async ({ assetId, amount }) => {
       if (!api) {
         return;
       }
-      const tasset_id = this.api.createType("AssetId", assetId);
-      const tamount = this.api.createType("Balance", amount);
+      const tasset_id = api.createType("AssetId", assetId);
+      const tamount = api.createType("Balance", amount);
       const currentUserAddress = getCurrentUserAddress();
 
-      await this.api.tx.evercityCarbonCredits
+      await api.tx.evercityCarbonCredits
         .burnCarbonCredits(tasset_id, tamount)
         .signAndSend(
           currentUserAddress,
@@ -268,7 +302,7 @@ const useAssets = () => {
           transactionCallback(() => {}),
         );
     },
-    [api],
+    [api, transactionCallback, injector],
   );
 
   return {
@@ -284,7 +318,7 @@ const useAssets = () => {
     assignLastReportSigner,
     signLastReport,
     releaseCarbonCredits,
-    burnСarbonСredits,
+    burnCarbonCredits,
   };
 };
 

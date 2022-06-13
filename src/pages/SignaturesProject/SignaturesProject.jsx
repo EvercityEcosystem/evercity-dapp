@@ -8,12 +8,12 @@ import {
 import { useOutletContext, useParams } from "react-router-dom";
 import useAssets from "../../hooks/useAssets";
 import Signatures from "../../components/Signature/Signatures";
+import { roleToStateMapping } from "../../utils/roles";
 
 const SignaturesProject = () => {
   const params = useParams();
   const { project } = useOutletContext();
   const { assignRoleInProject } = useAssets();
-
   const signatures = useMemo(() => {
     const requirements = [
       {
@@ -47,9 +47,11 @@ const SignaturesProject = () => {
 
   return (
     <Signatures
+      roleToStateMapping={roleToStateMapping}
+      state={project?.state}
       list={signatures}
       handleAssign={handleAssign}
-      requiredSigners={project.required_signers}
+      requiredSigners={project?.required_signers}
     />
   );
 };

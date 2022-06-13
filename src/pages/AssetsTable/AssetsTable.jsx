@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import TableList from "../../ui/TableList/TableList";
 import { useOutletContext } from "react-router-dom";
 import styles from "./AssetsTable.module.less";
 import { Link } from "@ui";
-import { Button } from "antd";
+import { Button, Form, Modal } from "antd";
+import useAssets from "../../hooks/useAssets";
+import Slider from "../../components/Slider";
 
 const PROJECT_STATES = {
   1: "Project owner sign pending",
@@ -41,21 +43,70 @@ const columns = [
 
 const AssetsTable = () => {
   const { assets } = useOutletContext();
+  const { burnCarbonCredits } = useAssets();
+  const [isShowBurnModal, setIsShowBurnModal] = useState(false);
+  const toggleShowModal = () => {
+    setIsShowBurnModal(!isShowBurnModal);
+  };
+  const [form] = Form.useForm();
+  const handleBurn = () => {
+    const { amount, assetId } = form.getFieldValue();
+    burnCarbonCredits({
+      assetId,
+      amount,
+    }).then(() => {
+      toggleShowModal();
+    });
+  };
+
+  const onBurn = assetId => {
+    form.setFieldsValue({ assetId });
+    toggleShowModal();
+  };
+
   const expandedRowRender = record => {
     const columns = [
       {
-        title: "Name",
-      },
-      {
-        title: "ID",
+        title: "Asset ID",
         dataIndex: "asset_id",
       },
       {
+        title: "Name",
+        dataIndex: "annual_report_index",
+        render: annual_report_index =>
+          record.annual_reports[annual_report_index - 1].carbon_credits_meta
+            .name,
+      },
+      {
+        title: "Symbol",
+        dataIndex: "annual_report_index",
+        render: annual_report_index =>
+          record.annual_reports[annual_report_index - 1].carbon_credits_meta
+            .symbol,
+      },
+      {
         title: "Count",
+        dataIndex: "annual_report_index",
+        render: annual_report_index =>
+          record.annual_reports[annual_report_index - 1].carbon_credits_count,
+      },
+      {
+        title: "Decimals",
+        dataIndex: "annual_report_index",
+        render: annual_report_index =>
+          record.annual_reports[annual_report_index - 1].carbon_credits_meta
+            .decimals,
+      },
+      {
+        title: "Supply",
+        dataIndex: "supply",
       },
       {
         title: "Actions",
-        render: () => <Button>Burn</Button>,
+        dataIndex: "asset_id",
+        render: assetId => (
+          <Button onClick={() => onBurn(assetId)}>Burn</Button>
+        ),
       },
     ];
 
@@ -63,14 +114,28 @@ const AssetsTable = () => {
       <TableList
         pagination={false}
         columns={columns}
-        dataSource={record.annual_reports}
+        dataSource={record.carbon_credits}
       />
     );
   };
   return (
     <div className={styles.container}>
+      <Modal
+        okText="Burn"
+        visible={isShowBurnModal}
+        onCancel={toggleShowModal}
+        onOk={handleBurn}>
+        <Form form={form}>
+          <Form.Item name="amount" label="Amount credits">
+            <Slider />
+          </Form.Item>
+        </Form>
+      </Modal>
       <TableList
-        expandable={{ expandedRowRender }}
+        expandable={{
+          expandedRowRender,
+          rowExpandable: record => record.carbon_credits.length > 0,
+        }}
         columns={columns}
         rowKey="id"
         dataSource={assets}

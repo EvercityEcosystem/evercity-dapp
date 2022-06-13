@@ -7,8 +7,11 @@ import { useParams } from "react-router-dom";
 const ReleaseCC = () => {
   const { releaseCarbonCredits } = useAssets();
   const params = useParams();
-  const handleSubmit = () => {
-    releaseCarbonCredits(params.projectId);
+  const handleSubmit = ({ minBalance }) => {
+    releaseCarbonCredits({
+      projectId: params.projectId,
+      minBalance,
+    });
   };
 
   return (

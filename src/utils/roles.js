@@ -13,6 +13,13 @@ export const SUBSTRATE_ROLES = {
   4096: "Registry Carbon Credit",
 };
 
+export const roleToStateMapping = {
+  256: 1,
+  512: 2,
+  1024: 4,
+  4096: 16,
+};
+
 export const getAvailableRoles = mask => {
   const masks = Object.keys(SUBSTRATE_ROLES).map(key => parseInt(key, 10));
 

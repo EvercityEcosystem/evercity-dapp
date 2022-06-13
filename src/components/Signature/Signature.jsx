@@ -3,8 +3,9 @@ import styles from "./Signature.module.less";
 import { Button, Card, Input, Tooltip } from "antd";
 import { SUBSTRATE_ROLES } from "../../utils/roles";
 import { getCurrentUserAddress } from "../../utils/storage";
+import classnames from "classnames";
 
-const Signature = ({ icon, role, onAssign, signer }) => {
+const Signature = ({ icon, role, onAssign, signer, isSigned = false }) => {
   const [isAssigning, setIsAssigning] = useState(false);
   const [address, setAddress] = useState();
   const currentAccount = getCurrentUserAddress();
@@ -13,7 +14,13 @@ const Signature = ({ icon, role, onAssign, signer }) => {
     if (signer) {
       return (
         <Tooltip title={signer}>
-          <div className={styles.signature__address}>{signer}</div>
+          <div
+            className={classnames(
+              styles.signature__address,
+              isSigned && styles["signature__address--signed"],
+            )}>
+            {signer}
+          </div>
         </Tooltip>
       );
     }

@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "../../ui";
 import { useOutletContext } from "react-router-dom";
-import { Timeline } from "antd";
+import { Tag, Timeline } from "antd";
+import styles from "./ReportsProject.module.less";
+import { PlusCircleOutlined } from "@ant-design/icons";
 
 const reportStates = {
   1: {
@@ -34,21 +36,26 @@ const ReportsProject = () => {
   const { project } = useOutletContext();
   return (
     <div>
-      <Timeline mode="alternate">
+      <Timeline mode="alternate" className={styles.reports}>
         {project?.annual_reports?.map(report => (
           <Timeline.Item
             key={report.create_time}
             color={reportStates[report.state].color}
-            label={reportStates[report.state].name}>
-            <p>{new Date(report.create_time).toDateString()}</p>
-            <Link to={`${report.create_time}/signatures`}>Signatures</Link>
-            <Link to={`${report.create_time}/release`}>Release</Link>
+            label={new Date(report.create_time).toDateString()}>
+            <Tag>{reportStates[report.state].name}</Tag>
+            <p>
+              <Link to={`${report.create_time}/signatures`}>Signatures</Link>
+              <Link to={`${report.create_time}/release`}>Release</Link>
+            </p>
           </Timeline.Item>
         ))}
+        {project?.annual_reports?.[project?.annual_reports?.length - 1]
+          ?.state === 32 && (
+          <Timeline.Item dot={<PlusCircleOutlined />}>
+            <Link to="create">New Report</Link>
+          </Timeline.Item>
+        )}
       </Timeline>
-      <Link to="create" type="button">
-        New Report
-      </Link>
     </div>
   );
 };
