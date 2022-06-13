@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { TableList } from "../ui";
-import Actions from "../components/Actions/Actions";
-import { Button, Form, Modal } from "antd";
-import Slider from "../components/Slider";
-import useAssets from "../hooks/useAssets";
+import { TableList } from "../../ui";
+import Actions from "../../components/Actions/Actions";
+import { Form, Modal } from "antd";
+import Slider from "../../components/Slider";
+import useAssets from "../../hooks/useAssets";
+import Button from "../../ui/Button/Button";
 
 const CarbonCreditsTable = () => {
   const { carbonCredits } = useOutletContext();
@@ -67,12 +68,13 @@ const CarbonCreditsTable = () => {
       dataIndex: "asset_id",
       render: assetId => (
         <Actions>
-          <Button onClick={() => onBurn(assetId)}>Burn</Button>
+          <Button type="action" onClick={() => onBurn(assetId)}>
+            Burn
+          </Button>
         </Actions>
       ),
     },
   ];
-  console.log(carbonCredits);
   return (
     <>
       <TableList dataSource={carbonCredits} columns={columns} />

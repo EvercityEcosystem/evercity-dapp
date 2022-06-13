@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import styles from "./ProjectsTable.module.less";
 import { Link } from "@ui";
 import Actions from "../../components/Actions/Actions";
+import { Tag } from "antd";
 
 const PROJECT_STATES = {
   1: "Project owner sign pending",
@@ -23,7 +24,7 @@ const columns = [
   {
     title: "Status",
     dataIndex: "state",
-    render: state => PROJECT_STATES[state],
+    render: state => <Tag>{PROJECT_STATES[state]}</Tag>,
   },
   {
     title: "Manage",
@@ -45,7 +46,6 @@ const ProjectsTable = () => {
     <>
       <TableList
         columns={columns}
-        size="middle"
         rowKey="id"
         dataSource={assets}
         className={styles.table}

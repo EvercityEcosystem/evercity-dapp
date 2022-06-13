@@ -33,10 +33,10 @@ import CreateReport from "./pages/CreateReport/CreateReport";
 import Project from "./pages/Project";
 import SignaturesReport from "./pages/SignaturesReport";
 import Report from "./pages/Report";
-import CarbonCredits from "./pages/CarbonCredits";
+import CarbonCredits from "./pages/CarbonCredits/CarbonCredits";
 import ProjectsTable from "./pages/ProjectsTable/ProjectsTable";
 import Reports from "./pages/Reports";
-import CarbonCreditsTable from "./pages/CarbonCreditsTable";
+import CarbonCreditsTable from "./pages/CarbonCredits/CarbonCreditsTable";
 import SignReports from "./pages/SignAssets/SignReports";
 import SignProjects from "./pages/SignAssets/SignProjects";
 

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link, TableList } from "../../ui";
 import { useOutletContext } from "react-router-dom";
-import { Button, Form, Tag } from "antd";
+import { Form, Tag } from "antd";
 import Actions from "../../components/Actions/Actions";
 import dayjs from "dayjs";
 import Modal from "antd/es/modal/Modal";
 import Slider from "../../components/Slider";
 import useAssets from "../../hooks/useAssets";
+import Button from "../../ui/Button/Button";
 
 const reportStates = {
   1: {
@@ -49,7 +50,7 @@ const ReportsTable = () => {
   };
 
   const handleSubmit = () => {
-    const { projectId, minBalance } = form.form.getFieldValue();
+    const { projectId, minBalance } = form.getFieldValue();
     releaseCarbonCredits({
       projectId,
       minBalance,
@@ -79,9 +80,12 @@ const ReportsTable = () => {
       render: (createTime, record) => (
         <Actions>
           <Link to={`${createTime}/signatures`} type="action">
-            signatures
+            Signatures
           </Link>
-          <Button onClick={() => onRelease({ projectId: record.project_id })}>
+          <Button
+            type="action"
+            onClick={() => onRelease({ projectId: record.project_id })}
+            disabled={record.carbon_credits_released}>
             Release
           </Button>
         </Actions>
@@ -97,7 +101,7 @@ const ReportsTable = () => {
         onOk={handleSubmit}
         okText="Release">
         <Form form={form}>
-          <Form.Item name="min_balance" label="Min balance">
+          <Form.Item name="minBalance" label="Min balance">
             <Slider />
           </Form.Item>
         </Form>
