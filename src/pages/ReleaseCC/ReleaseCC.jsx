@@ -15,12 +15,23 @@ const ReleaseCC = () => {
   };
 
   return (
-    <Form onFinish={handleSubmit}>
-      <Form.Item name="minBalance">
+    <Form
+      onFinish={handleSubmit}
+      labelCol={{ span: 4 }}
+      wrapperCol={{ span: 14 }}
+      labelAlign="left">
+      <Form.Item name="minBalance" label="Min balance">
         <InputNumber />
       </Form.Item>
-      <Form.Item>
-        <Button htmlType="submit">Release</Button>
+      <Form.Item wrapperCol={{ offset: 15, span: 3 }}>
+        <Button
+          style={{
+            width: "100%",
+          }}
+          htmlType="submit"
+          type="primary">
+          Release
+        </Button>
       </Form.Item>
     </Form>
   );

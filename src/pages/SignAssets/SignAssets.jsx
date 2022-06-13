@@ -9,7 +9,6 @@ const SignAssets = () => {
   const { role, address } = getCurrentUser();
 
   const onSign = record => {
-    console.log(record);
     if (record.typeSignature === "Project") {
       signProject(record.id);
     }
@@ -51,6 +50,17 @@ const SignAssets = () => {
     {
       title: "Type",
       dataIndex: "typeSignature",
+    },
+    {
+      title: "ID",
+      dataIndex: "typeSignature",
+      render: (typeSignature, record) =>
+        typeSignature === "Project" ? record.id : record.projectId,
+    },
+    {
+      title: "Creation date",
+      dataIndex: "create_time",
+      render: date => (date ? new Date(date).toDateString() : "-"),
     },
     {
       title: "Action",
