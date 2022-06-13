@@ -15,7 +15,7 @@ const Signatures = ({
       <Card.Grid key={signature.role}>
         <Signature
           icon={signature.icon}
-          isSigned={state >= roleToStateMapping?.[signature.role]}
+          isSigned={state > roleToStateMapping?.[signature.role]}
           role={signature.role}
           signer={
             requiredSigners?.find(([, role]) => role === signature.role)?.[0]
