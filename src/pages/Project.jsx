@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
-import useAssets from "../hooks/useAssets";
-import { Outlet, useParams } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Outlet, useOutletContext, useParams } from "react-router-dom";
 
 const Project = () => {
-  const { fetchProject, project } = useAssets();
+  const { assets } = useOutletContext();
   const params = useParams();
-  useEffect(() => {
-    fetchProject(params.projectId);
-  }, [fetchProject]);
+  const project = useMemo(
+    () => assets.find(asset => asset.id === Number(params.projectId)),
+    [params, assets],
+  );
   return <Outlet context={{ project }} />;
 };
 

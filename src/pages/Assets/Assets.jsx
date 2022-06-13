@@ -4,6 +4,8 @@ import { Outlet } from "react-router-dom";
 import styles from "./Assets.module.less";
 import { PageHeader } from "@ui";
 import Loader from "../../components/Loader";
+import { NavLink } from "../../ui";
+import SwitchLink from "../../ui/Link/SwitchLink";
 
 const Assets = () => {
   const { fetchAssets, assets } = useAssets();
@@ -14,7 +16,22 @@ const Assets = () => {
 
   return (
     <div className={styles.container}>
-      <PageHeader title={"Carbon Credits"} />
+      <PageHeader
+        title="Asset explorer"
+        extra={
+          <SwitchLink>
+            <NavLink to="projects" type="switch">
+              Projects
+            </NavLink>
+            <NavLink to="reports" type="switch">
+              Reports
+            </NavLink>
+            <NavLink to="carbon_credits" type="switch">
+              Carbon Credits
+            </NavLink>
+          </SwitchLink>
+        }
+      />
       <Loader>
         <Outlet context={{ assets }} />
       </Loader>

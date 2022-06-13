@@ -41,10 +41,15 @@ const useAssets = () => {
               const foundEvercityAsset = evercityAssets.find(
                 asset => asset.asset_id === asset_id,
               );
+
               return {
                 asset_id,
                 annual_report_index,
+                project_id: project.id,
                 supply: foundEvercityAsset.supply,
+                deposit: foundEvercityAsset.deposit,
+                is_frozen: foundEvercityAsset.is_frozen,
+                min_balance: foundEvercityAsset.min_balance,
               };
             },
           );
@@ -167,7 +172,6 @@ const useAssets = () => {
 
   const createReport = useCallback(
     async ({ projectId, hash, tag, count, name, symbol, decimals }) => {
-      console.log({ projectId, hash, tag, count, name, symbol, decimals });
       if (!api) {
         return;
       }
@@ -181,7 +185,7 @@ const useAssets = () => {
       const tassetDecimals = api.createType("u8", decimals);
       const currentUserAddress = getCurrentUserAddress();
       try {
-        await api.tx.evercityCarbonCredits
+        const data = await api.tx.evercityCarbonCredits
           .createAnnualReportWithFile(
             projectId,
             tfileId,
@@ -200,6 +204,8 @@ const useAssets = () => {
             },
             transactionCallback(() => {}),
           );
+
+        console.log(data);
       } catch (e) {
         console.log(e);
       }

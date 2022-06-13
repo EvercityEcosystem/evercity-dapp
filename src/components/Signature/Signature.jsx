@@ -1,27 +1,44 @@
 import React, { useMemo, useState } from "react";
 import styles from "./Signature.module.less";
-import { Button, Card, Input, Tooltip } from "antd";
+import { Button, Card, Input, message, Tooltip } from "antd";
 import { SUBSTRATE_ROLES } from "../../utils/roles";
 import { getCurrentUserAddress } from "../../utils/storage";
 import classnames from "classnames";
+import { CopyOutlined } from "@ant-design/icons";
 
 const Signature = ({ icon, role, onAssign, signer, isSigned = false }) => {
   const [isAssigning, setIsAssigning] = useState(false);
   const [address, setAddress] = useState();
   const currentAccount = getCurrentUserAddress();
+  const handleAssign = () => {
+    onAssign(address, role);
+    setIsAssigning(false);
+  };
 
   const signature = useMemo(() => {
     if (signer) {
       return (
-        <Tooltip title={signer}>
+        <>
           <div
             className={classnames(
-              styles.signature__address,
-              isSigned && styles["signature__address--signed"],
+              styles.signature__status,
+              isSigned && styles["signature__status--signed"],
             )}>
-            {signer}
+            {isSigned ? "Signed" : "Pending"}
           </div>
-        </Tooltip>
+          <div className={styles.signature__info}>
+            <Tooltip placement="bottom" title={signer}>
+              <span className={styles.signature__address}>{signer}</span>
+            </Tooltip>
+            <CopyOutlined
+              className={styles.copyIcon}
+              onClick={() => {
+                navigator.clipboard.writeText(signer);
+                message.success("Address copied!");
+              }}
+            />
+          </div>
+        </>
       );
     }
 
@@ -31,14 +48,7 @@ const Signature = ({ icon, role, onAssign, signer, isSigned = false }) => {
           value={address}
           onInput={e => setAddress(e.target.value)}
           placeholder="Enter address"
-          suffix={
-            <Button
-              onClick={() => {
-                onAssign(address, role);
-              }}>
-              Ok
-            </Button>
-          }
+          suffix={<Button onClick={handleAssign}>Ok</Button>}
         />
       );
     }
@@ -48,7 +58,7 @@ const Signature = ({ icon, role, onAssign, signer, isSigned = false }) => {
         Assign
       </Button>
     );
-  }, [signer, address, isAssigning, currentAccount]);
+  }, [signer, address, isAssigning, currentAccount, role, isSigned]);
 
   return (
     <Card

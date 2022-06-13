@@ -6,7 +6,7 @@ import classnames from "classnames";
 const Link = ({ type, className, ...props }) => {
   return (
     <BaseLink
-      className={classnames(className, styles[`link--${type}`])}
+      className={classnames(className, styles[`link-${type}`])}
       {...props}
     />
   );

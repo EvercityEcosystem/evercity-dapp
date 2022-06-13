@@ -93,7 +93,7 @@ const getRoutesByRole = role => {
           title: "Assets",
           children: [
             {
-              path: "/dapp/project_owner/assets",
+              path: "/dapp/project_owner/assets/projects",
               title: "My Assets",
             },
             {
