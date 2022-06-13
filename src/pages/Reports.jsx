@@ -15,7 +15,7 @@ const Reports = () => {
       }, []),
     [assets],
   );
-  return <Outlet context={{ reports }} />;
+  return <Outlet context={{ reports, assets }} />;
 };
 
 export default Reports;

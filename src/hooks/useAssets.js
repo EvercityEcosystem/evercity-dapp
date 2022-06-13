@@ -171,7 +171,7 @@ const useAssets = () => {
   );
 
   const createReport = useCallback(
-    async ({ projectId, hash, tag, count, name, symbol, decimals }) => {
+    async ({ project_id, hash, tag, count, name, symbol, decimals }) => {
       if (!api) {
         return;
       }
@@ -187,7 +187,7 @@ const useAssets = () => {
       try {
         const data = await api.tx.evercityCarbonCredits
           .createAnnualReportWithFile(
-            projectId,
+            project_id,
             tfileId,
             tfilehash,
             ttag,

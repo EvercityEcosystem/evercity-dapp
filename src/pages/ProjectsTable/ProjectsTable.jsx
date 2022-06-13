@@ -42,18 +42,20 @@ const ProjectsTable = () => {
   const { assets } = useOutletContext();
 
   return (
-    <div className={styles.container}>
+    <>
       <TableList
         columns={columns}
         size="middle"
         rowKey="id"
         dataSource={assets}
-        className={styles.container__table}
+        className={styles.table}
       />
-      <Link to="create" type="button">
-        Create a new project
-      </Link>
-    </div>
+      <div className={styles.container}>
+        <Link to="create" type="button">
+          Create a new project
+        </Link>
+      </div>
+    </>
   );
 };
 

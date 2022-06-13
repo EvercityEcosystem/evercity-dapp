@@ -88,7 +88,6 @@ const ReportsTable = () => {
       ),
     },
   ];
-  console.log(reports);
   return (
     <>
       <Modal
@@ -104,6 +103,9 @@ const ReportsTable = () => {
         </Form>
       </Modal>
       <TableList columns={columns} dataSource={reports} />
+      <Link to="create" type="button">
+        Create a new report
+      </Link>
     </>
   );
 };

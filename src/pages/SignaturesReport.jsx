@@ -6,13 +6,12 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import Signatures from "../components/Signature/Signatures";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import useAssets from "../hooks/useAssets";
 import { roleToStateMapping } from "../utils/roles";
 
 const SignaturesReport = () => {
   const { report } = useOutletContext();
-  const params = useParams();
   const { assignLastReportSigner } = useAssets();
   const signatures = useMemo(() => {
     const requirements = [
@@ -39,12 +38,11 @@ const SignaturesReport = () => {
 
   const handleAssign = async (address, role) => {
     await assignLastReportSigner({
-      projectId: params.projectId,
+      projectId: report.project_id,
       signer: address,
       role,
     });
   };
-
   return (
     <Signatures
       title="Report signers"

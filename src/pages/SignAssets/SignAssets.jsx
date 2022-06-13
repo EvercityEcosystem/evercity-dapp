@@ -1,78 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import useAssets from "../../hooks/useAssets";
-import { TableList } from "../../ui";
-import { Button, Col, Row } from "antd";
-import { useOutletContext } from "react-router-dom";
-
+import SwitchLink from "../../ui/Link/SwitchLink";
+import { NavLink, PageHeader } from "../../ui";
+import Container from "../../ui/Container/Container";
 const SignAssets = () => {
-  const { signProject, signLastReport } = useAssets();
-  const { assets } = useOutletContext();
-  const onSign = record => {
-    if (record.typeSignature === "Project") {
-      signProject(record.id);
-    }
-    if (record.typeSignature === "Report") {
-      signLastReport(record.projectId);
-    }
-  };
-
-  const projectsColumns = [
-    {
-      title: "Type",
-      dataIndex: "typeSignature",
-    },
-    {
-      title: "ID",
-      dataIndex: "typeSignature",
-      render: (typeSignature, record) =>
-        typeSignature === "Project" ? record.id : record.projectId,
-    },
-    {
-      title: "Creation date",
-      dataIndex: "create_time",
-      render: date => (date ? new Date(date).toDateString() : "-"),
-    },
-    {
-      title: "Action",
-      render: record => <Button onClick={() => onSign(record)}>Sign</Button>,
-    },
-  ];
-
-  const reportsColumns = [
-    {
-      title: "Type",
-      dataIndex: "typeSignature",
-    },
-    {
-      title: "ID",
-      dataIndex: "typeSignature",
-      render: (typeSignature, record) =>
-        typeSignature === "Project" ? record.id : record.projectId,
-    },
-    {
-      title: "Creation date",
-      dataIndex: "create_time",
-      render: date => (date ? new Date(date).toDateString() : "-"),
-    },
-    {
-      title: "Action",
-      render: record => <Button onClick={() => onSign(record)}>Sign</Button>,
-    },
-  ];
+  const { assets, fetchAssets } = useAssets();
+  useEffect(() => {
+    fetchAssets();
+  }, [fetchAssets]);
 
   return (
-    <Row>
-      <Col>
-        Projects: <TableList columns={projectsColumns} dataSource={assets} />
-      </Col>
-      <Col>
-        Reports:{" "}
-        <TableList
-          columns={reportsColumns}
-          dataSource={assets.map(asset => asset.annual_reports)}
-        />
-      </Col>
-    </Row>
+    <Container>
+      <PageHeader
+        title="Sign manager"
+        extra={
+          <SwitchLink>
+            <NavLink to="projects" type="switch">
+              Projects
+            </NavLink>
+            <NavLink to="reports" type="switch">
+              Reports
+            </NavLink>
+          </SwitchLink>
+        }
+      />
+      <Outlet context={{ assets }} />
+    </Container>
   );
 };
 

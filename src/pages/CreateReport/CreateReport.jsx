@@ -1,17 +1,24 @@
-import React from "react";
-import { Button, Form, Input } from "antd";
+import React, { useMemo } from "react";
+import { Button, Form, Input, Select } from "antd";
 import FileHasher from "../../components/FileHasher/FileHasher";
 import InputNumber from "../../components/InputNumber";
-import { useParams } from "react-router-dom";
 import useAssets from "../../hooks/useAssets";
+import { useOutletContext } from "react-router-dom";
 
 const CreateReport = () => {
-  const params = useParams();
   const { createReport } = useAssets();
+  const { assets } = useOutletContext();
 
+  const projectIdOptions = useMemo(
+    () =>
+      assets?.map(asset => ({
+        label: asset.id,
+        value: asset.id,
+      })),
+    [assets],
+  );
   const handleSubmit = async ({ hashes, ...values }) => {
     await createReport({
-      projectId: params.projectId,
       hash: hashes[0],
       ...values,
     });
@@ -23,6 +30,9 @@ const CreateReport = () => {
       labelCol={{ span: 4 }}
       wrapperCol={{ span: 14 }}
       labelAlign="left">
+      <Form.Item name="project_id" label="Project">
+        <Select options={projectIdOptions} />
+      </Form.Item>
       <Form.Item name="tag" label="Tag Report">
         <Input />
       </Form.Item>

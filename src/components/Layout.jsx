@@ -97,7 +97,7 @@ const getRoutesByRole = role => {
               title: "My Assets",
             },
             {
-              path: "/dapp/auditor_cc/assets/sign",
+              path: "/dapp/project_owner/sign/projects",
               title: "Sign",
             },
           ],
@@ -109,7 +109,7 @@ const getRoutesByRole = role => {
           title: "Assets",
           children: [
             {
-              path: "/dapp/auditor_cc/assets/sign",
+              path: "/dapp/auditor_cc/sign/projects",
               title: "Sign",
             },
           ],
@@ -122,7 +122,7 @@ const getRoutesByRole = role => {
           title: "Assets",
           children: [
             {
-              path: "/dapp/standard_cc/assets/sign",
+              path: "/dapp/standard_cc/sign/projects",
               title: "Sign",
             },
           ],
@@ -135,7 +135,7 @@ const getRoutesByRole = role => {
           title: "Assets",
           children: [
             {
-              path: "/dapp/registry_cc/assets/sign",
+              path: "/dapp/registry_cc/sign/projects",
               title: "Sign",
             },
           ],

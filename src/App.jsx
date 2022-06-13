@@ -37,6 +37,8 @@ import CarbonCredits from "./pages/CarbonCredits";
 import ProjectsTable from "./pages/ProjectsTable/ProjectsTable";
 import Reports from "./pages/Reports";
 import CarbonCreditsTable from "./pages/CarbonCreditsTable";
+import SignReports from "./pages/SignAssets/SignReports";
+import SignProjects from "./pages/SignAssets/SignProjects";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -107,18 +109,21 @@ const App = () => {
               <Route path="tokens/:action" element={<Tokens />} />
             </Route>
             <Route path="auditor_cc">
-              <Route path="assets" element={<Assets />}>
-                <Route path="sign" element={<SignAssets />} />
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
               </Route>
             </Route>
             <Route path="registry_cc">
-              <Route path="assets" element={<Assets />}>
-                <Route path="sign" element={<SignAssets />} />
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
               </Route>
             </Route>
             <Route path="standard_cc">
-              <Route path="assets" element={<Assets />}>
-                <Route path="sign" element={<SignAssets />} />
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
               </Route>
             </Route>
             <Route path="project_owner" element={<RoleRouter roles={[256]} />}>
@@ -140,7 +145,10 @@ const App = () => {
                 <Route path="carbon_credits" element={<CarbonCredits />}>
                   <Route index element={<CarbonCreditsTable />} />
                 </Route>
-                <Route path="sign" element={<SignAssets />} />
+              </Route>
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
               </Route>
             </Route>
             <Route path="custodian" element={<RoleRouter roles={[2]} />}>
