@@ -11,7 +11,7 @@ export const SUBSTRATE_ROLES = {
   512: "carbon credits auditor",
   1024: "carbon credits standard",
   2048: "carbon credits investor",
-  4096: "carbon credits registry"
+  4096: "carbon credits registry",
 };
 
 export const getAvailableRoles = mask => {

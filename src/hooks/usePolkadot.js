@@ -103,7 +103,9 @@ export default () => {
         value,
       ]) => {
         const id = u8aToString(ticker);
-        const couponYield = await bondCouponYield(`${id.replace('\u0000', '0')}`);
+        const couponYield = await bondCouponYield(
+          `${id.replace("\u0000", "0")}`,
+        );
         const bondData = value.toJSON();
 
         const packageRegistry = await bondUnitPackageRegistry(id);
@@ -325,7 +327,11 @@ export default () => {
 
       const args = [address];
 
-      if (["accountSetWithRoleAndData", "accountAddWithRoleAndData"].includes(action)) {
+      if (
+        ["accountSetWithRoleAndData", "accountAddWithRoleAndData"].includes(
+          action,
+        )
+      ) {
         args.push(role);
       }
 
@@ -655,16 +661,14 @@ export default () => {
       const bondId = formatTicker(values.bond_id);
 
       try {
-        await api.tx.evercity
-          .bondAddNew(bondId, bondStruct)
-          .signAndSend(
-            currentUserAddress,
-            {
-              signer: injector.signer,
-              nonce: -1,
-            },
-            transactionCallback("Bond prepare"),
-          );
+        await api.tx.evercity.bondAddNew(bondId, bondStruct).signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback("Bond prepare"),
+        );
 
         notification.success({
           message: "Bond prepare",

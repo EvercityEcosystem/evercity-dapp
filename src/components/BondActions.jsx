@@ -32,9 +32,12 @@ const BondActions = ({ bond, mode, onClick }) => {
           View bond
         </Button>
         <ComponentSwitcher
-          activeItemIndex={["investor", "master", "issuer", "auditor"].indexOf(
-            role,
-          )}
+          activeItemIndex={[
+            "investor",
+            "bond arranger",
+            "issuer",
+            "auditor",
+          ].indexOf(role)}
           items={[
             <InvestorBondActions
               bond={bond}
