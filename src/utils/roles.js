@@ -5,6 +5,7 @@ export const SUBSTRATE_ROLES = {
   8: "Investor",
   16: "Auditor",
   32: "Manager",
+  64: "Impact Reporter",
   128: "Bond Emitter",
   256: "Project Owner",
   512: "Auditor Carbon Credit",

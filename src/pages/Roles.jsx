@@ -23,6 +23,7 @@ const Roles = () => {
       values: [
         { "Add new account": "accountAddWithRoleAndData" },
         { "Change role for existing account": "accountSetWithRoleAndData" },
+        { "Set account as master": "addMasterRole" },
       ],
     },
     address: {
@@ -33,7 +34,6 @@ const Roles = () => {
     },
     role: {
       label: "Role",
-      required: true,
       display: "select",
       span: 24,
       allowClear: false,

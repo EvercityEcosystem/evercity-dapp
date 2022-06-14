@@ -10,14 +10,15 @@ import { store } from "../components/PolkadotProvider";
 import { getAvailableRoles } from "../utils/roles";
 import { DEFAULT_AUDITOR_ADDRESS, BONDS_PAGE_SIZE } from "../utils/env";
 import { getCurrentUserAddress } from "../utils/storage";
+import { calculateInterestRate } from "../utils/interestRate";
+import { bondCurrentPeriod } from "../utils/period";
+import formatTicker from "../utils/tickerFormatter";
 import {
   fromEverUSD,
   toBondDays,
   toEverUSD,
   toPercent,
 } from "../utils/converters";
-import { calculateInterestRate } from "../utils/interestRate";
-import { bondCurrentPeriod } from "../utils/period";
 
 export default () => {
   const navigate = useNavigate();
@@ -102,7 +103,9 @@ export default () => {
         value,
       ]) => {
         const id = u8aToString(ticker);
-        const couponYield = await bondCouponYield(id);
+        const couponYield = await bondCouponYield(
+          `${id.replace("\u0000", "0")}`,
+        );
         const bondData = value.toJSON();
 
         const packageRegistry = await bondUnitPackageRegistry(id);
@@ -222,7 +225,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -249,7 +252,7 @@ export default () => {
     } catch (error) {
       notification.error({
         message: "Signing/sending transaction process failed",
-        description: error,
+        description: `${error}`,
       });
     }
   }, [api, injector, transactionCallback]);
@@ -282,7 +285,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -309,7 +312,7 @@ export default () => {
     } catch (error) {
       notification.error({
         message: "Signing/sending transaction process failed",
-        description: error,
+        description: `${error}`,
       });
     }
   }, [api, injector, transactionCallback]);
@@ -320,12 +323,22 @@ export default () => {
       const identity = Math.floor(Math.random() * 50);
       const currentUserAddress = getCurrentUserAddress();
 
+      const args = [address];
+
+      if (
+        ["accountSetWithRoleAndData", "accountAddWithRoleAndData"].includes(
+          action,
+        )
+      ) {
+        args.push(role);
+      }
+
+      if (action === "accountAddWithRoleAndData") {
+        args.push(identity);
+      }
+
       try {
-        await api.tx.evercityAccounts[action](
-          address,
-          role,
-          identity,
-        ).signAndSend(
+        await api.tx.evercityAccounts[action](...args).signAndSend(
           currentUserAddress,
           {
             signer: injector.signer,
@@ -341,7 +354,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -401,7 +414,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -433,7 +446,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -479,7 +492,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -515,7 +528,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -560,7 +573,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -601,10 +614,10 @@ export default () => {
   const prepareBond = useCallback(
     async values => {
       const bondStruct = {
-        docs_pack_root_hash_main: [0],
-        docs_pack_root_hash_legal: [0],
-        docs_pack_root_hash_finance: [0],
-        docs_pack_root_hash_tech: [0],
+        docs_pack_root_hash_main: [],
+        docs_pack_root_hash_legal: [],
+        docs_pack_root_hash_finance: [],
+        docs_pack_root_hash_tech: [],
 
         // from 0,001% to 1%
         // eslint-disable-next-line max-len
@@ -643,17 +656,17 @@ export default () => {
 
       const currentUserAddress = getCurrentUserAddress();
 
+      const bondId = formatTicker(values.bond_id);
+
       try {
-        await api.tx.evercity
-          .bondAddNew(values.bond_id, bondStruct)
-          .signAndSend(
-            currentUserAddress,
-            {
-              signer: injector.signer,
-              nonce: -1,
-            },
-            transactionCallback("Bond prepare"),
-          );
+        await api.tx.evercity.bondAddNew(bondId, bondStruct).signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback("Bond prepare"),
+        );
 
         notification.success({
           message: "Bond prepare",
@@ -664,7 +677,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -695,7 +708,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -760,7 +773,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -790,7 +803,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -805,7 +818,6 @@ export default () => {
   const bondImpactReportApprove = useCallback(
     async (bondID, period, impactData) => {
       const currentUserAddress = getCurrentUserAddress();
-      console.log(bondID, period, impactData);
 
       try {
         await api.tx.evercity
@@ -826,7 +838,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -854,7 +866,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -882,7 +894,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
@@ -910,7 +922,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: error,
+          description: `${error}`,
         });
       }
     },
