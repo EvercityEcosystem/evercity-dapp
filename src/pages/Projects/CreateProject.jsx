@@ -44,7 +44,14 @@ const CreateProject = () => {
         ]}>
         <FileHasher maxCount={1} />
       </Form.Item>
-      <Form.Item name="standard" label="Project standard">
+      <Form.Item
+        name="standard"
+        label="Project standard"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <Select options={projectStandardOptions} />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 15, span: 3 }}>

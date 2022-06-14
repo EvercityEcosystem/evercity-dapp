@@ -31,25 +31,74 @@ const CreateReport = () => {
       labelCol={{ span: 4 }}
       wrapperCol={{ span: 14 }}
       labelAlign="left">
-      <Form.Item name="projectId" label="Project">
+      <Form.Item
+        name="projectId"
+        label="Project"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <Select options={projectIdOptions} />
       </Form.Item>
-      <Form.Item name="tag" label="Tag Report">
+      <Form.Item
+        name="tag"
+        label="Tag Report"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <Input />
       </Form.Item>
-      <Form.Item name="hashes" label="Upload Report">
+      <Form.Item
+        name="hashes"
+        label="Upload Report"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <FileHasher maxCount={1} />
       </Form.Item>
-      <Form.Item name="count" label="Count Credits">
+      <Form.Item
+        name="count"
+        label="Count Credits"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <InputNumber />
       </Form.Item>
-      <Form.Item name="name" label="Carbon Credit name">
+      <Form.Item
+        name="name"
+        label="Carbon Credit name"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <Input />
       </Form.Item>
-      <Form.Item name="symbol" label="Tag Carbon Credits">
+      <Form.Item
+        name="symbol"
+        label="Tag Carbon Credits"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <Input />
       </Form.Item>
-      <Form.Item name="decimals" label="Decimals">
+      <Form.Item
+        name="decimals"
+        label="Decimals"
+        rules={[
+          {
+            required: true,
+          },
+        ]}>
         <InputNumber />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 15, span: 3 }}>

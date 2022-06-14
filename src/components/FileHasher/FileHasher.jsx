@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import styles from "./FileHasher.module.less";
 import useHashFiles from "../../hooks/useHashFiles";
@@ -10,10 +10,15 @@ const FileHasher = ({ onChange, disabled, maxCount }) => {
     maxCount,
     disabled,
   });
+  const [isMounted, setIsMounted] = useState(false);
 
   const isEmpty = useMemo(() => maxCount > files.length, [maxCount, files]);
   useEffect(() => {
-    onChange(files.map(file => file.hash));
+    if (isMounted) {
+      onChange(files.map(file => file.hash));
+      setIsMounted(true);
+    }
+    return () => setIsMounted(false);
   }, [files]);
   return (
     <label
