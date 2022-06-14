@@ -5,6 +5,8 @@ import { getCurrentUserAddress } from "../utils/storage";
 import { transactionCallback } from "../utils/notify";
 import { SUBSTRATE_ROLES } from "../utils/roles";
 
+const MIN_BALANCE_CC = 1;
+
 const useAssets = () => {
   const { polkadotState, dispatch } = useContext(store);
   const { api, injector } = polkadotState;
@@ -128,26 +130,12 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Assign role in project"),
+          transactionCallback("Assign role in project", () => {
+            fetchAssets();
+          }),
         );
     },
     [api, injector, transactionCallback],
-  );
-
-  const fetchProject = useCallback(
-    projectId => {
-      if (!api) {
-        return;
-      }
-
-      api.query.evercityCarbonCredits.projectById(projectId).then(project => {
-        dispatch({
-          payload: project.toJSON(),
-          type: "setProject",
-        });
-      });
-    },
-    [api],
   );
 
   const signProject = useCallback(
@@ -163,7 +151,9 @@ const useAssets = () => {
           signer: injector.signer,
           nonce: -1,
         },
-        transactionCallback("Sign project"),
+        transactionCallback("Sign project", () => {
+          fetchAssets();
+        }),
       );
     },
     [api, injector, transactionCallback],
@@ -200,7 +190,9 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Create report"),
+          transactionCallback("Create report", () => {
+            fetchAssets();
+          }),
         );
 
       await api.tx.evercityCarbonCredits
@@ -211,7 +203,9 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Assign project owner"),
+          transactionCallback("Assign project owner", () => {
+            fetchAssets();
+          }),
         );
     },
     [api, transactionCallback, injector],
@@ -233,7 +227,9 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(`Assign ${SUBSTRATE_ROLES[role]}`),
+          transactionCallback(`Assign ${SUBSTRATE_ROLES[role]}`, () => {
+            fetchAssets();
+          }),
         );
     },
     [api, transactionCallback, injector],
@@ -253,14 +249,16 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Sign report"),
+          transactionCallback("Sign report", () => {
+            fetchAssets();
+          }),
         );
     },
     [api, injector, transactionCallback],
   );
 
   const releaseCarbonCredits = useCallback(
-    async ({ projectId, minBalance }) => {
+    async ({ projectId }) => {
       if (!api) {
         return;
       }
@@ -274,7 +272,7 @@ const useAssets = () => {
         "AccountId",
         currentUserAddress,
       );
-      const tminBalance = api.createType("Balance", minBalance);
+      const tminBalance = api.createType("Balance", MIN_BALANCE_CC);
       await api.tx.evercityCarbonCredits
         .releaseCarbonCredits(
           projectId,
@@ -288,7 +286,9 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Release Carbon Credits"),
+          transactionCallback("Release Carbon Credits", () => {
+            fetchAssets();
+          }),
         );
     },
     [api, injector, transactionCallback],
@@ -311,7 +311,9 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback("Burn Carbon Credits"),
+          transactionCallback("Burn Carbon Credits", () => {
+            fetchAssets();
+          }),
         );
     },
     [api, transactionCallback, injector],
@@ -324,7 +326,6 @@ const useAssets = () => {
     createFile,
     createProject,
     assignRoleInProject,
-    fetchProject,
     signProject,
     createReport,
     assignLastReportSigner,

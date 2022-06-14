@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, TableList } from "../../ui";
 import { useOutletContext } from "react-router-dom";
-import { Form, Tag } from "antd";
+import { Popconfirm, Tag } from "antd";
 import Actions from "../../components/Actions/Actions";
 import dayjs from "dayjs";
-import Modal from "antd/es/modal/Modal";
-import Slider from "../../components/Slider";
 import useAssets from "../../hooks/useAssets";
 import Button from "../../ui/Button/Button";
 import styles from "./ReportsTable.module.less";
@@ -40,21 +38,10 @@ const reportStates = {
 const ReportsTable = () => {
   const { reports } = useOutletContext();
   const { releaseCarbonCredits } = useAssets();
-  const [form] = Form.useForm();
-  const [isShowReleaseModal, setIsShowReleaseModal] = useState(false);
-  const toggleShowModal = () => {
-    setIsShowReleaseModal(!isShowReleaseModal);
-  };
-  const onRelease = ({ projectId }) => {
-    form.setFieldsValue({ projectId });
-    toggleShowModal();
-  };
 
-  const handleSubmit = () => {
-    const { projectId, minBalance } = form.getFieldValue();
+  const onRelease = projectId => {
     releaseCarbonCredits({
       projectId,
-      minBalance,
     });
   };
 
@@ -83,30 +70,22 @@ const ReportsTable = () => {
           <Link to={`${createTime}/signatures`} type="action">
             Signatures
           </Link>
-          <Button
-            type="action"
-            onClick={() => onRelease({ projectId: record.project_id })}
-            disabled={record.carbon_credits_released}>
-            Release
-          </Button>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => onRelease(record.project_id)}
+            disabled={record.carbon_credits_released || record.state !== 32}>
+            <Button
+              disabled={record.carbon_credits_released || record.state !== 32}
+              type="action">
+              Release
+            </Button>
+          </Popconfirm>
         </Actions>
       ),
     },
   ];
   return (
     <>
-      <Modal
-        title="Issuance Carbon Credits"
-        visible={isShowReleaseModal}
-        onCancel={toggleShowModal}
-        onOk={handleSubmit}
-        okText="Release">
-        <Form form={form}>
-          <Form.Item name="minBalance" label="Min balance">
-            <Slider />
-          </Form.Item>
-        </Form>
-      </Modal>
       <TableList
         columns={columns}
         dataSource={reports}
