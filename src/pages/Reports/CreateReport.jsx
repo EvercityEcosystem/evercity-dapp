@@ -8,13 +8,14 @@ import { useOutletContext } from "react-router-dom";
 const CreateReport = () => {
   const { createReport } = useAssets();
   const { assets } = useOutletContext();
-
   const projectIdOptions = useMemo(
     () =>
-      assets?.map(asset => ({
-        label: asset.id,
-        value: asset.id,
-      })),
+      assets
+        ?.filter(asset => asset.state === 32)
+        ?.map(asset => ({
+          label: asset.id,
+          value: asset.id,
+        })),
     [assets],
   );
   const handleSubmit = async ({ hashes, ...values }) => {
@@ -30,7 +31,7 @@ const CreateReport = () => {
       labelCol={{ span: 4 }}
       wrapperCol={{ span: 14 }}
       labelAlign="left">
-      <Form.Item name="project_id" label="Project">
+      <Form.Item name="projectId" label="Project">
         <Select options={projectIdOptions} />
       </Form.Item>
       <Form.Item name="tag" label="Tag Report">

@@ -5,10 +5,10 @@ import {
   FileProtectOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import Signatures from "../components/Signature/Signatures";
+import Signatures from "../../components/Signature/Signatures";
 import { useOutletContext } from "react-router-dom";
-import useAssets from "../hooks/useAssets";
-import { roleToStateMapping } from "../utils/roles";
+import useAssets from "../../hooks/useAssets";
+import { roleToStateMapping } from "../../utils/roles";
 
 const SignaturesReport = () => {
   const { report } = useOutletContext();

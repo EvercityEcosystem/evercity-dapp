@@ -3,6 +3,7 @@ import { store } from "../components/PolkadotProvider";
 import { getRandom16Id } from "../utils/id";
 import { getCurrentUserAddress } from "../utils/storage";
 import { transactionCallback } from "../utils/notify";
+import { SUBSTRATE_ROLES } from "../utils/roles";
 
 const useAssets = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -82,7 +83,7 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {}),
+          transactionCallback("Create file"),
         );
 
       return fileId;
@@ -98,7 +99,7 @@ const useAssets = () => {
       const tfileId = api.createType("Option<FileId>", fileId);
       const tstandard = api.createType("Standard", standard);
       const currentUserAddress = getCurrentUserAddress();
-      api.tx.evercityCarbonCredits
+      await api.tx.evercityCarbonCredits
         .createProject(tstandard, tfileId)
         .signAndSend(
           currentUserAddress,
@@ -106,10 +107,10 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(),
+          transactionCallback("Project create"),
         );
     },
-    [api, transactionCallback],
+    [api, injector, transactionCallback],
   );
 
   const assignRoleInProject = useCallback(
@@ -127,12 +128,10 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {
-            fetchProject(projectId);
-          }),
+          transactionCallback("Assign role in project"),
         );
     },
-    [api],
+    [api, injector, transactionCallback],
   );
 
   const fetchProject = useCallback(
@@ -164,14 +163,14 @@ const useAssets = () => {
           signer: injector.signer,
           nonce: -1,
         },
-        transactionCallback(() => {}),
+        transactionCallback("Sign project"),
       );
     },
-    [api, transactionCallback],
+    [api, injector, transactionCallback],
   );
 
   const createReport = useCallback(
-    async ({ project_id, hash, tag, count, name, symbol, decimals }) => {
+    async ({ projectId, hash, tag, count, name, symbol, decimals }) => {
       if (!api) {
         return;
       }
@@ -184,31 +183,36 @@ const useAssets = () => {
       const tassetSymbol = api.createType("Vec<u8>", symbol);
       const tassetDecimals = api.createType("u8", decimals);
       const currentUserAddress = getCurrentUserAddress();
-      try {
-        const data = await api.tx.evercityCarbonCredits
-          .createAnnualReportWithFile(
-            project_id,
-            tfileId,
-            tfilehash,
-            ttag,
-            tcarbonCreditsCount,
-            tassetName,
-            tassetSymbol,
-            tassetDecimals,
-          )
-          .signAndSend(
-            currentUserAddress,
-            {
-              signer: injector.signer,
-              nonce: -1,
-            },
-            transactionCallback(() => {}),
-          );
+      await api.tx.evercityCarbonCredits
+        .createAnnualReportWithFile(
+          projectId,
+          tfileId,
+          tfilehash,
+          ttag,
+          tcarbonCreditsCount,
+          tassetName,
+          tassetSymbol,
+          tassetDecimals,
+        )
+        .signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback("Create report"),
+        );
 
-        console.log(data);
-      } catch (e) {
-        console.log(e);
-      }
+      await api.tx.evercityCarbonCredits
+        .assignLastAnnualReportSigner(currentUserAddress, 256, projectId)
+        .signAndSend(
+          currentUserAddress,
+          {
+            signer: injector.signer,
+            nonce: -1,
+          },
+          transactionCallback("Assign project owner"),
+        );
     },
     [api, transactionCallback, injector],
   );
@@ -229,7 +233,7 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {}),
+          transactionCallback(`Assign ${SUBSTRATE_ROLES[role]}`),
         );
     },
     [api, transactionCallback, injector],
@@ -249,10 +253,10 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {}),
+          transactionCallback("Sign report"),
         );
     },
-    [api],
+    [api, injector, transactionCallback],
   );
 
   const releaseCarbonCredits = useCallback(
@@ -261,8 +265,10 @@ const useAssets = () => {
         return;
       }
       const currentUserAddress = getCurrentUserAddress();
-      const lastId = await api.query.evercityCarbonCredits.lastID();
-      const assetId = lastId + 1;
+      const assets = await api.query.evercityAssets.asset.entries();
+      const lastAssetId =
+        assets.length > 0 ? Number(assets[0][0].toHuman()[0]) : 1;
+      const assetId = lastAssetId + 1;
       const tassetId = api.createType("AssetId", assetId);
       const tnewCarbonCreditsHolder = api.createType(
         "AccountId",
@@ -282,10 +288,10 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {}),
+          transactionCallback("Release Carbon Credits"),
         );
     },
-    [api, injector],
+    [api, injector, transactionCallback],
   );
 
   const burnCarbonCredits = useCallback(
@@ -305,7 +311,7 @@ const useAssets = () => {
             signer: injector.signer,
             nonce: -1,
           },
-          transactionCallback(() => {}),
+          transactionCallback("Burn Carbon Credits"),
         );
     },
     [api, transactionCallback, injector],

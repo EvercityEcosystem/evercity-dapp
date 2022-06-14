@@ -8,6 +8,7 @@ import Modal from "antd/es/modal/Modal";
 import Slider from "../../components/Slider";
 import useAssets from "../../hooks/useAssets";
 import Button from "../../ui/Button/Button";
+import styles from "./ReportsTable.module.less";
 
 const reportStates = {
   1: {
@@ -106,10 +107,16 @@ const ReportsTable = () => {
           </Form.Item>
         </Form>
       </Modal>
-      <TableList columns={columns} dataSource={reports} />
-      <Link to="create" type="button">
-        Create a new report
-      </Link>
+      <TableList
+        columns={columns}
+        dataSource={reports}
+        className={styles.table}
+      />
+      <div className={styles.container}>
+        <Link to="create" type="button">
+          Create a new report
+        </Link>
+      </div>
     </>
   );
 };

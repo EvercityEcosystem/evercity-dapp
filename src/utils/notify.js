@@ -1,7 +1,6 @@
 import { notification } from "antd";
 
 export const transactionCallback =
-  cb =>
   message =>
   ({ status }) => {
     if (status.isInBlock) {
@@ -19,6 +18,5 @@ export const transactionCallback =
         message,
         description: "Block finalized",
       });
-      cb && cb();
     }
   };
