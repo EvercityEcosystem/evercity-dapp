@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { TableList } from "../../ui";
 import { roleToStateMapping } from "../../utils/roles";
-import { Button } from "antd";
 import useAssets from "../../hooks/useAssets";
 import { useOutletContext } from "react-router-dom";
 import { getCurrentUser } from "../../utils/storage";
+import Button from "../../ui/Button/Button";
 
 const SignProjects = () => {
   const { signProject } = useAssets();
@@ -23,7 +23,9 @@ const SignProjects = () => {
       title: "Action",
       dataIndex: "id",
       render: projectId => (
-        <Button onClick={() => onSignProject(projectId)}>Sign</Button>
+        <Button type="action" onClick={() => onSignProject(projectId)}>
+          Sign
+        </Button>
       ),
     },
   ];

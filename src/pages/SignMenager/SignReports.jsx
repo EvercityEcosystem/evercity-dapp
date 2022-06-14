@@ -2,10 +2,10 @@ import React, { useMemo } from "react";
 import { getCurrentUser } from "../../utils/storage";
 import { useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
-import { Button } from "antd";
 import { roleToStateMapping } from "../../utils/roles";
 import { TableList } from "../../ui";
 import useAssets from "../../hooks/useAssets";
+import Button from "../../ui/Button/Button";
 
 const SignReports = () => {
   const { signLastReport } = useAssets();
@@ -29,7 +29,9 @@ const SignReports = () => {
     {
       title: "Action",
       render: record => (
-        <Button onClick={() => onSignReport(record)}>Sign</Button>
+        <Button type="action" onClick={() => onSignReport(record)}>
+          Sign
+        </Button>
       ),
     },
   ];
