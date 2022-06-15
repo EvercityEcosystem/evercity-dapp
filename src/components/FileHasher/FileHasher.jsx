@@ -14,9 +14,11 @@ const FileHasher = ({ onChange, disabled, maxCount }) => {
 
   const isEmpty = useMemo(() => maxCount > files.length, [maxCount, files]);
   useEffect(() => {
+    if (!isMounted) {
+      setIsMounted(true);
+    }
     if (isMounted) {
       onChange(files.map(file => file.hash));
-      setIsMounted(true);
     }
     return () => setIsMounted(false);
   }, [files]);
