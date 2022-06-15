@@ -172,6 +172,10 @@ const MainLayout = ({ children }) => {
       path: "/",
       title: "Home",
     },
+    {
+      path: "/dapp/events",
+      title: "Events",
+    },
     ...getRoutesByRole(role),
   ];
 

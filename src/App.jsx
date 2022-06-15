@@ -39,6 +39,7 @@ import Reports from "./pages/Reports/Reports";
 import CarbonCreditsTable from "./pages/CarbonCredits/CarbonCreditsTable";
 import SignReports from "./pages/SignMenager/SignReports";
 import SignProjects from "./pages/SignMenager/SignProjects";
+import Events from "./pages/Events/Events";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -95,6 +96,7 @@ const App = () => {
         <Routes>
           <Route path="/" index element={<Bonds />} />
           <Route path="login" element={<Login />} />
+          <Route path="dapp/events" element={<Events />} />
           <Route path="dapp" element={<ProtectedRouter />}>
             <Route path="profile" element={<Profile />} />
             <Route path="logout" element={<Logout />} />

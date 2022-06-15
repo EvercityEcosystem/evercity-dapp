@@ -19,7 +19,8 @@ import {
   toEverUSD,
   toPercent,
 } from "../utils/converters";
-
+import pullAllWith from "lodash/pullAllWith";
+import isMatch from "lodash/isMatch";
 export default () => {
   const navigate = useNavigate();
   const { polkadotState, dispatch } = useContext(store);
@@ -929,6 +930,36 @@ export default () => {
     [api, injector, transactionCallback],
   );
 
+  const subscribeOnEvents = useCallback(
+    cb => {
+      if (!api) {
+        return;
+      }
+      const FILTERS = [{ pallet: "system", method: "ExtrinsicSuccess" }];
+      api.query.system.events(async events => {
+        const header = await api.rpc.chain.getHeader(events.createdAtHash);
+        const transformedEvents = events.map(({ event }) => {
+          const types = event.typeDef;
+          const params = {};
+          event.data.forEach((data, index) => {
+            params[types[index].type] = data.toString();
+          });
+          return {
+            params,
+            pallet: event.section,
+            method: event.method,
+            block_hash: header.hash.toHex(),
+            block_number: header.number.unwrap().toNumber(),
+          };
+        });
+        pullAllWith(transformedEvents, FILTERS, isMatch);
+
+        cb(transformedEvents);
+      });
+    },
+    [api],
+  );
+
   return {
     accountRegistry,
     fetchBonds,
@@ -961,5 +992,6 @@ export default () => {
     bondAccrueCouponYield,
     bondWithdrawEverusd,
     redeemBond,
+    subscribeOnEvents,
   };
 };

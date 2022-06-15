@@ -33,10 +33,10 @@ const reducer = (state, action) => {
         ...state,
         assets: action?.payload,
       };
-    case "setProject":
+    case "setEvents":
       return {
         ...state,
-        project: action?.payload,
+        events: action?.payload,
       };
     default:
       throw new Error("Action not found");
