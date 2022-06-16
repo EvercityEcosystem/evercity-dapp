@@ -15,6 +15,7 @@ import { bondCurrentPeriod } from "../utils/period";
 import formatTicker from "../utils/tickerFormatter";
 import {
   fromEverUSD,
+  fromPercent,
   toBondDays,
   toEverUSD,
   toPercent,
@@ -653,6 +654,16 @@ export default () => {
         impact_data_baseline: [...Array(values.bond_duration).keys()].map(
           item => values[`impact_baseline_${item}`],
         ),
+        carbon_metadata: {
+          count: values.carbon_metadata_count,
+          carbon_distribution: {
+            investors: fromPercent(
+              values.carbon_metadata_distribution_investors,
+            ),
+            issuer: fromPercent(values.carbon_metadata_distribution_issuer),
+          },
+          account_investments: null,
+        },
       };
 
       const currentUserAddress = getCurrentUserAddress();

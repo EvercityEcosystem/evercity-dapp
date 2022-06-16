@@ -174,6 +174,9 @@ export default ({
           <InputNumber
             min={value.min}
             max={value.max}
+            onChange={
+              value.onChange && (number => value.onChange(form, number))
+            }
             placeholder={value.placeholder}
             size={value.size || size}
             step={value.step}
