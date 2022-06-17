@@ -654,7 +654,10 @@ export default () => {
         impact_data_baseline: [...Array(values.bond_duration).keys()].map(
           item => values[`impact_baseline_${item}`],
         ),
-        carbon_metadata: {
+      };
+
+      if (values.carbon_metadata_count) {
+        bondStruct.carbon_metadata = {
           count: values.carbon_metadata_count,
           carbon_distribution: {
             investors: fromPercent(
@@ -663,8 +666,8 @@ export default () => {
             issuer: fromPercent(values.carbon_metadata_distribution_issuer),
           },
           account_investments: null,
-        },
-      };
+        };
+      }
 
       const currentUserAddress = getCurrentUserAddress();
 

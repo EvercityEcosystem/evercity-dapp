@@ -530,6 +530,7 @@ const BondConfig = () => {
       disabled: !state.carbon_metadata_count,
       display: "text",
       min: 0,
+      required: !!state.carbon_metadata_count,
       max: 100 - (state.carbon_metadata_distribution_issuer || 0),
       onChange: (form, percentage) => {
         form.setFieldsValue({
@@ -541,6 +542,7 @@ const BondConfig = () => {
       label: "Distribution for issuer, %",
       type: "number",
       display: "text",
+      required: !!state.carbon_metadata_count,
       disabled: !state.carbon_metadata_count,
       max: 100 - (state.carbon_metadata_distribution_investors || 0),
       min: 0,
