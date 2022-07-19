@@ -33,14 +33,14 @@ const SignProjects = () => {
   const requiredProjects = useMemo(
     () =>
       assets.reduce((projects, project) => {
-        const relatedProject = project.required_signers?.filter(
+        const relatedProject = project.requiredSigners?.filter(
           signer =>
             signer[0] === address &&
             signer[1] === role &&
             roleToStateMapping[role] >= project.state,
         );
 
-        if (relatedProject.length > 0) {
+        if (relatedProject?.length > 0) {
           projects.push(project);
         }
         return projects;

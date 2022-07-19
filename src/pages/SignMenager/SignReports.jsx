@@ -38,9 +38,9 @@ const SignReports = () => {
 
   const requiredReports = useMemo(
     () =>
-      assets.reduce((reports, project) => {
-        project.annual_reports.forEach(report => {
-          const relatedReports = report.required_signers?.filter(
+      assets?.reduce((reports, project) => {
+        project.annualReports?.forEach(report => {
+          const relatedReports = report.requiredSigners?.filter(
             signer =>
               signer[0] === address &&
               signer[1] === role &&

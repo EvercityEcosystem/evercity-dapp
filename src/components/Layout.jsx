@@ -239,7 +239,7 @@ const MainLayout = ({ children }) => {
         <Content className={styles.content}>{children}</Content>
       </Layout>
       <Footer style={{ fontWeight: 600, textAlign: "center" }}>
-        © 2022 Evercity PTE LTD
+        © 2022 Evercity UG
       </Footer>
     </Layout>
   );

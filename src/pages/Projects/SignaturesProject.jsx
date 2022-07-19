@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
   AuditOutlined,
   BankOutlined,
@@ -10,33 +10,29 @@ import useAssets from "../../hooks/useAssets";
 import Signatures from "../../components/Signature/Signatures";
 import { roleToStateMapping } from "../../utils/roles";
 
+const requirements = [
+  {
+    role: 256,
+    icon: <UserOutlined />,
+  },
+  {
+    role: 512,
+    icon: <AuditOutlined />,
+  },
+  {
+    role: 1024,
+    icon: <FileProtectOutlined />,
+  },
+  {
+    role: 4096,
+    icon: <BankOutlined />,
+  },
+];
+
 const SignaturesProject = () => {
   const params = useParams();
   const { project } = useOutletContext();
   const { assignRoleInProject } = useAssets();
-  const signatures = useMemo(() => {
-    const requirements = [
-      {
-        role: 256,
-        icon: <UserOutlined />,
-      },
-      {
-        role: 512,
-        icon: <AuditOutlined />,
-      },
-      {
-        role: 1024,
-        icon: <FileProtectOutlined />,
-      },
-      {
-        role: 4096,
-        icon: <BankOutlined />,
-      },
-    ];
-
-    return requirements;
-  }, [project]);
-
   const handleAssign = async (address, role) => {
     await assignRoleInProject({
       projectId: params.projectId,
@@ -49,9 +45,9 @@ const SignaturesProject = () => {
     <Signatures
       roleToStateMapping={roleToStateMapping}
       state={project?.state}
-      list={signatures}
+      list={requirements}
       handleAssign={handleAssign}
-      requiredSigners={project?.required_signers}
+      requiredSigners={project?.requiredSigners}
     />
   );
 };

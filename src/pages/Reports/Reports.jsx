@@ -6,7 +6,7 @@ const Reports = () => {
   const reports = useMemo(
     () =>
       assets.reduce((reports, project) => {
-        const bindedReports = project.annual_reports.map(report => ({
+        const bindedReports = project.annualReports.map(report => ({
           project_id: project.id,
           ...report,
         }));

@@ -7,15 +7,16 @@ const CarbonCredits = () => {
   const carbonCredits = useMemo(
     () =>
       assets.reduce((credits, project) => {
-        const bindedCarbonCredits = project.carbon_credits.map(credit => {
+        const bindedCarbonCredits = project.carbonCredits.map(credit => {
           const foundedReport =
-            project.annual_reports[credit.annual_report_index - 1];
+            project.annualReports[credit.annualReportIndex - 1];
+
           return {
-            project_id: project.id,
-            count: foundedReport.carbon_credits_count,
-            name: foundedReport.carbon_credits_meta.name,
-            symbol: foundedReport.carbon_credits_meta.symbol,
-            decimals: foundedReport.carbon_credits_meta.decimals,
+            projectId: project.id,
+            count: foundedReport.carbonCreditsCount,
+            name: foundedReport.carbonCreditsMeta.name,
+            symbol: foundedReport.carbonCreditsMeta.symbol,
+            decimals: foundedReport.carbonCreditsMeta.decimals,
             ...credit,
           };
         });

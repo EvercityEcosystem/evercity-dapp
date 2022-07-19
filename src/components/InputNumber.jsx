@@ -6,7 +6,10 @@ import { Input } from "antd";
 import useDebounce from "../hooks/useDebounce";
 
 const InputNumber = React.forwardRef(
-  ({ value: defaultValue, onChange, step, ...restProps }, ref) => {
+  (
+    { value: defaultValue, onChange, debounce = true, step, ...restProps },
+    ref,
+  ) => {
     const [state, setState] = useState(defaultValue);
 
     useEffect(() => setState(defaultValue), [defaultValue]);
@@ -22,9 +25,14 @@ const InputNumber = React.forwardRef(
         value={state}
         onChange={e => {
           const value = parseFloat(e.target.value);
-
-          setState(value);
-          debouncedUpdate(value);
+          if (debounce) {
+            setState(isNaN(value) ? null : value);
+            debouncedUpdate(isNaN(value) ? null : value);
+          }
+          if (!debounce) {
+            setState(isNaN(value) ? null : value);
+            onChange(isNaN(value) ? null : value);
+          }
         }}
       />
     );

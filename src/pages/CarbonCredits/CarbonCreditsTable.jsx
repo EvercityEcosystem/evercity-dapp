@@ -3,9 +3,9 @@ import { useOutletContext } from "react-router-dom";
 import { TableList } from "../../ui";
 import Actions from "../../components/Actions/Actions";
 import { Form, Modal } from "antd";
-import Slider from "../../components/Slider";
 import useAssets from "../../hooks/useAssets";
 import Button from "../../ui/Button/Button";
+import InputNumber from "../../components/InputNumber";
 
 const CarbonCreditsTable = () => {
   const { carbonCredits } = useOutletContext();
@@ -16,7 +16,12 @@ const CarbonCreditsTable = () => {
     setIsShowBurnModal(!isShowBurnModal);
   };
   const handleBurn = () => {
-    const { amount, assetId } = form.getFieldValue();
+    form.validateFields().then(() => {
+      form.submit();
+    });
+  };
+
+  const handleSubmit = ({ amount, assetId }) => {
     burnCarbonCredits({
       assetId,
       amount,
@@ -33,11 +38,11 @@ const CarbonCreditsTable = () => {
   const columns = [
     {
       title: "Asset ID",
-      dataIndex: "asset_id",
+      dataIndex: "assetId",
     },
     {
       title: "Project ID",
-      dataIndex: "project_id",
+      dataIndex: "projectId",
     },
     {
       title: "Name",
@@ -65,7 +70,7 @@ const CarbonCreditsTable = () => {
     },
     {
       title: "Action",
-      dataIndex: "asset_id",
+      dataIndex: "assetId",
       render: assetId => (
         <Actions>
           <Button type="action" onClick={() => onBurn(assetId)}>
@@ -84,9 +89,34 @@ const CarbonCreditsTable = () => {
         visible={isShowBurnModal}
         onCancel={toggleShowModal}
         onOk={handleBurn}>
-        <Form form={form}>
-          <Form.Item name="amount" label="Amount credits">
-            <Slider />
+        <Form form={form} onFinish={handleSubmit}>
+          <Form.Item
+            name="amount"
+            label="Amount credits"
+            rules={[
+              { required: true, message: "Amount is required" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    !value ||
+                    value <=
+                      Number(
+                        carbonCredits.find(
+                          cc => cc.assetId === getFieldValue("assetId"),
+                        ).supply,
+                      )
+                  ) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      "Amount must be less than or equal to the supply of the asset",
+                    ),
+                  );
+                },
+              }),
+            ]}>
+            <InputNumber min={1} debounce={false} />
           </Form.Item>
         </Form>
       </Modal>

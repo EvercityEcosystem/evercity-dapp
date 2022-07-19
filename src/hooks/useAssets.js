@@ -4,6 +4,7 @@ import { getRandom16Id } from "../utils/id";
 import { getCurrentUserAddress } from "../utils/storage";
 import { transactionCallback } from "../utils/notify";
 import { SUBSTRATE_ROLES } from "../utils/roles";
+import { useNavigate } from "react-router-dom";
 
 const MIN_BALANCE_CC = 1;
 
@@ -25,7 +26,7 @@ const useAssets = () => {
             projects.map(([key, value]) => {
               const asset = value.toHuman();
               return {
-                asset_id: Number(key.toHuman()[0]),
+                assetId: Number(key.toHuman()[0]),
                 ...asset,
               };
             }),
@@ -36,29 +37,29 @@ const useAssets = () => {
 
         const assets = projects.map(project => {
           const foundCarbonCredits = credits.filter(
-            credit => credit.project_id.carbonProject === project.id,
+            credit => credit.projectId.carbonProject === project.id,
           );
-
           const filledCarbonCredits = foundCarbonCredits.map(
-            ({ annual_report_index, asset_id }) => {
+            ({ annualReportIndex, assetId }) => {
               const foundEvercityAsset = evercityAssets.find(
-                asset => asset.asset_id === asset_id,
+                asset => asset.assetId === assetId,
               );
 
               return {
-                asset_id,
-                annual_report_index,
-                project_id: project.id,
+                assetId,
+                annualReportIndex,
+                projectId: project.id,
                 supply: foundEvercityAsset.supply,
                 deposit: foundEvercityAsset.deposit,
-                is_frozen: foundEvercityAsset.is_frozen,
-                min_balance: foundEvercityAsset.min_balance,
+                isFrozen: foundEvercityAsset.isFrozen,
+                minBalance: foundEvercityAsset.minBalance,
               };
             },
           );
+
           return {
             ...project,
-            carbon_credits: filledCarbonCredits,
+            carbonCredits: filledCarbonCredits,
           };
         });
         dispatch({
@@ -164,6 +165,7 @@ const useAssets = () => {
       if (!api) {
         return;
       }
+      const navigate = useNavigate();
       const reportId = getRandom16Id();
       const tfileId = api.createType("FileId", reportId);
       const tfilehash = api.createType("H256", hash);
@@ -192,6 +194,7 @@ const useAssets = () => {
           },
           transactionCallback("Create report", () => {
             fetchAssets();
+            navigate("/dapp/project_owner/assets/reports");
           }),
         );
 

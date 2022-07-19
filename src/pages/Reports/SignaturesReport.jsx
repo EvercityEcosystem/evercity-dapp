@@ -49,7 +49,7 @@ const SignaturesReport = () => {
       list={signatures}
       roleToStateMapping={roleToStateMapping}
       state={report?.state}
-      requiredSigners={report?.required_signers}
+      requiredSigners={report?.requiredSigners}
       handleAssign={handleAssign}
     />
   );
