@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from "react";
-import { Row, Col, PageHeader, Empty, Radio } from "antd";
+import { Row, Col, Empty, Radio } from "antd";
 
 import useXState from "../hooks/useXState";
 import usePolkadot from "../hooks/usePolkadot";
@@ -14,6 +14,7 @@ import ModalView from "../components/ModalView";
 import { setViewParams, getViewParams } from "../utils/storage";
 
 import styles from "./Bonds.module.less";
+import { PageHeader } from "../ui";
 
 const Bonds = () => {
   const { polkadotState } = useContext(store);
@@ -71,9 +72,7 @@ const Bonds = () => {
         }
       />
       <PageHeader
-        ghost={false}
-        className={styles.pageHeader}
-        title={<span className={styles.pageHeaderTitle}>Bond explorer</span>}
+        title="Bond explorer"
         extra={
           <div className={styles.viewSettings}>
             <Radio.Group

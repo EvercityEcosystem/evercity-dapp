@@ -121,9 +121,9 @@ const BondConfig = () => {
             if (!/^[a-zA-Z0-9]*$/.test(value)) {
               throw new Error(`Should contain only letters and numbers`);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     mincap_deadline: {
       label: "Issuance date",
@@ -513,6 +513,44 @@ const BondConfig = () => {
       max: 100,
       span: 12,
       default: DEFAULT_BOND_PARAMS.interest_rate_start_period_value,
+    },
+    carbon_metadata: {
+      display: "divider",
+      label: "Carbon credits",
+    },
+    carbon_metadata_count: {
+      label: "Count",
+      type: "number",
+      display: "text",
+      min: 0,
+    },
+    carbon_metadata_distribution_investors: {
+      label: "Distribution for investors, %",
+      type: "number",
+      disabled: !state.carbon_metadata_count,
+      display: "text",
+      min: 0,
+      required: !!state.carbon_metadata_count,
+      max: 100 - (state.carbon_metadata_distribution_issuer || 0),
+      onChange: (form, percentage) => {
+        form.setFieldsValue({
+          carbon_metadata_distribution_issuer: 100 - percentage,
+        });
+      },
+    },
+    carbon_metadata_distribution_issuer: {
+      label: "Distribution for issuer, %",
+      type: "number",
+      display: "text",
+      required: !!state.carbon_metadata_count,
+      disabled: !state.carbon_metadata_count,
+      max: 100 - (state.carbon_metadata_distribution_investors || 0),
+      min: 0,
+      onChange: (form, percentage) => {
+        form.setFieldsValue({
+          carbon_metadata_distribution_investors: 100 - percentage,
+        });
+      },
     },
     impact_baseline_divider: {
       display: "divider",

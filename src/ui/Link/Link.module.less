@@ -1,0 +1,60 @@
+@import "../../theme";
+
+.link {
+  &-action,
+  &-button {
+    color: @white;
+    background-color: @primary-color;
+    border-color: @primary-color;
+
+    text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
+    box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
+
+    &:hover,
+    &:focus {
+      color: @white;
+      border-color: @primary-color-hover;
+      background-color: @primary-color-hover;
+    }
+  }
+
+  &-action,
+  &-switch {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &-action {
+    font-size: 14px;
+    padding: 0 7px;
+    border-radius: 2px;
+  }
+
+  &-switch {
+    font-size: 20px;
+    background-color: @white;
+    color: @black;
+    padding: 0 15px;
+    border: 1px solid #d9d9d9;
+
+    &--active {
+      background-color: @primary-color;
+      color: @white;
+
+      &:hover {
+        color: @white;
+        background: @primary-color-hover;
+        border-color: @primary-color-hover;
+      }
+    }
+  }
+
+  &-button {
+    border-radius: 2px;
+    padding: 4px 15px;
+  }
+}
+
+.switch {
+  display: flex;
+}

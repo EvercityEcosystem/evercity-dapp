@@ -20,7 +20,7 @@ import usePolkadot from "../hooks/usePolkadot";
 import useXState from "../hooks/useXState";
 
 import { store } from "./PolkadotProvider";
-import TableList from "./TableList";
+import TableList from "../ui/TableList/TableList";
 import BondUnitsSellForm from "./BondUnitsSellForm";
 
 import styles from "./BondReport.module.less";
@@ -441,6 +441,39 @@ const BondReport = ({ bond }) => {
           </div>
         )}
       </TabPane>
+      {bond.inner.carbon_metadata && (
+        <TabPane tab="Carbon" key="carbon">
+          <Row>
+            <Col span={8}>
+              <Statistic
+                className={styles.bondData}
+                title="Count"
+                value={bond.inner.carbon_metadata.count}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                className={styles.bondData}
+                title="Distribution for investors, %"
+                suffix="%"
+                value={toPercent(
+                  bond.inner.carbon_metadata.carbon_distribution.investors,
+                )}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                className={styles.bondData}
+                title="Distribution for issuer, %"
+                suffix="%"
+                value={toPercent(
+                  bond.inner.carbon_metadata.carbon_distribution.issuer,
+                )}
+              />
+            </Col>
+          </Row>
+        </TabPane>
+      )}
       <TabPane tab="All bids" key="my_bids">
         <TableList
           pagination={false}

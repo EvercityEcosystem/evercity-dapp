@@ -24,6 +24,22 @@ import { connect, getInjector } from "./utils/polkadot";
 import usePolkadot from "./hooks/usePolkadot";
 import ProtectedRouter from "./components/ProtectedRouter";
 import RoleRouter from "./components/RoleRouter";
+import Assets from "./pages/Assets/Assets";
+import CreateProject from "./pages/Projects/CreateProject";
+import SignaturesProject from "./pages/Projects/SignaturesProject";
+import SignAssets from "./pages/SignMenager/SignAssets";
+import ReportsTable from "./pages/Reports/ReportsTable";
+import CreateReport from "./pages/Reports/CreateReport";
+import Project from "./pages/Projects/Project";
+import SignaturesReport from "./pages/Reports/SignaturesReport";
+import Report from "./pages/Reports/Report";
+import CarbonCredits from "./pages/CarbonCredits/CarbonCredits";
+import ProjectsTable from "./pages/Projects/ProjectsTable";
+import Reports from "./pages/Reports/Reports";
+import CarbonCreditsTable from "./pages/CarbonCredits/CarbonCreditsTable";
+import SignReports from "./pages/SignMenager/SignReports";
+import SignProjects from "./pages/SignMenager/SignProjects";
+import Events from "./pages/Events/Events";
 
 const App = () => {
   const { polkadotState, dispatch } = useContext(store);
@@ -80,24 +96,64 @@ const App = () => {
         <Routes>
           <Route path="/" index element={<Bonds />} />
           <Route path="login" element={<Login />} />
+          <Route path="dapp/events" element={<Events />} />
           <Route path="dapp" element={<ProtectedRouter />}>
             <Route path="profile" element={<Profile />} />
             <Route path="logout" element={<Logout />} />
-            <Route path="master" element={<RoleRouter roles={["master"]} />}>
+            <Route path="master" element={<RoleRouter roles={[1]} />}>
               <Route path="roles" element={<Roles />} />
             </Route>
-            <Route path="issuer" element={<RoleRouter roles={["issuer"]} />}>
+            <Route path="issuer" element={<RoleRouter roles={[4]} />}>
               <Route path="tokens/:action" element={<Tokens />} />
               <Route path="bond" element={<BondConfig />} />
             </Route>
-            <Route
-              path="investor"
-              element={<RoleRouter roles={["investor"]} />}>
+            <Route path="investor" element={<RoleRouter roles={[8]} />}>
               <Route path="tokens/:action" element={<Tokens />} />
             </Route>
-            <Route
-              path="custodian"
-              element={<RoleRouter roles={["custodian"]} />}>
+            <Route path="auditor_cc">
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
+              </Route>
+            </Route>
+            <Route path="registry_cc">
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
+              </Route>
+            </Route>
+            <Route path="standard_cc">
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
+              </Route>
+            </Route>
+            <Route path="project_owner" element={<RoleRouter roles={[256]} />}>
+              <Route path="assets" element={<Assets />}>
+                <Route path="projects">
+                  <Route index element={<ProjectsTable />} />
+                  <Route path="create" element={<CreateProject />} />
+                  <Route path=":projectId" element={<Project />}>
+                    <Route path="signatures" element={<SignaturesProject />} />
+                  </Route>
+                </Route>
+                <Route path="reports" element={<Reports />}>
+                  <Route index element={<ReportsTable />} />
+                  <Route path="create" element={<CreateReport />} />
+                  <Route path=":reportId" element={<Report />}>
+                    <Route path="signatures" element={<SignaturesReport />} />
+                  </Route>
+                </Route>
+                <Route path="carbon_credits" element={<CarbonCredits />}>
+                  <Route index element={<CarbonCreditsTable />} />
+                </Route>
+              </Route>
+              <Route path="sign" element={<SignAssets />}>
+                <Route path="projects" element={<SignProjects />} />
+                <Route path="reports" element={<SignReports />} />
+              </Route>
+            </Route>
+            <Route path="custodian" element={<RoleRouter roles={[2]} />}>
               <Route path="requests" element={<CustodianRequests />} />
               <Route path="tokens/:actionType" element={<CustodianTokens />} />
               <Route path="reporting" element={<CustodianReporting />} />

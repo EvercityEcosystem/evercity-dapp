@@ -15,14 +15,14 @@ const { Sider, Header, Content, Footer } = Layout;
 
 const getRoutesByRole = role => {
   switch (role) {
-    case "master":
+    case 1:
       return [
         {
           path: "/dapp/master/roles",
           title: "Roles",
         },
       ];
-    case "issuer":
+    case 4:
       return [
         {
           title: "Wallet",
@@ -46,7 +46,7 @@ const getRoutesByRole = role => {
         //   title: 'Impact',
         // },
       ];
-    case "investor":
+    case 8:
       return [
         {
           title: "Wallet",
@@ -62,7 +62,7 @@ const getRoutesByRole = role => {
           ],
         },
       ];
-    case "custodian":
+    case 2:
       return [
         {
           path: "/dapp/custodian/requests",
@@ -84,6 +84,61 @@ const getRoutesByRole = role => {
         {
           path: "/dapp/custodian/reporting",
           title: "Reporting",
+        },
+      ];
+
+    case 256:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/project_owner/assets/projects",
+              title: "My Assets",
+            },
+            {
+              path: "/dapp/project_owner/sign/projects",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+    case 512:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/auditor_cc/sign/projects",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+
+    case 1024:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/standard_cc/sign/projects",
+              title: "Sign",
+            },
+          ],
+        },
+      ];
+
+    case 4096:
+      return [
+        {
+          title: "Assets",
+          children: [
+            {
+              path: "/dapp/registry_cc/sign/projects",
+              title: "Sign",
+            },
+          ],
         },
       ];
     default:
@@ -116,6 +171,10 @@ const MainLayout = ({ children }) => {
     {
       path: "/",
       title: "Home",
+    },
+    {
+      path: "/dapp/events",
+      title: "Events",
     },
     ...getRoutesByRole(role),
   ];

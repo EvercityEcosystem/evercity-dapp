@@ -15,11 +15,13 @@ import { bondCurrentPeriod } from "../utils/period";
 import formatTicker from "../utils/tickerFormatter";
 import {
   fromEverUSD,
+  fromPercent,
   toBondDays,
   toEverUSD,
   toPercent,
 } from "../utils/converters";
-
+import pullAllWith from "lodash/pullAllWith";
+import isMatch from "lodash/isMatch";
 export default () => {
   const navigate = useNavigate();
   const { polkadotState, dispatch } = useContext(store);
@@ -152,9 +154,7 @@ export default () => {
   const accountRegistry = useCallback(
     async address => {
       const data = await api.query.evercityAccounts.accountRegistry(address);
-
       const { roles: roleMask, identity } = data.toJSON();
-      console.log(roleMask, identity);
       const roles = getAvailableRoles(roleMask);
 
       return { roles, identity };
@@ -656,6 +656,19 @@ export default () => {
         ),
       };
 
+      if (values.carbon_metadata_count) {
+        bondStruct.carbon_metadata = {
+          count: values.carbon_metadata_count,
+          carbon_distribution: {
+            investors: fromPercent(
+              values.carbon_metadata_distribution_investors,
+            ),
+            issuer: fromPercent(values.carbon_metadata_distribution_issuer),
+          },
+          account_investments: null,
+        };
+      }
+
       const currentUserAddress = getCurrentUserAddress();
 
       const bondId = formatTicker(values.bond_id);
@@ -745,7 +758,7 @@ export default () => {
       } catch (error) {
         notification.error({
           message: "Signing/sending transaction process failed",
-          description: `${error}`,
+          description: error,
         });
       }
     },
@@ -931,6 +944,36 @@ export default () => {
     [api, injector, transactionCallback],
   );
 
+  const subscribeOnEvents = useCallback(
+    cb => {
+      if (!api) {
+        return;
+      }
+      const FILTERS = [{ pallet: "system", method: "ExtrinsicSuccess" }];
+      api.query.system.events(async events => {
+        const header = await api.rpc.chain.getHeader(events.createdAtHash);
+        const transformedEvents = events.map(({ event }) => {
+          const types = event.typeDef;
+          const params = {};
+          event.data.forEach((data, index) => {
+            params[types[index].type] = data.toString();
+          });
+          return {
+            params,
+            pallet: event.section,
+            method: event.method,
+            block_hash: header.hash.toHex(),
+            block_number: header.number.unwrap().toNumber(),
+          };
+        });
+        pullAllWith(transformedEvents, FILTERS, isMatch);
+
+        cb(transformedEvents);
+      });
+    },
+    [api],
+  );
+
   return {
     accountRegistry,
     fetchBonds,
@@ -963,5 +1006,6 @@ export default () => {
     bondAccrueCouponYield,
     bondWithdrawEverusd,
     redeemBond,
+    subscribeOnEvents,
   };
 };

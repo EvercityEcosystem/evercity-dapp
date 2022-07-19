@@ -18,19 +18,10 @@
     "deadline": "Compact<Moment>"
   },
   "BondImpactType": {
-    "_enum": [
-      "POWER_GENERATED",
-      "CO2_EMISSIONS_REDUCTION"
-    ]
+    "_enum": ["POWER_GENERATED", "CO2_EMISSIONS_REDUCTION"]
   },
   "BondState": {
-    "_enum": [
-      "PREPARE",
-      "BOOKING",
-      "ACTIVE",
-      "BANKRUPT",
-      "FINISHED"
-    ]
+    "_enum": ["PREPARE", "BOOKING", "ACTIVE", "BANKRUPT", "FINISHED"]
   },
   "Hash": "[u8;32]",
   "BondPeriod": "u32",
@@ -133,18 +124,11 @@
   },
   "RequiredSigner": "(AccountId, RoleMask)",
   "Standard": {
-    "_enum": [
-      "GOLD_STANDARD_BOND",
-      "GOLD_STANDARD"
-    ]
+    "_enum": ["GOLD_STANDARD_BOND", "GOLD_STANDARD"]
   },
   "ProjectStateMask": "u16",
   "ProjectStatus": {
-    "_enum": [
-      "PREPARING",
-      "REGISTRATION",
-      "ISSUANCE"
-    ]
+    "_enum": ["PREPARING", "REGISTRATION", "ISSUANCE"]
   },
   "ProjectId": "u32",
   "ProjectStruct": {
@@ -179,7 +163,7 @@
     "annual_report_index": "u64"
   },
   "CarbonCreditsOrigin": {
-    "_enum":{
+    "_enum": {
       "CarbonProject": "ProjectId",
       "Bond": "[u8; 16]"
     }
@@ -206,7 +190,7 @@
     "accounts": "u32",
     "is_frozen": "bool"
   },
-  "AssetMetadata":{
+  "AssetMetadata": {
     "deposit": "TAssetDepositBalance",
     "name": "Vec<u8>",
     "symbol": "Vec<u8>",

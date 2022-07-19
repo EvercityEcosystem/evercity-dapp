@@ -14,6 +14,7 @@ import { saveCurrentUser } from "../utils/storage";
 import { EXTENSION_URL } from "../utils/env";
 
 import styles from "./Login.module.less";
+import { SUBSTRATE_ROLES } from "../utils/roles";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Login = () => {
       allowClear: false,
       showSearch: true,
       values: accountsState?.roles?.map(role => ({
-        [role]: role,
+        [SUBSTRATE_ROLES[role]]: role,
       })),
     },
   };

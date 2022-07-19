@@ -1,0 +1,40 @@
+@import "../../theme";
+
+.signature {
+  &__icon {
+    text-align: center;
+    font-size: 40px;
+  }
+
+  &__status {
+    background-color: @yellow-color;
+    color: @white;
+    height: 32px;
+    padding: 4px 15px;
+    text-align: center;
+    text-transform: uppercase;
+
+    &--signed {
+      background-color: @green-color;
+    }
+  }
+
+  &__info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__address {
+    width: 70%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__copyIcon {
+    margin-top: 22px;
+    padding: 10px 6px;
+    cursor: pointer;
+  }
+}
