@@ -14,9 +14,6 @@ const CarbonCredits = () => {
           return {
             projectId: project.id,
             count: foundedReport.carbonCreditsCount,
-            name: foundedReport.carbonCreditsMeta.name,
-            symbol: foundedReport.carbonCreditsMeta.symbol,
-            decimals: foundedReport.carbonCreditsMeta.decimals,
             ...credit,
           };
         });

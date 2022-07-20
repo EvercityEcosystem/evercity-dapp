@@ -31,6 +31,17 @@ const useAssets = () => {
               };
             }),
           );
+        const assetsMeta = await api.query.evercityAssets.metadata
+          .entries()
+          .then(meta =>
+            meta.map(([key, value]) => {
+              const assetMeta = value.toHuman();
+              return {
+                assetId: Number(key.toHuman()[0]),
+                ...assetMeta,
+              };
+            }),
+          );
         const projects = await api.query.evercityCarbonCredits.projectById
           .entries()
           .then(projects => projects.map(([, value]) => value.toJSON()));
@@ -45,6 +56,10 @@ const useAssets = () => {
                 asset => asset.assetId === assetId,
               );
 
+              const metaData = assetsMeta.find(
+                meta => meta.assetId === assetId,
+              );
+
               return {
                 assetId,
                 annualReportIndex,
@@ -53,6 +68,9 @@ const useAssets = () => {
                 deposit: foundEvercityAsset.deposit,
                 isFrozen: foundEvercityAsset.isFrozen,
                 minBalance: foundEvercityAsset.minBalance,
+                name: metaData.name,
+                symbol: metaData.symbol,
+                decimals: metaData.decimals,
               };
             },
           );

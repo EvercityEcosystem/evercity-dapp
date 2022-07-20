@@ -27,6 +27,7 @@ const CarbonCreditsTable = () => {
       amount,
     }).then(() => {
       toggleShowModal();
+      form.resetFields();
     });
   };
 
@@ -90,6 +91,7 @@ const CarbonCreditsTable = () => {
         onCancel={toggleShowModal}
         onOk={handleBurn}>
         <Form form={form} onFinish={handleSubmit}>
+          <Form.Item hidden name="assetId" />
           <Form.Item
             name="amount"
             label="Amount credits"

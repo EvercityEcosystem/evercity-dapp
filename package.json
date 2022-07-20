@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "@polkadot/api": "^8.6.2",
-    "@polkadot/extension-dapp": "^0.43.2",
+    "@polkadot/api": "^8.13.1",
+    "@polkadot/extension-dapp": "^0.44.1",
     "antd": "^4.6.3",
     "classnames": "^2.2.6",
     "dayjs": "^1.9.7",
